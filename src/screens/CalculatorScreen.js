@@ -6,6 +6,8 @@ import ProductButton from "../components/ProductButton";
 import ResultBox from "../components/ResultBox";
 import { calculateQuantity } from "../utils/calculations";
 
+import { Picker } from "@react-native-picker/picker";
+
 export default function CalculatorScreen() {
     const [selectedProduct, setSelectedProduct] = useState(products[0]);
     const [amount, setAmount] = useState("");
@@ -31,14 +33,23 @@ export default function CalculatorScreen() {
                         Producto
                     </Text>
 
-                    {products.map((product) => (
-                        <ProductButton
-                            key={product.id}
-                            product={product}
-                            isSelected={selectedProduct.id === product.id}
-                            onPress={() => setSelectedProduct(product)}
-                        />
-                    ))}
+                    <View className="rounded-2xl border border-slate-200 bg-slate-50">
+                        <Picker
+                            selectedValue={selectedProduct.id}
+                            onValueChange={(productId) => {
+                                const product = products.find((item) => item.id === productId);
+                                setSelectedProduct(product);
+                            }}
+                        >
+                            {products.map((product) => (
+                                <Picker.Item
+                                    key={product.id}
+                                    label={`${product.name} - $${product.price} por ${product.unit}`}
+                                    value={product.id}
+                                />
+                            ))}
+                        </Picker>
+                    </View>
 
                     <Text className="mt-5 mb-2 text-base font-semibold text-slate-900">
                         ¿Cuánto dinero pidió el cliente?
