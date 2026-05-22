@@ -14,19 +14,13 @@ export default function ResultBox({
             : `${milliliters.toFixed(0)} ml`;
 
     return (
-        <View className="mt-6 rounded-3xl bg-blue-600 p-6">
-            <Text className="text-lg font-semibold text-blue-100">
-                Debes vender
-            </Text>
-
+        <View className="mt-6 rounded-xl bg-green-50 p-6">
             {numericAmount > 0 ? (
-                <>
-                    <Text className="mt-4 text-center text-5xl font-extrabold text-white">
-                        {formattedResult}
-                    </Text>
-                </>
+                <Text className="mt-4 text-center text-5xl font-extrabold text-green-700">
+                    {formattedResult}
+                </Text>
             ) : (
-                <Text className="mt-3 text-base text-blue-100">
+                <Text className="text-center">
                     Ingresa una cantidad para calcular.
                 </Text>
             )}
