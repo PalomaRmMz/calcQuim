@@ -27,6 +27,7 @@ export default function CalculatorScreen({ navigation, salesList, setSalesList }
 
         const newItem = {
             id: Date.now().toString(),
+            type: "calculo",
             product: selectedProduct.name,
             amount: Number(amount),
             quantity,

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+import AddSaleScreen from "./src/screens/AddSaleScreen";
 import CalculatorScreen from "./src/screens/CalculatorScreen";
 import ListScreen from "./src/screens/ListScreen";
 
@@ -15,6 +16,16 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen name="Agregar venta">
+          {(props) => (
+            <AddSaleScreen
+              {...props}
+              salesList={salesList}
+              setSalesList={setSalesList}
+            />
+          )}
+        </Stack.Screen>
+
         <Stack.Screen name="Cálculo de producto por monto">
           {(props) => (
             <CalculatorScreen
