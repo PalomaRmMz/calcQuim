@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SafeAreaView, View, Text, TextInput, ScrollView } from "react-native";
+import { SafeAreaView, View, Text, TextInput, ScrollView, Pressable } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 import { products } from "../data/Products";
@@ -7,13 +7,28 @@ import ResultBox from "../components/ResultBox";
 import { calculateQuantity } from "../utils/calculations";
 
 export default function CalculatorScreen() {
+    const [salesList, setSalesList] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(products[0]);
     const [amount, setAmount] = useState("");
-
     const { quantity, milliliters } = calculateQuantity(
         amount,
         selectedProduct.price
     );
+
+    function handleAddToList() {
+        if (!amount || Number(amount) <= 0) return;
+
+        const newItem = {
+            id: Date.now().toString(),
+            product: selectedProduct.name,
+            amount: Number(amount),
+            quantity,
+            milliliters,
+        };
+
+        setSalesList([newItem, ...salesList]);
+        setAmount("");
+    }
 
     return (
         <SafeAreaView className="flex-1 bg-slate-100">
@@ -92,6 +107,45 @@ export default function CalculatorScreen() {
                         quantity={quantity}
                         milliliters={milliliters}
                     />
+
+                    <Pressable
+                        onPress={handleAddToList}
+                        className="mt-5 rounded-3xl bg-blue-600 p-5"
+                    >
+                        <Text className="text-center text-xl font-bold text-white">
+                            Agregar a lista
+                        </Text>
+                    </Pressable>
+
+                    <View className="mt-6">
+                        <Text className="mb-3 text-lg font-bold text-slate-900">
+                            Lista de cálculos
+                        </Text>
+
+                        {salesList.length === 0 ? (
+                            <Text className="text-slate-500">
+                                Aún no has agregado cálculos.
+                            </Text>
+                        ) : (
+                            salesList.map((item) => (
+                                <View
+                                    key={item.id}
+                                    className="mb-3 rounded-2xl bg-slate-100 p-4"
+                                >
+                                    <Text className="font-bold text-slate-900">
+                                        {item.product}
+                                    </Text>
+
+                                    <Text className="text-slate-600">
+                                        ${item.amount} →{" "}
+                                        {item.milliliters >= 1000
+                                            ? `${(item.milliliters / 1000).toFixed(2)} litros`
+                                            : `${item.milliliters.toFixed(0)} ml`}
+                                    </Text>
+                                </View>
+                            ))
+                        )}
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>
