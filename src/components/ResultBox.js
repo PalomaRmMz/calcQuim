@@ -10,7 +10,7 @@ export default function ResultBox({ amount, product, quantity, milliliters }) {
             {numericAmount > 0 ? (
                 <>
                     <Text className="mb-1 text-lg text-slate-900">
-                        Debes vender: {quantity.toFixed(2)} {product.unit}
+                        Debes vender: {quantity.toFixed(2)} litro(s){/*{product.unit}*/}
                     </Text>
 
                     {product.unit === "litro" && (
