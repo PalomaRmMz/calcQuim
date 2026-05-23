@@ -144,22 +144,18 @@ export default function ListScreen({
                                 <>
                                     {item.type === "venta_por_monto" ? (
                                         <>
-                                            <Text className="mt-2 text-lg text-slate-600">
-                                                Venta por monto: ${item.amount}
-                                            </Text>
-
                                             <Text className="mt-1 text-2xl font-bold text-blue-600">
                                                 {item.milliliters >= 1000
                                                     ? `${(item.milliliters / 1000).toFixed(2)} litros`
                                                     : `${item.milliliters.toFixed(0)} ml`}
                                             </Text>
+
+                                            <Text className="mt-1 text-lg text-slate-700">
+                                                Total: ${item.amount}
+                                            </Text>
                                         </>
                                     ) : (
                                         <>
-                                            <Text className="mt-2 text-lg text-slate-600">
-                                                Venta por cantidad
-                                            </Text>
-
                                             <Text className="mt-1 text-2xl font-bold text-green-600">
                                                 {item.quantity} {item.unit}
                                             </Text>
