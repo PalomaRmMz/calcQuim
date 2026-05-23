@@ -130,11 +130,6 @@ export default function AddSaleScreen({
                                         label="litros"
                                         value="litros"
                                     />
-
-                                    <Picker.Item
-                                        label="pieza(s)"
-                                        value="pieza(s)"
-                                    />
                                 </Picker>
                             </View>
                         </View>

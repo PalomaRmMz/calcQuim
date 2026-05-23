@@ -15,7 +15,7 @@ export default function ListScreen({
     salesList,
     setSalesList,
 }) {
-    const list = route.params?.salesList || salesList || [];
+    const list = salesList || [];
     const [editingId, setEditingId] = useState(null);
     const [editedQuantity, setEditedQuantity] = useState("");
 
