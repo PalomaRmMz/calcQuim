@@ -21,6 +21,13 @@ export default function ListScreen({
     const list = salesList || [];
     const [editingId, setEditingId] = useState(null);
     const [editedQuantity, setEditedQuantity] = useState("");
+    const totalSales = list.reduce((acc, item) => {
+        if (item.type === "venta_por_monto") {
+            return acc + Number(item.amount || 0);
+        }
+
+        return acc + Number(item.total || 0);
+    }, 0);
 
     function handleDelete(id) {
         Alert.alert(
@@ -79,14 +86,19 @@ export default function ListScreen({
 
     return (
         <SafeAreaView className="flex-1 bg-slate-100">
-
             <ScrollView className="p-5">
 
                 <QuickNav navigation={navigation} active="SalesList" />
 
-                <Text className="mb-5 mt-5 text-3xl font-extrabold text-blue-600">
-                    Lista de ventas
-                </Text>
+                <View className="mb-5 rounded-3xl bg-green-600 p-5">
+                    <Text className="text-lg font-semibold text-green-100">
+                        Total de venta
+                    </Text>
+
+                    <Text className="mt-2 text-5xl font-extrabold text-white text-center">
+                        ${totalSales.toFixed(2)}
+                    </Text>
+                </View>
 
                 {list.length === 0 ? (
                     <Text className="text-slate-500">
