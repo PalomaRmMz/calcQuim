@@ -54,25 +54,38 @@ export default function ListScreen({
 
     function handleStartEdit(item) {
         setEditingId(item.id);
-        setEditedQuantity(item.quantity?.toString() || "");
+
+        if (item.type === "venta_por_monto") {
+            setEditedQuantity(item.amount?.toString() || "");
+        } else {
+            setEditedQuantity(item.quantity?.toString() || "");
+        }
     }
 
     function handleSaveEdit(id) {
         const updatedList = list.map((item) => {
             if (item.id === id) {
-                const newQuantity = Number(editedQuantity);
+                const newValue = Number(editedQuantity);
+
+                if (item.type === "venta_por_monto") {
+                    const newQuantity = newValue / Number(item.price || 1);
+                    return {
+                        ...item,
+                        amount: newValue,
+                        quantity: newQuantity,
+                        milliliters: newQuantity * 1000,
+                    };
+                }
 
                 const quantityInLiters =
                     item.unit === "ml"
-                        ? newQuantity / 1000
-                        : newQuantity;
-
-                const newTotal =
-                    quantityInLiters * Number(item.price || 0);
+                        ? newValue / 1000
+                        : newValue;
+                const newTotal = quantityInLiters * Number(item.price || 0);
 
                 return {
                     ...item,
-                    quantity: newQuantity,
+                    quantity: newValue,
                     total: newTotal,
                 };
             }
@@ -180,8 +193,7 @@ export default function ListScreen({
                                     )}
 
                                     <View className="mt-5 flex-row gap-3">
-
-                                        {item.type === "venta_por_cantidad" && (
+                                        {(item.type === "venta_por_cantidad" || item.type === "venta_por_monto") && (
                                             <Pressable
                                                 onPress={() => handleStartEdit(item)}
                                                 className="flex-1 rounded-2xl bg-slate-900 p-4"
