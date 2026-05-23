@@ -11,6 +11,7 @@ import {
 import { Picker } from "@react-native-picker/picker";
 
 import { products } from "../data/Products";
+import ActionButton from "../components/ActionButton";
 import QuickNav from "../components/QuickNav";
 import ResultBox from "../components/ResultBox";
 import { calculateQuantity } from "../utils/calculations";
@@ -126,14 +127,14 @@ export default function CalculatorScreen({
                         milliliters={milliliters}
                     />
 
-                    <Pressable
-                        onPress={handleAddToList}
-                        className="mt-5 rounded-3xl bg-green-600 p-5"
-                    >
-                        <Text className="text-center text-xl font-bold text-white">
-                            Agregar venta
-                        </Text>
-                    </Pressable>
+                    <View className="mt-6">
+                        <ActionButton
+                            label="Agregar venta"
+                            onPress={handleAddToList}
+                            variant="success"
+                            fullWidth
+                        />
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>

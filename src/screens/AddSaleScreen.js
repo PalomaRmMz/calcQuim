@@ -11,8 +11,8 @@ import {
 } from "react-native";
 
 import { Picker } from "@react-native-picker/picker";
-
 import { products } from "../data/Products";
+import ActionButton from "../components/ActionButton";
 import ResultBox from "../components/ResultBox";
 import QuickNav from "../components/QuickNav";
 
@@ -128,14 +128,14 @@ export default function AddSaleScreen({
                             saleUnit="litro"
                         />
 
-                        <Pressable
-                            onPress={handleAddSale}
-                            className="mt-6 rounded-3xl bg-green-600 p-5"
-                        >
-                            <Text className="text-center text-xl font-bold text-white">
-                                Agregar venta
-                            </Text>
-                        </Pressable>
+                        <View className="mt-6">
+                            <ActionButton
+                                label="Agregar venta"
+                                onPress={handleAddSale}
+                                variant="success"
+                                fullWidth
+                            />
+                        </View>
                     </View>
                 </View>
             </ScrollView>
