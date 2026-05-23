@@ -27,7 +27,7 @@ export default function CalculatorScreen({ navigation, salesList, setSalesList }
 
         const newItem = {
             id: Date.now().toString(),
-            type: "calculo",
+            type: "venta_por_monto",
             product: selectedProduct.name,
             amount: Number(amount),
             quantity,
@@ -127,11 +127,20 @@ export default function CalculatorScreen({ navigation, salesList, setSalesList }
                     </Pressable>
 
                     <Pressable
-                        onPress={() => navigation.navigate("Lista")}
-                        className="mt-3 rounded-3xl bg-white p-5 border border-slate-600"
+                        onPress={() => navigation.navigate("AddSale")}
+                        className="mt-3 rounded-3xl bg-green-600 p-5"
                     >
-                        <Text className="text-center text-xl font-bold">
-                            Ver lista de ventas
+                        <Text className="text-center text-xl font-bold text-white">
+                            Ir a venta por cantidad
+                        </Text>
+                    </Pressable>
+
+                    <Pressable
+                        onPress={() => navigation.navigate("SalesList")}
+                        className="mt-3 rounded-3xl bg-slate-900 p-5"
+                    >
+                        <Text className="text-center text-xl font-bold text-white">
+                            Ver lista
                         </Text>
                     </Pressable>
                 </View>

@@ -47,14 +47,10 @@ export default function ResultBox({
     }
 
     return (
-        <View className="mt-6 rounded-3xl bg-blue-600 p-6">
-            <Text className="text-lg font-semibold text-blue-100">
-                Debes vender
-            </Text>
-
+        <View className="mt-6 rounded-3xl bg-green-100 p-6">
             {numericAmount > 0 ? (
                 <>
-                    <Text className="mt-4 text-center text-5xl font-extrabold text-white">
+                    <Text className="mt-4 text-center text-5xl font-extrabold text-green-700">
                         {formattedLiquidResult}
                     </Text>
 
@@ -63,7 +59,7 @@ export default function ResultBox({
                     </Text>
                 </>
             ) : (
-                <Text className="mt-3 text-base text-blue-100">
+                <Text className="text-base">
                     Ingresa una cantidad para calcular.
                 </Text>
             )}

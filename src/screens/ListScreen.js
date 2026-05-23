@@ -17,7 +17,7 @@ export default function ListScreen({
 }) {
     const list = route.params?.salesList || salesList || [];
     const [editingId, setEditingId] = useState(null);
-    const [editedAmount, setEditedAmount] = useState("");
+    const [editedQuantity, setEditedQuantity] = useState("");
 
     function handleDelete(id) {
         Alert.alert(
@@ -44,27 +44,44 @@ export default function ListScreen({
 
     function handleStartEdit(item) {
         setEditingId(item.id);
-        setEditedAmount(item.amount.toString());
+        setEditedQuantity(item.quantity?.toString() || "");
     }
 
     function handleSaveEdit(id) {
         const updatedList = list.map((item) => {
             if (item.id === id) {
+                const newQuantity = Number(editedQuantity);
+
+                const quantityInLiters =
+                    item.unit === "ml"
+                        ? newQuantity / 1000
+                        : newQuantity;
+
+                const newTotal =
+                    quantityInLiters * Number(item.price || 0);
+
                 return {
                     ...item,
-                    amount: Number(editedAmount),
+                    quantity: newQuantity,
+                    total: newTotal,
                 };
             }
             return item;
         });
+
         setSalesList(updatedList);
         setEditingId(null);
-        setEditedAmount("");
+        setEditedQuantity("");
     }
 
     return (
         <SafeAreaView className="flex-1 bg-slate-100">
+
             <ScrollView className="p-5">
+
+                <Text className="mb-5 mt-5 text-3xl font-extrabold text-blue-600">
+                    Lista de ventas
+                </Text>
 
                 {list.length === 0 ? (
                     <Text className="text-slate-500">
@@ -76,27 +93,26 @@ export default function ListScreen({
                             key={item.id}
                             className="mb-4 rounded-3xl bg-white p-5"
                         >
-
                             <View className="flex-row items-center justify-between">
-                                <Text className="text-xl font-bold text-slate-900">
+                                <Text className="flex-1 text-xl font-bold text-slate-900">
                                     {item.product}
                                 </Text>
 
                                 <View
-                                    className={`rounded-2xl px-3 py-1 ${item.type === "venta"
+                                    className={`rounded-2xl px-3 py-1 ${item.type === "venta_por_cantidad"
                                         ? "bg-green-100"
                                         : "bg-blue-100"
                                         }`}
                                 >
                                     <Text
-                                        className={`font-bold ${item.type === "venta"
+                                        className={`font-bold ${item.type === "venta_por_cantidad"
                                             ? "text-green-700"
                                             : "text-blue-700"
                                             }`}
                                     >
-                                        {item.type === "venta"
-                                            ? "Venta"
-                                            : "Cálculo"}
+                                        {item.type === "venta_por_cantidad"
+                                            ? "Cantidad"
+                                            : "Monto"}
                                     </Text>
                                 </View>
                             </View>
@@ -106,8 +122,8 @@ export default function ListScreen({
                                     <TextInput
                                         className="mt-4 rounded-2xl bg-slate-100 p-4 text-2xl font-bold"
                                         keyboardType="numeric"
-                                        value={editedAmount}
-                                        onChangeText={setEditedAmount}
+                                        value={editedQuantity}
+                                        onChangeText={setEditedQuantity}
                                     />
 
                                     <Pressable
@@ -121,10 +137,10 @@ export default function ListScreen({
                                 </>
                             ) : (
                                 <>
-                                    {item.type === "calculo" ? (
+                                    {item.type === "venta_por_monto" ? (
                                         <>
                                             <Text className="mt-2 text-lg text-slate-600">
-                                                ${item.amount}
+                                                Venta por monto: ${item.amount}
                                             </Text>
 
                                             <Text className="mt-1 text-2xl font-bold text-blue-600">
@@ -136,18 +152,23 @@ export default function ListScreen({
                                     ) : (
                                         <>
                                             <Text className="mt-2 text-lg text-slate-600">
-                                                Venta directa
+                                                Venta por cantidad
                                             </Text>
 
                                             <Text className="mt-1 text-2xl font-bold text-green-600">
-                                                ${item.amount}
+                                                {item.quantity} {item.unit}
+                                            </Text>
+
+                                            <Text className="mt-1 text-lg text-slate-700">
+                                                Total: $
+                                                {Number(item.total || 0).toFixed(2)}
                                             </Text>
                                         </>
                                     )}
 
                                     <View className="mt-5 flex-row gap-3">
 
-                                        {item.type === "venta" && (
+                                        {item.type === "venta_por_cantidad" && (
                                             <Pressable
                                                 onPress={() => handleStartEdit(item)}
                                                 className="flex-1 rounded-2xl bg-slate-900 p-4"
@@ -166,15 +187,12 @@ export default function ListScreen({
                                                 Eliminar
                                             </Text>
                                         </Pressable>
-
                                     </View>
                                 </>
                             )}
-
                         </View>
                     ))
                 )}
-
             </ScrollView>
         </SafeAreaView>
     );
