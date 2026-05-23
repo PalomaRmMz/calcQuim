@@ -10,7 +10,10 @@ import {
     Alert,
 } from "react-native";
 
+import QuickNav from "../components/QuickNav";
+
 export default function ListScreen({
+    navigation,
     route,
     salesList,
     setSalesList,
@@ -78,6 +81,8 @@ export default function ListScreen({
         <SafeAreaView className="flex-1 bg-slate-100">
 
             <ScrollView className="p-5">
+
+                <QuickNav navigation={navigation} active="SalesList" />
 
                 <Text className="mb-5 mt-5 text-3xl font-extrabold text-blue-600">
                     Lista de ventas

@@ -11,10 +11,15 @@ import {
 import { Picker } from "@react-native-picker/picker";
 
 import { products } from "../data/Products";
+import QuickNav from "../components/QuickNav";
 import ResultBox from "../components/ResultBox";
 import { calculateQuantity } from "../utils/calculations";
 
-export default function CalculatorScreen({ navigation, salesList, setSalesList }) {
+export default function CalculatorScreen({
+    navigation,
+    salesList,
+    setSalesList,
+}) {
     const [selectedProduct, setSelectedProduct] = useState(products[0]);
     const [amount, setAmount] = useState("");
     const { quantity, milliliters } = calculateQuantity(
@@ -45,6 +50,8 @@ export default function CalculatorScreen({ navigation, salesList, setSalesList }
     return (
         <SafeAreaView className="flex-1 bg-slate-100">
             <ScrollView className="flex-1" contentContainerClassName="p-5">
+
+                <QuickNav navigation={navigation} active="Calculator" />
 
                 <View className="rounded-3xl bg-white p-5 shadow-md">
                     <Text className="mb-3 text-base font-semibold text-slate-900">
@@ -119,28 +126,10 @@ export default function CalculatorScreen({ navigation, salesList, setSalesList }
 
                     <Pressable
                         onPress={handleAddToList}
-                        className="mt-5 rounded-3xl bg-blue-600 p-5"
+                        className="mt-5 rounded-3xl bg-green-600 p-5"
                     >
                         <Text className="text-center text-xl font-bold text-white">
-                            Agregar a lista
-                        </Text>
-                    </Pressable>
-
-                    <Pressable
-                        onPress={() => navigation.navigate("AddSale")}
-                        className="mt-3 rounded-3xl bg-green-600 p-5"
-                    >
-                        <Text className="text-center text-xl font-bold text-white">
-                            Ir a venta por cantidad
-                        </Text>
-                    </Pressable>
-
-                    <Pressable
-                        onPress={() => navigation.navigate("SalesList")}
-                        className="mt-3 rounded-3xl bg-slate-900 p-5"
-                    >
-                        <Text className="text-center text-xl font-bold text-white">
-                            Ver lista
+                            Agregar venta
                         </Text>
                     </Pressable>
                 </View>
