@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
+import ResultBox from "../components/ResultBox";
+
 import { products } from "../data/Products";
 
 export default function AddSaleScreen({ navigation, salesList, setSalesList }) {
@@ -88,6 +90,13 @@ export default function AddSaleScreen({ navigation, salesList, setSalesList }) {
                         </View>
                     </View>
 
+                    <ResultBox
+                        mode="quantity"
+                        product={selectedProduct}
+                        saleQuantity={quantity}
+                        saleUnit={unit}
+                    />
+
                     <Pressable
                         onPress={handleAddSale}
                         className="mt-6 rounded-3xl bg-blue-600 p-5"
@@ -98,10 +107,10 @@ export default function AddSaleScreen({ navigation, salesList, setSalesList }) {
                     </Pressable>
 
                     <Pressable
-                        onPress={() => navigation.navigate("Lista de venta")}
-                        className="mt-3 rounded-3xl bg-slate-900 p-5"
+                        onPress={() => navigation.navigate("Lista")}
+                        className="mt-3 rounded-3xl bg-white p-5 border border-slate-600"
                     >
-                        <Text className="text-center text-xl font-bold text-white">
+                        <Text className="text-center text-xl font-bold">
                             Ver lista
                         </Text>
                     </Pressable>

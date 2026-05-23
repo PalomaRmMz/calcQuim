@@ -66,10 +66,6 @@ export default function ListScreen({
         <SafeAreaView className="flex-1 bg-slate-100">
             <ScrollView className="p-5">
 
-                <Text className="mb-5 mt-5 text-3xl font-extrabold text-blue-600">
-                    Lista de ventas
-                </Text>
-
                 {list.length === 0 ? (
                     <Text className="text-slate-500">
                         Aún no has agregado productos.

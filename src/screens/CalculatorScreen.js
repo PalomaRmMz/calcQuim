@@ -110,6 +110,7 @@ export default function CalculatorScreen({ navigation, salesList, setSalesList }
                     </View>
 
                     <ResultBox
+                        mode="money"
                         amount={amount}
                         product={selectedProduct}
                         quantity={quantity}
