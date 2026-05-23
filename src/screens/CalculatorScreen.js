@@ -35,6 +35,8 @@ export default function CalculatorScreen({
             type: "venta_por_monto",
             product: selectedProduct.name,
             amount: Number(amount),
+            price: selectedProduct.price,
+            unit: selectedProduct.unit,
             quantity,
             milliliters,
         };
