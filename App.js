@@ -4,6 +4,7 @@ import { useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+import HomeScreen from "./src/screens/HomeScreen";
 import CalculatorScreen from "./src/screens/CalculatorScreen";
 import AddSaleScreen from "./src/screens/AddSaleScreen";
 import ListScreen from "./src/screens/ListScreen";
@@ -15,7 +16,19 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen
+          name="Home"
+          options={{ title: "Inicio" }}
+        >
+          {(props) => (
+            <HomeScreen
+              {...props}
+              salesList={salesList}
+            />
+          )}
+        </Stack.Screen>
+
         <Stack.Screen
           name="Calculator"
           options={{ title: "Venta por monto" }}
