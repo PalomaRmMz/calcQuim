@@ -15,7 +15,8 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.pamrm2089.calcQuim"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -23,6 +24,11 @@
     },
     "plugins": [
       "expo-status-bar"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ee8ac261-98af-464f-bf91-70762c40b41c"
+      }
+    }
   }
 }

@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 import {
     SafeAreaView,
     View,
@@ -9,10 +8,9 @@ import {
     Alert,
     ScrollView,
 } from "react-native";
-
-import { Picker } from "@react-native-picker/picker";
 import { products } from "../data/Products";
 import ActionButton from "../components/ActionButton";
+import ProductSearchInput from "../components/ProductSearchInput";
 import ResultBox from "../components/ResultBox";
 import QuickNav from "../components/QuickNav";
 
@@ -62,26 +60,11 @@ export default function AddSaleScreen({
                             Producto vendido
                         </Text>
 
-                        <View className="rounded-2xl border border-slate-200 bg-slate-50">
-                            <Picker
-                                selectedValue={selectedProduct.id}
-                                onValueChange={(productId) => {
-                                    const product = products.find(
-                                        (item) => item.id === productId
-                                    );
-
-                                    setSelectedProduct(product);
-                                }}
-                            >
-                                {products.map((product) => (
-                                    <Picker.Item
-                                        key={product.id}
-                                        label={product.name}
-                                        value={product.id}
-                                    />
-                                ))}
-                            </Picker>
-                        </View>
+                        <ProductSearchInput
+                            products={products}
+                            selectedProduct={selectedProduct}
+                            onSelectProduct={setSelectedProduct}
+                        />
 
                         <View className="mt-4 flex-row gap-3">
                             <View className="flex-1 rounded-2xl bg-blue-50 p-4">
