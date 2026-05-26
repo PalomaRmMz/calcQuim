@@ -5,7 +5,6 @@ import {
     Text,
     TextInput,
     ScrollView,
-    Pressable,
     Alert,
 } from "react-native";
 import { products } from "../data/Products";
@@ -21,6 +20,7 @@ export default function CalculatorScreen({
     setSalesList,
 }) {
     const amountInputRef = useRef(null);
+    const productSearchRef = useRef(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [amount, setAmount] = useState("");
     const { quantity, milliliters } = calculateQuantity(
@@ -29,6 +29,10 @@ export default function CalculatorScreen({
     );
 
     function handleAddToList() {
+        if (!selectedProduct) {
+            Alert.alert("Producto requerido", "Selecciona un producto primero");
+            return;
+        }
         if (!amount || Number(amount) <= 0) return;
 
         const newItem = {
@@ -41,8 +45,14 @@ export default function CalculatorScreen({
             quantity,
             milliliters,
         };
+
         setSalesList((prevList) => [newItem, ...prevList]);
         setAmount("");
+        setSelectedProduct(null);
+
+        setTimeout(() => {
+            productSearchRef.current?.focus();
+        }, 100);
 
         Alert.alert(
             "Agregado",
@@ -53,7 +63,6 @@ export default function CalculatorScreen({
     return (
         <SafeAreaView className="flex-1 bg-slate-100">
             <ScrollView className="flex-1" contentContainerClassName="p-5">
-
                 <QuickNav navigation={navigation} active="Calculator" />
 
                 <View className="rounded-3xl bg-white p-5 shadow-md">
@@ -62,6 +71,7 @@ export default function CalculatorScreen({
                     </Text>
 
                     <ProductSearchInput
+                        inputRef={productSearchRef}
                         products={products}
                         selectedProduct={selectedProduct}
                         onSelectProduct={setSelectedProduct}
@@ -86,12 +96,11 @@ export default function CalculatorScreen({
                         </View>
                     </View>
 
-                    <Text className="mt-5 text-l font-bold text-slate-900 mb-2">
+                    <Text className="mt-5 mb-2 text-l font-bold text-slate-900">
                         Monto solicitado
                     </Text>
 
-                    <View className="flex-row items-center rounded-3xl border-2 border-slate-600 border-rounded-sm border-blue-600">
-
+                    <View className="flex-row items-center rounded-3xl border-2 border-blue-600">
                         <View className="w-12 items-center justify-center">
                             <Text className="text-xl font-bold text-slate-800">
                                 $
@@ -104,15 +113,13 @@ export default function CalculatorScreen({
                             keyboardType="numeric"
                             value={amount}
                             onChangeText={setAmount}
-                            autoFocus
                         />
-
                     </View>
 
                     <ResultBox
                         mode="money"
                         amount={amount}
-                        product={selectedProduct}
+                        product={selectedProduct || { name: "", price: 0, unit: "litro" }}
                         quantity={quantity}
                         milliliters={milliliters}
                     />

@@ -4,7 +4,6 @@ import {
     View,
     Text,
     TextInput,
-    Pressable,
     Alert,
     ScrollView,
 } from "react-native";
@@ -20,6 +19,7 @@ export default function AddSaleScreen({
     setSalesList,
 }) {
     const quantityInputRef = useRef(null);
+    const productSearchRef = useRef(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [quantity, setQuantity] = useState("");
     const quantityInLiters = Number(quantity || 0);
@@ -30,7 +30,6 @@ export default function AddSaleScreen({
             Alert.alert("Producto requerido", "Selecciona un producto primero");
             return;
         }
-
         if (!quantity || Number(quantity) <= 0) return;
 
         const newItem = {
@@ -46,26 +45,33 @@ export default function AddSaleScreen({
         setSalesList((prevList) => [newItem, ...prevList]);
         setQuantity("");
         setSelectedProduct(null);
-        Alert.alert("Agregado", "Venta agregada correctamente");
+
+        setTimeout(() => {
+            productSearchRef.current?.focus();
+        }, 100);
+
+        Alert.alert(
+            "Agregado",
+            "Venta agregada correctamente"
+        );
     }
 
     return (
         <SafeAreaView className="flex-1 bg-slate-100">
             <ScrollView className="flex-1">
                 <View className="p-5">
-
                     <QuickNav
                         navigation={navigation}
                         active="AddSale"
                     />
 
                     <View className="rounded-3xl bg-white p-5 shadow-md">
-
                         <Text className="mb-3 text-base font-semibold text-slate-900">
                             Producto vendido
                         </Text>
 
                         <ProductSearchInput
+                            inputRef={productSearchRef}
                             products={products}
                             selectedProduct={selectedProduct}
                             onSelectProduct={setSelectedProduct}
@@ -90,7 +96,7 @@ export default function AddSaleScreen({
                             </View>
                         </View>
 
-                        <Text className="mt-5 text-l font-bold text-slate-900 mb-2">
+                        <Text className="mt-5 mb-2 text-l font-bold text-slate-900">
                             Cantidad vendida
                         </Text>
 

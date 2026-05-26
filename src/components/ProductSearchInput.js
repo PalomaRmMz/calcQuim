@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 
 export default function ProductSearchInput({
+    inputRef,
     products,
     selectedProduct,
     onSelectProduct,
@@ -33,6 +34,7 @@ export default function ProductSearchInput({
     return (
         <View>
             <TextInput
+                ref={inputRef}
                 className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-base text-slate-900"
                 placeholder="Escribe el producto..."
                 value={searchText}
