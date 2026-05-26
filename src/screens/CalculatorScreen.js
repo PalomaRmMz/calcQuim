@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
     SafeAreaView,
     View,
@@ -20,11 +20,12 @@ export default function CalculatorScreen({
     salesList,
     setSalesList,
 }) {
-    const [selectedProduct, setSelectedProduct] = useState(products[0]);
+    const amountInputRef = useRef(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const [amount, setAmount] = useState("");
     const { quantity, milliliters } = calculateQuantity(
         amount,
-        selectedProduct.price
+        selectedProduct?.price || 0
     );
 
     function handleAddToList() {
@@ -64,6 +65,7 @@ export default function CalculatorScreen({
                         products={products}
                         selectedProduct={selectedProduct}
                         onSelectProduct={setSelectedProduct}
+                        onProductSelected={() => amountInputRef.current?.focus()}
                     />
 
                     <View className="mt-4 flex-row gap-3">
@@ -71,7 +73,7 @@ export default function CalculatorScreen({
                             <Text className="text-sm text-slate-500">Precio</Text>
 
                             <Text className="mt-1 text-2xl font-bold text-blue-700">
-                                ${selectedProduct.price}
+                                ${selectedProduct?.price || 0}
                             </Text>
                         </View>
 
@@ -79,7 +81,7 @@ export default function CalculatorScreen({
                             <Text className="text-sm text-slate-500">Unidad</Text>
 
                             <Text className="mt-1 text-2xl font-bold text-slate-800">
-                                {selectedProduct.unit}
+                                {selectedProduct?.unit || "-"}
                             </Text>
                         </View>
                     </View>
@@ -97,6 +99,7 @@ export default function CalculatorScreen({
                         </View>
 
                         <TextInput
+                            ref={amountInputRef}
                             className="flex-1 px-2 py-4 text-xl font-bold text-slate-900"
                             keyboardType="numeric"
                             value={amount}

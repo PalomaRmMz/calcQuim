@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, TextInput, Pressable } from "react-native";
 
 export default function ProductSearchInput({
     products,
     selectedProduct,
     onSelectProduct,
+    onProductSelected,
 }) {
     const [searchText, setSearchText] = useState(selectedProduct?.name || "");
     const [showResults, setShowResults] = useState(false);
+
+    useEffect(() => {
+        setSearchText(selectedProduct?.name || "");
+    }, [selectedProduct]);
+
     const filteredProducts = products.filter((product) =>
         product.name.toLowerCase().includes(searchText.toLowerCase())
     );
@@ -16,6 +22,12 @@ export default function ProductSearchInput({
         onSelectProduct(product);
         setSearchText(product.name);
         setShowResults(false);
+
+        if (onProductSelected) {
+            setTimeout(() => {
+                onProductSelected();
+            }, 100);
+        }
     }
 
     return (

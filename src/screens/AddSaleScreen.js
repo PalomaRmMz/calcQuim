@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
     SafeAreaView,
     View,
@@ -19,12 +19,18 @@ export default function AddSaleScreen({
     salesList,
     setSalesList,
 }) {
-    const [selectedProduct, setSelectedProduct] = useState(products[0]);
+    const quantityInputRef = useRef(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const [quantity, setQuantity] = useState("");
     const quantityInLiters = Number(quantity || 0);
-    const total = quantityInLiters * Number(selectedProduct.price || 0);
+    const total = quantityInLiters * Number(selectedProduct?.price || 0);
 
     function handleAddSale() {
+        if (!selectedProduct) {
+            Alert.alert("Producto requerido", "Selecciona un producto primero");
+            return;
+        }
+
         if (!quantity || Number(quantity) <= 0) return;
 
         const newItem = {
@@ -36,12 +42,11 @@ export default function AddSaleScreen({
             price: selectedProduct.price,
             total,
         };
+
         setSalesList((prevList) => [newItem, ...prevList]);
         setQuantity("");
-        Alert.alert(
-            "Agregado",
-            "Venta agregada correctamente"
-        );
+        setSelectedProduct(null);
+        Alert.alert("Agregado", "Venta agregada correctamente");
     }
 
     return (
@@ -64,6 +69,7 @@ export default function AddSaleScreen({
                             products={products}
                             selectedProduct={selectedProduct}
                             onSelectProduct={setSelectedProduct}
+                            onProductSelected={() => quantityInputRef.current?.focus()}
                         />
 
                         <View className="mt-4 flex-row gap-3">
@@ -71,7 +77,7 @@ export default function AddSaleScreen({
                                 <Text className="text-sm text-slate-500">Precio</Text>
 
                                 <Text className="mt-1 text-2xl font-bold text-blue-700">
-                                    ${selectedProduct.price}
+                                    ${selectedProduct?.price || 0}
                                 </Text>
                             </View>
 
@@ -79,7 +85,7 @@ export default function AddSaleScreen({
                                 <Text className="text-sm text-slate-500">Unidad</Text>
 
                                 <Text className="mt-1 text-2xl font-bold text-slate-800">
-                                    {selectedProduct.unit}
+                                    {selectedProduct?.unit || "-"}
                                 </Text>
                             </View>
                         </View>
@@ -90,6 +96,7 @@ export default function AddSaleScreen({
 
                         <View className="flex-row items-center rounded-3xl border-2 border-slate-700 bg-white px-4 py-1">
                             <TextInput
+                                ref={quantityInputRef}
                                 className="flex-1 px-2 py-3 text-3xl font-bold text-slate-900"
                                 keyboardType="numeric"
                                 value={quantity}
@@ -106,7 +113,7 @@ export default function AddSaleScreen({
 
                         <ResultBox
                             mode="quantity"
-                            product={selectedProduct}
+                            product={selectedProduct || { name: "", price: 0, unit: "litro" }}
                             saleQuantity={quantity}
                             saleUnit="litro"
                         />
