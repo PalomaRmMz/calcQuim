@@ -13,6 +13,7 @@ import ProductSearchInput from "../components/ProductSearchInput";
 import QuickNav from "../components/QuickNav";
 import ResultBox from "../components/ResultBox";
 import { calculateQuantity } from "../utils/calculations";
+import { sanitizeDecimalInput } from "../utils/numberInput";
 
 export default function CalculatorScreen({
     navigation,
@@ -112,7 +113,7 @@ export default function CalculatorScreen({
                             className="flex-1 px-2 py-4 text-xl font-bold text-slate-900"
                             keyboardType="numeric"
                             value={amount}
-                            onChangeText={setAmount}
+                            onChangeText={(text) => setAmount(sanitizeDecimalInput(text))}
                         />
                     </View>
 

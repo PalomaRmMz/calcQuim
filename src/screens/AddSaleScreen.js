@@ -12,6 +12,7 @@ import ActionButton from "../components/ActionButton";
 import ProductSearchInput from "../components/ProductSearchInput";
 import ResultBox from "../components/ResultBox";
 import QuickNav from "../components/QuickNav";
+import { sanitizeDecimalInput } from "../utils/numberInput";
 
 export default function AddSaleScreen({
     navigation,
@@ -106,7 +107,7 @@ export default function AddSaleScreen({
                                 className="flex-1 px-2 py-3 text-3xl font-bold text-slate-900"
                                 keyboardType="numeric"
                                 value={quantity}
-                                onChangeText={setQuantity}
+                                onChangeText={(text) => setQuantity(sanitizeDecimalInput(text))}
                                 placeholder="0.5"
                             />
 
