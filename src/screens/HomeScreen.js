@@ -1,12 +1,30 @@
 import { SafeAreaView, View, Text, Pressable } from "react-native";
 
 export default function HomeScreen({ navigation, salesList }) {
+    const totalSales = salesList.reduce((acc, item) => {
+        if (item.type === "venta_por_monto") {
+            return acc + Number(item.amount || 0);
+        }
+
+        return acc + Number(item.total || 0);
+    }, 0);
+
     return (
         <SafeAreaView className="flex-1 bg-slate-100">
             <View className="flex-1 p-5">
-                <Text className="mt-8 text-4xl font-extrabold text-blue-600">
-                    CalcQuim
-                </Text>
+                <View className="mb-6 rounded-3xl bg-white p-5 shadow-sm">
+                    <Text className="text-base font-semibold text-slate-500">
+                        Venta actual
+                    </Text>
+
+                    <Text className="mt-2 text-4xl font-extrabold text-green-600">
+                        ${totalSales.toFixed(2)}
+                    </Text>
+
+                    <Text className="mt-1 text-slate-500">
+                        Productos agregados: {salesList.length}
+                    </Text>
+                </View>
 
                 <Text className="mb-8 mt-2 text-base text-slate-600">
                     Selecciona una opción de venta
