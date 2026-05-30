@@ -1,5 +1,6 @@
 import { View, Text, TextInput } from "react-native";
 import ActionButton from "./ActionButton";
+import { formatLiquid } from "../utils/salesCalculations";
 
 export default function SaleCard({
     item,
@@ -12,12 +13,6 @@ export default function SaleCard({
     onDelete,
 }) {
     const isQuantitySale = item.type === "venta_por_cantidad";
-
-    function formatLiquid(milliliters) {
-        return milliliters >= 1000
-            ? `${(milliliters / 1000).toFixed(2)} litros`
-            : `${milliliters.toFixed(0)} ml`;
-    }
 
     return (
         <View className="mb-4 rounded-3xl bg-white p-5 shadow-sm">

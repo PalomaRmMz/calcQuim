@@ -1,13 +1,8 @@
 import { SafeAreaView, View, Text, Pressable } from "react-native";
+import { calculateTotalSales } from "../utils/salesCalculations";
 
 export default function HomeScreen({ navigation, salesList }) {
-    const totalSales = salesList.reduce((acc, item) => {
-        if (item.type === "venta_por_monto") {
-            return acc + Number(item.amount || 0);
-        }
-
-        return acc + Number(item.total || 0);
-    }, 0);
+    const totalSales = calculateTotalSales(salesList);
 
     return (
         <SafeAreaView className="flex-1 bg-slate-100">

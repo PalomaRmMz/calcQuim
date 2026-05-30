@@ -1,4 +1,8 @@
 import { View, Text } from "react-native";
+import {
+    calculateSaleByLiters,
+    formatLiquid,
+} from "../utils/salesCalculations";
 
 export default function ResultBox({
     quantity = 0,
@@ -11,18 +15,11 @@ export default function ResultBox({
 }) {
     const numericAmount = Number(amount);
     const numericSaleQuantity = Number(saleQuantity);
-
-    const formattedLiquidResult =
-        milliliters >= 1000
-            ? `${(milliliters / 1000).toFixed(2)} litros`
-            : `${milliliters.toFixed(0)} ml`;
-
-    const quantityInLiters =
-        saleUnit === "ml"
-            ? numericSaleQuantity / 1000
-            : numericSaleQuantity;
-
-    const saleTotal = quantityInLiters * Number(product?.price || 0);
+    const formattedLiquidResult = formatLiquid(milliliters);
+    const saleTotal = calculateSaleByLiters(
+        numericSaleQuantity,
+        product?.price || 0
+    );
 
     if (mode === "quantity") {
         return (

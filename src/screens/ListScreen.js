@@ -8,24 +8,21 @@ import {
     Pressable,
     Alert,
 } from "react-native";
-
 import QuickNav from "../components/QuickNav";
 import SaleCard from "../components/SaleCard";
 import TotalCard from "../components/TotalCard";
+import {
+    calculateSaleByAmount,
+    calculateSaleByLiters,
+    calculateTotalSales,
+} from "../utils/salesCalculations";
 
 export default function ListScreen({ navigation, salesList, setSalesList }) {
     const list = salesList || [];
 
     const [editingId, setEditingId] = useState(null);
     const [editedValue, setEditedValue] = useState("");
-
-    const totalSales = list.reduce((acc, item) => {
-        if (item.type === "venta_por_monto") {
-            return acc + Number(item.amount || 0);
-        }
-
-        return acc + Number(item.total || 0);
-    }, 0);
+    const totalSales = calculateTotalSales(list);
 
     function handleDelete(id) {
         Alert.alert("Eliminar", "¿Deseas eliminar este registro?", [
@@ -75,17 +72,20 @@ export default function ListScreen({ navigation, salesList, setSalesList }) {
             if (!newValue || newValue <= 0) return item;
 
             if (item.type === "venta_por_monto") {
-                const newQuantity = newValue / Number(item.price || 1);
+                const { quantity, milliliters } = calculateSaleByAmount(
+                    newValue,
+                    item.price
+                );
 
                 return {
                     ...item,
                     amount: newValue,
-                    quantity: newQuantity,
-                    milliliters: newQuantity * 1000,
+                    quantity,
+                    milliliters,
                 };
             }
 
-            const newTotal = newValue * Number(item.price || 0);
+            const newTotal = calculateSaleByLiters(newValue, item.price);
 
             return {
                 ...item,

@@ -13,6 +13,7 @@ import ProductSearchInput from "../components/ProductSearchInput";
 import ResultBox from "../components/ResultBox";
 import QuickNav from "../components/QuickNav";
 import { sanitizeDecimalInput } from "../utils/numberInput";
+import { calculateSaleByLiters } from "../utils/salesCalculations";
 
 export default function AddSaleScreen({
     navigation,
@@ -23,8 +24,7 @@ export default function AddSaleScreen({
     const productSearchRef = useRef(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [quantity, setQuantity] = useState("");
-    const quantityInLiters = Number(quantity || 0);
-    const total = quantityInLiters * Number(selectedProduct?.price || 0);
+    const total = calculateSaleByLiters(quantity, selectedProduct?.price || 0);
 
     function handleAddSale() {
         if (!selectedProduct) {
