@@ -38,8 +38,8 @@ export default function ListScreen({ navigation, salesList, setSalesList }) {
     }
 
     function handleClearSales() {
-        Alert.alert("Limpiar venta", "¿Deseas eliminar toda la venta?", [
-            { text: "Cancelar", style: "cancel" },
+        Alert.alert("Nueva venta", "¿Deseas iniciar una nueva venta?", [
+            { text: "Iniciar nueva venta", style: "cancel" },
             {
                 text: "Limpiar",
                 style: "destructive",
