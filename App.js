@@ -1,9 +1,9 @@
 import "./global.css";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import HomeScreen from "./src/screens/HomeScreen";
 import CalculatorScreen from "./src/screens/CalculatorScreen";
 import AddSaleScreen from "./src/screens/AddSaleScreen";
@@ -12,7 +12,24 @@ import ListScreen from "./src/screens/ListScreen";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+
   const [salesList, setSalesList] = useState([]);
+
+  useEffect(() => {
+    async function loadSales() {
+      const storedSales = await AsyncStorage.getItem("currentSale");
+
+      if (storedSales) {
+        setSalesList(JSON.parse(storedSales));
+      }
+    }
+
+    loadSales();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem("currentSale", JSON.stringify(salesList));
+  }, [salesList]);
 
   return (
     <NavigationContainer>
