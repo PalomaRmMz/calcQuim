@@ -73,7 +73,7 @@ export default function ActionButton({
                 />
             )}
 
-            {label === "Limpiar venta" && (
+            {label === "Nueva venta" && (
                 <MaterialIcons
                     name="delete-sweep"
                     size={18}

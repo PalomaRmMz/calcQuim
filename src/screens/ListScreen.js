@@ -1,13 +1,12 @@
 import { useState } from "react";
-
 import {
-    SafeAreaView,
     View,
     Text,
     ScrollView,
     Pressable,
     Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import QuickNav from "../components/QuickNav";
 import SaleCard from "../components/SaleCard";
 import TotalCard from "../components/TotalCard";
@@ -112,7 +111,7 @@ export default function ListScreen({ navigation, salesList, setSalesList }) {
                         className="mb-5 rounded-2xl bg-red-500 py-3"
                     >
                         <Text className="text-center text-sm font-bold text-white">
-                            Limpiar venta
+                            Nueva venta
                         </Text>
                     </Pressable>
                 )}

@@ -1,7 +1,9 @@
-import { SafeAreaView, View, Text, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { calculateTotalSales } from "../utils/salesCalculations";
 
 export default function HomeScreen({ navigation, salesList }) {
+
     const totalSales = calculateTotalSales(salesList);
 
     return (
