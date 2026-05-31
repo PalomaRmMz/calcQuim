@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TextInput, Alert, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ActionButton from "../components/ActionButton";
 import { sanitizeDecimalInput } from "../utils/numberInput";
+import { exportProducts } from "../utils/exportProducts";
 
 export default function ProductAdminScreen({ productsList, setProductsList }) {
     const [name, setName] = useState("");
@@ -21,11 +22,29 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
             return;
         }
 
+        const alreadyExists = productsList.some(
+            (product) =>
+                product.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+                product.id !== editingId
+        );
+
+        if (alreadyExists) {
+            Alert.alert(
+                "Producto existente",
+                "Ya existe un producto con ese nombre."
+            );
+            return;
+        }
+
         if (editingId) {
             setProductsList((prev) =>
                 prev.map((product) =>
                     product.id === editingId
-                        ? { ...product, name: name.trim(), price: Number(price) }
+                        ? {
+                            ...product,
+                            name: name.trim(),
+                            price: Number(price),
+                        }
                         : product
                 )
             );
@@ -40,6 +59,7 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
             category: "personalizado",
             unit: "litro",
             price: Number(price),
+            isCustom: true,
         };
 
         setProductsList((prev) => [...prev, newProduct]);
@@ -96,15 +116,6 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                         placeholder="Ejemplo: 15"
                     />
 
-                    <View className="mt-5">
-                        <ActionButton
-                            label={editingId ? "Guardar" : "Agregar venta"}
-                            onPress={handleSaveProduct}
-                            variant="success"
-                            fullWidth
-                        />
-                    </View>
-
                     {editingId && (
                         <View className="mt-3">
                             <ActionButton
@@ -115,6 +126,19 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                             />
                         </View>
                     )}
+                </View>
+
+                <View className="mt-5 flex-row gap-3">
+                    <ActionButton
+                        label={editingId ? "Guardar" : "Agregar producto"}
+                        onPress={handleSaveProduct}
+                        variant="success"
+                    />
+                    <ActionButton
+                        label="Exportar catálogo"
+                        onPress={() => exportProducts(productsList)}
+                        variant="primary"
+                    />
                 </View>
 
                 <Text className="mb-3 mt-6 text-xl font-bold text-slate-900">

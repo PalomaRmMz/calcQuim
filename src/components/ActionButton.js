@@ -80,6 +80,23 @@ export default function ActionButton({
                     color="white"
                 />
             )}
+
+            {label === "Agregar producto" && (
+                <Feather
+                    name="plus-circle"
+                    size={18}
+                    color="white"
+                />
+            )}
+
+            {label === "Exportar catálogo" && (
+                <Feather
+                    name="download"
+                    size={18}
+                    color="white"
+                />
+            )}
+
             <Text
                 className={`text-center text-sm font-bold ${textVariants[variant]}`}
             >
