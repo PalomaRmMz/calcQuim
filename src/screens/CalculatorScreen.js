@@ -11,20 +11,15 @@ import ActionButton from "../components/ActionButton";
 import ProductSearchInput from "../components/ProductSearchInput";
 import QuickNav from "../components/QuickNav";
 import ResultBox from "../components/ResultBox";
-import { calculateQuantity } from "../utils/calculations";
 import { sanitizeDecimalInput } from "../utils/numberInput";
+import { calculateSaleByAmount } from "../utils/salesCalculations";
 
-export default function CalculatorScreen({
-    navigation,
-    salesList,
-    setSalesList,
-    productsList,
-}) {
+export default function CalculatorScreen({ navigation, salesList, setSalesList, productsList, }) {
     const amountInputRef = useRef(null);
     const productSearchRef = useRef(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [amount, setAmount] = useState("");
-    const { quantity, milliliters } = calculateQuantity(
+    const { quantity, milliliters } = calculateSaleByAmount(
         amount,
         selectedProduct?.price || 0
     );

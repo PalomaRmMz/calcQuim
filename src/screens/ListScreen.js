@@ -38,9 +38,12 @@ export default function ListScreen({ navigation, salesList, setSalesList }) {
 
     function handleClearSales() {
         Alert.alert("Nueva venta", "¿Deseas iniciar una nueva venta?", [
-            { text: "Iniciar nueva venta", style: "cancel" },
             {
-                text: "Limpiar",
+                text: "Cancelar",
+                style: "cancel",
+            },
+            {
+                text: "Iniciar nueva venta",
                 style: "destructive",
                 onPress: () => setSalesList([]),
             },

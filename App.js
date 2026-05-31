@@ -47,12 +47,11 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
 
-        <Stack.Screen name="AddSale" options={{ title: "Venta por cantidad" }}>
+        <Stack.Screen name="Home" options={{ title: "Inicio" }}>
           {(props) => (
-            <AddSaleScreen
+            <HomeScreen
               {...props}
               salesList={salesList}
-              setSalesList={setSalesList}
               productsList={productsList}
             />
           )}
@@ -69,11 +68,12 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="Home" options={{ title: "Inicio" }}>
+        <Stack.Screen name="AddSale" options={{ title: "Venta por cantidad" }}>
           {(props) => (
-            <HomeScreen
+            <AddSaleScreen
               {...props}
               salesList={salesList}
+              setSalesList={setSalesList}
               productsList={productsList}
             />
           )}

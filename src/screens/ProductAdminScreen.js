@@ -1,14 +1,29 @@
 import { useState } from "react";
-import { View, Text, ScrollView, TextInput, Alert, } from "react-native";
+import { View, Text, ScrollView, TextInput, Alert } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ActionButton from "../components/ActionButton";
 import { sanitizeDecimalInput } from "../utils/numberInput";
 import { exportProducts } from "../utils/exportProducts";
 
-export default function ProductAdminScreen({ productsList, setProductsList }) {
+export default function ProductAdminScreen({
+    productsList,
+    setProductsList,
+}) {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
     const [editingId, setEditingId] = useState(null);
+    const [searchText, setSearchText] = useState("");
+
+    const customProductsCount = productsList.filter(
+        (product) => product.isCustom
+    ).length;
+
+    const filteredProducts = [...productsList]
+        .filter((product) =>
+            product.name.toLowerCase().includes(searchText.toLowerCase())
+        )
+        .sort((a, b) => a.name.localeCompare(b.name));
 
     function resetForm() {
         setName("");
@@ -24,7 +39,8 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
 
         const alreadyExists = productsList.some(
             (product) =>
-                product.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+                product.name.trim().toLowerCase() ===
+                name.trim().toLowerCase() &&
                 product.id !== editingId
         );
 
@@ -48,7 +64,6 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                         : product
                 )
             );
-
             resetForm();
             return;
         }
@@ -79,7 +94,9 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                 text: "Eliminar",
                 style: "destructive",
                 onPress: () => {
-                    setProductsList((prev) => prev.filter((product) => product.id !== id));
+                    setProductsList((prev) =>
+                        prev.filter((product) => product.id !== id)
+                    );
                 },
             },
         ]);
@@ -93,6 +110,14 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                         Administrar productos
                     </Text>
 
+                    {editingId && (
+                        <View className="mb-4 rounded-2xl bg-blue-50 p-3">
+                            <Text className="font-bold text-blue-700">
+                                Editando producto
+                            </Text>
+                        </View>
+                    )}
+
                     <Text className="mb-2 font-bold text-slate-800">
                         Nombre del producto
                     </Text>
@@ -102,6 +127,7 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                         value={name}
                         onChangeText={setName}
                         placeholder="Ejemplo: Suavitel Primavera"
+                        placeholderTextColor="#94a3b8"
                     />
 
                     <Text className="mb-2 mt-4 font-bold text-slate-800">
@@ -111,9 +137,12 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                     <TextInput
                         className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-slate-900"
                         value={price}
-                        onChangeText={(text) => setPrice(sanitizeDecimalInput(text))}
+                        onChangeText={(text) =>
+                            setPrice(sanitizeDecimalInput(text))
+                        }
                         keyboardType="numeric"
                         placeholder="Ejemplo: 15"
+                        placeholderTextColor="#94a3b8"
                     />
 
                     {editingId && (
@@ -134,6 +163,7 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                         onPress={handleSaveProduct}
                         variant="success"
                     />
+
                     <ActionButton
                         label="Exportar catálogo"
                         onPress={() => exportProducts(productsList)}
@@ -141,37 +171,74 @@ export default function ProductAdminScreen({ productsList, setProductsList }) {
                     />
                 </View>
 
-                <Text className="mb-3 mt-6 text-xl font-bold text-slate-900">
-                    Productos
+                <Text className="mb-2 mt-6 font-bold text-slate-800">
+                    Buscar producto
                 </Text>
 
-                {[...productsList]
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((product) => (
-                        <View key={product.id} className="mb-3 rounded-3xl bg-white p-5">
-                            <Text className="text-lg font-bold text-slate-900">
-                                {product.name}
-                            </Text>
+                <View className="flex-row items-center rounded-3xl bg-white px-4 shadow-sm">
+                    <Feather name="search" size={20} color="#64748b" />
 
-                            <Text className="mt-1 text-slate-500">
-                                ${product.price} por {product.unit}
-                            </Text>
+                    <TextInput
+                        className="flex-1 px-3 py-4 text-base text-slate-900"
+                        value={searchText}
+                        onChangeText={setSearchText}
+                        placeholder="Buscar producto..."
+                        placeholderTextColor="#94a3b8"
+                    />
+                </View>
 
-                            <View className="mt-4 flex-row gap-3">
-                                <ActionButton
-                                    label="Editar"
-                                    onPress={() => handleEdit(product)}
-                                    variant="dark"
-                                />
+                <Text className="mb-3 mt-6 text-xl font-bold text-slate-900">
+                    Productos ({filteredProducts.length})
+                </Text>
 
-                                <ActionButton
-                                    label="Eliminar"
-                                    onPress={() => handleDelete(product.id)}
-                                    variant="danger"
-                                />
+                {filteredProducts.map((product) => (
+                    <View
+                        key={product.id}
+                        className="mb-3 rounded-3xl bg-white p-4 shadow-sm"
+                    >
+                        <View className="flex-row items-start justify-between gap-3">
+                            <View className="flex-1">
+                                <Text className="text-lg font-bold text-slate-900">
+                                    {product.name}
+                                </Text>
+
+                                <Text className="mt-1 text-slate-500">
+                                    ${product.price} por {product.unit}
+                                </Text>
+                            </View>
+
+                            <View
+                                className={`rounded-full px-3 py-1 ${product.isCustom
+                                    ? "bg-orange-100"
+                                    : "bg-slate-100"
+                                    }`}
+                            >
+                                <Text
+                                    className={`text-xs font-bold ${product.isCustom
+                                        ? "text-orange-700"
+                                        : "text-slate-600"
+                                        }`}
+                                >
+                                    {product.isCustom ? "Personalizado" : product.category}
+                                </Text>
                             </View>
                         </View>
-                    ))}
+
+                        <View className="mt-4 flex-row gap-3">
+                            <ActionButton
+                                label="Editar"
+                                onPress={() => handleEdit(product)}
+                                variant="dark"
+                            />
+
+                            <ActionButton
+                                label="Eliminar"
+                                onPress={() => handleDelete(product.id)}
+                                variant="danger"
+                            />
+                        </View>
+                    </View>
+                ))}
             </ScrollView>
         </SafeAreaView>
     );
