@@ -62,6 +62,19 @@ export default function HomeScreen({ navigation, salesList }) {
                         Productos agregados: {salesList.length}
                     </Text>
                 </Pressable>
+
+                <Pressable
+                    onPress={() => navigation.navigate("ProductsAdmin")}
+                    className="mt-4 rounded-3xl bg-white p-6"
+                >
+                    <Text className="text-2xl font-bold text-slate-900">
+                        Productos
+                    </Text>
+
+                    <Text className="mt-2 text-slate-500">
+                        Agregar o editar precios
+                    </Text>
+                </Pressable>
             </View>
         </SafeAreaView>
     );

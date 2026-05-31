@@ -7,7 +7,6 @@ import {
     Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { products } from "../data/Products";
 import ActionButton from "../components/ActionButton";
 import ProductSearchInput from "../components/ProductSearchInput";
 import QuickNav from "../components/QuickNav";
@@ -19,6 +18,7 @@ export default function CalculatorScreen({
     navigation,
     salesList,
     setSalesList,
+    productsList,
 }) {
     const amountInputRef = useRef(null);
     const productSearchRef = useRef(null);
@@ -73,7 +73,7 @@ export default function CalculatorScreen({
 
                     <ProductSearchInput
                         inputRef={productSearchRef}
-                        products={products}
+                        products={productsList}
                         selectedProduct={selectedProduct}
                         onSelectProduct={setSelectedProduct}
                         onProductSelected={() => amountInputRef.current?.focus()}

@@ -7,7 +7,6 @@ import {
     ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { products } from "../data/Products";
 import ActionButton from "../components/ActionButton";
 import ProductSearchInput from "../components/ProductSearchInput";
 import ResultBox from "../components/ResultBox";
@@ -19,6 +18,7 @@ export default function AddSaleScreen({
     navigation,
     salesList,
     setSalesList,
+    productsList,
 }) {
     const quantityInputRef = useRef(null);
     const productSearchRef = useRef(null);
@@ -73,7 +73,7 @@ export default function AddSaleScreen({
 
                         <ProductSearchInput
                             inputRef={productSearchRef}
-                            products={products}
+                            products={productsList}
                             selectedProduct={selectedProduct}
                             onSelectProduct={setSelectedProduct}
                             onProductSelected={() => quantityInputRef.current?.focus()}
