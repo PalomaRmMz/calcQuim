@@ -37,8 +37,11 @@ export default function HomeScreen({ navigation, salesList }) {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-slate-100">
-            <View className="flex-1 p-5">
+        <SafeAreaView
+            edges={["left", "right", "bottom"]}
+            className="flex-1 bg-slate-100"
+        >
+            <View className="pt-3 pb-5 pl-5 pr-5">
                 <Text className="mt-2 text-4xl font-extrabold text-blue-600">
                     CalcQuim
                 </Text>

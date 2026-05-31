@@ -57,11 +57,14 @@ export default function CalculatorScreen({ navigation, salesList, setSalesList, 
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-slate-100">
-            <ScrollView className="flex-1" contentContainerClassName="p-5">
-                <QuickNav navigation={navigation} active="Calculator" />
+        <SafeAreaView
+            edges={["left", "right", "bottom"]}
+            className="flex-1 bg-slate-100"
+        >
+            <ScrollView className="flex-1">
+                <View className="pt-3 pb-5 pl-5 pr-5">
+                    <QuickNav navigation={navigation} active="Calculator" />
 
-                <View className="rounded-3xl bg-white p-5 shadow-md">
                     <Text className="mb-3 text-base font-semibold text-slate-900">
                         Producto
                     </Text>

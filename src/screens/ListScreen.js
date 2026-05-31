@@ -10,11 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import QuickNav from "../components/QuickNav";
 import SaleCard from "../components/SaleCard";
 import TotalCard from "../components/TotalCard";
-import {
-    calculateSaleByAmount,
-    calculateSaleByLiters,
-    calculateTotalSales,
-} from "../utils/salesCalculations";
+import { calculateSaleByAmount, calculateSaleByLiters, calculateTotalSales, } from "../utils/salesCalculations";
 
 export default function ListScreen({ navigation, salesList, setSalesList }) {
     const list = salesList || [];
@@ -78,7 +74,6 @@ export default function ListScreen({ navigation, salesList, setSalesList }) {
                     newValue,
                     item.price
                 );
-
                 return {
                     ...item,
                     amount: newValue,
@@ -96,50 +91,54 @@ export default function ListScreen({ navigation, salesList, setSalesList }) {
                 total: newTotal,
             };
         });
-
         setSalesList(updatedList);
         handleCancelEdit();
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-slate-50">
-            <ScrollView className="p-5">
-                <QuickNav navigation={navigation} active="SalesList" />
+        <SafeAreaView
+            edges={["left", "right", "bottom"]}
+            className="flex-1 bg-slate-100"
+        >
+            <ScrollView className="flex-1">
+                <View className="pt-3 pb-5 pl-5 pr-5">
+                    <QuickNav navigation={navigation} active="SalesList" />
 
-                <TotalCard total={totalSales} />
+                    <TotalCard total={totalSales} />
 
-                {list.length > 0 && (
-                    <Pressable
-                        onPress={handleClearSales}
-                        className="mb-5 rounded-2xl bg-red-500 py-3"
-                    >
-                        <Text className="text-center text-sm font-bold text-white">
-                            Nueva venta
-                        </Text>
-                    </Pressable>
-                )}
+                    {list.length > 0 && (
+                        <Pressable
+                            onPress={handleClearSales}
+                            className="mb-5 rounded-2xl bg-red-500 py-3"
+                        >
+                            <Text className="text-center text-sm font-bold text-white">
+                                Nueva venta
+                            </Text>
+                        </Pressable>
+                    )}
 
-                {list.length === 0 ? (
-                    <View className="rounded-3xl bg-white p-6 shadow-sm">
-                        <Text className="text-center text-slate-500">
-                            Aún no has agregado productos.
-                        </Text>
-                    </View>
-                ) : (
-                    list.map((item) => (
-                        <SaleCard
-                            key={item.id}
-                            item={item}
-                            isEditing={editingId === item.id}
-                            editedValue={editedValue}
-                            onChangeEdit={setEditedValue}
-                            onStartEdit={() => handleStartEdit(item)}
-                            onSaveEdit={() => handleSaveEdit(item.id)}
-                            onCancelEdit={handleCancelEdit}
-                            onDelete={() => handleDelete(item.id)}
-                        />
-                    ))
-                )}
+                    {list.length === 0 ? (
+                        <View className="rounded-3xl bg-white p-6 shadow-sm">
+                            <Text className="text-center text-slate-500">
+                                Aún no has agregado productos.
+                            </Text>
+                        </View>
+                    ) : (
+                        list.map((item) => (
+                            <SaleCard
+                                key={item.id}
+                                item={item}
+                                isEditing={editingId === item.id}
+                                editedValue={editedValue}
+                                onChangeEdit={setEditedValue}
+                                onStartEdit={() => handleStartEdit(item)}
+                                onSaveEdit={() => handleSaveEdit(item.id)}
+                                onCancelEdit={handleCancelEdit}
+                                onDelete={() => handleDelete(item.id)}
+                            />
+                        ))
+                    )}
+                </View>
             </ScrollView>
         </SafeAreaView>
     );

@@ -47,7 +47,13 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
 
-        <Stack.Screen name="Home" options={{ title: "Inicio" }}>
+        <Stack.Screen
+          name="Home"
+          options={{
+            title: "Inicio",
+            headerTitleStyle: { fontSize: 22, },
+          }}
+        >
           {(props) => (
             <HomeScreen
               {...props}
@@ -57,7 +63,13 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="Calculator" options={{ title: "Venta por monto" }}>
+        <Stack.Screen
+          name="Calculator"
+          options={{
+            title: "Venta por monto",
+            headerTitleStyle: { fontSize: 22, },
+          }}
+        >
           {(props) => (
             <CalculatorScreen
               {...props}
@@ -68,7 +80,13 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="AddSale" options={{ title: "Venta por cantidad" }}>
+        <Stack.Screen
+          name="AddSale"
+          options={{
+            title: "Venta por cantidad",
+            headerTitleStyle: { fontSize: 22, },
+          }}
+        >
           {(props) => (
             <AddSaleScreen
               {...props}
@@ -79,7 +97,13 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="SalesList" options={{ title: "Lista de venta" }}>
+        <Stack.Screen
+          name="SalesList"
+          options={{
+            title: "Lista de venta",
+            headerTitleStyle: { fontSize: 22, },
+          }}
+        >
           {(props) => (
             <ListScreen
               {...props}
@@ -89,7 +113,13 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="ProductsAdmin" options={{ title: "Productos" }}>
+        <Stack.Screen
+          name="ProductsAdmin"
+          options={{
+            title: "Productos",
+            headerTitleStyle: { fontSize: 22, },
+          }}
+        >
           {(props) => (
             <ProductAdminScreen
               {...props}
