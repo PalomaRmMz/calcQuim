@@ -93,6 +93,14 @@ export default function ActionButton({
                 />
             )}
 
+            {label === "Importar catálogo" && (
+                <Feather
+                    name="upload"
+                    size={18}
+                    color="#0f172a"
+                />
+            )}
+
             <Text
                 className={`text-center text-sm font-bold ${textVariants[variant]}`}
             >
