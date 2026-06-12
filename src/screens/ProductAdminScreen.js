@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, Text, ScrollView, TextInput, Alert } from "react-native";
+import { View, Text, ScrollView, TextInput, Alert, Pressable } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { Feather } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ActionButton from "../components/ActionButton";
@@ -10,8 +11,17 @@ import { exportProducts } from "../utils/exportProducts";
 export default function ProductAdminScreen({ navigation, productsList, setProductsList, }) {
     const [name, setName] = useState("");
     const [price, setPrice] = useState("");
-    const [editingId, setEditingId] = useState(null);
     const [searchText, setSearchText] = useState("");
+    const [category, setCategory] = useState("");
+    const [showCategories, setShowCategories] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+
+    const categories = [
+        { label: "Limpieza", value: "limpieza" },
+        { label: "Lavandería", value: "lavanderia" },
+        { label: "Automotriz", value: "automotriz" },
+        { label: "Higiene personal", value: "higiene personal" },
+    ];
 
     const customProductsCount = productsList.filter(
         (product) => product.isCustom
@@ -26,12 +36,13 @@ export default function ProductAdminScreen({ navigation, productsList, setProduc
     function resetForm() {
         setName("");
         setPrice("");
+        setCategory("");
         setEditingId(null);
     }
 
     function handleSaveProduct() {
-        if (!name.trim() || !price || Number(price) <= 0) {
-            Alert.alert("Datos incompletos", "Agrega nombre y precio válido.");
+        if (!name.trim() || !price || Number(price) <= 0 || !category) {
+            Alert.alert("Datos incompletos", "Agrega nombre, precio y categoría.");
             return;
         }
 
@@ -58,6 +69,7 @@ export default function ProductAdminScreen({ navigation, productsList, setProduc
                             ...product,
                             name: name.trim(),
                             price: Number(price),
+                            category,
                         }
                         : product
                 )
@@ -69,7 +81,7 @@ export default function ProductAdminScreen({ navigation, productsList, setProduc
         const newProduct = {
             id: Date.now().toString(),
             name: name.trim(),
-            category: "personalizado",
+            category,
             unit: "litro",
             price: Number(price),
             isCustom: true,
@@ -83,6 +95,7 @@ export default function ProductAdminScreen({ navigation, productsList, setProduc
         setEditingId(product.id);
         setName(product.name);
         setPrice(product.price.toString());
+        setCategory(product.category || "");
     }
 
     function handleDelete(id) {
@@ -145,6 +158,48 @@ export default function ProductAdminScreen({ navigation, productsList, setProduc
                             placeholder="Ejemplo: 15"
                             placeholderTextColor="#94a3b8"
                         />
+
+                        <Text className="mb-2 mt-4 font-bold text-slate-800">
+                            Categoría *
+                        </Text>
+
+                        <Pressable
+                            onPress={() => setShowCategories(!showCategories)}
+                            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+                        >
+                            <Text
+                                className={`text-base ${category
+                                    ? "text-slate-900"
+                                    : "text-slate-400"
+                                    }`}
+                            >
+                                {category
+                                    ? categories.find(
+                                        (item) =>
+                                            item.value === category
+                                    )?.label
+                                    : "Selecciona una categoría..."}
+                            </Text>
+                        </Pressable>
+
+                        {showCategories && (
+                            <View className="mt-2 rounded-2xl border border-slate-200 bg-white">
+                                {categories.map((item) => (
+                                    <Pressable
+                                        key={item.value}
+                                        onPress={() => {
+                                            setCategory(item.value);
+                                            setShowCategories(false);
+                                        }}
+                                        className="border-b border-slate-100 px-4 py-4"
+                                    >
+                                        <Text className="font-bold text-slate-800">
+                                            {item.label}
+                                        </Text>
+                                    </Pressable>
+                                ))}
+                            </View>
+                        )}
 
                         {editingId && (
                             <View className="mt-3">
