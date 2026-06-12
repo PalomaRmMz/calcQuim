@@ -1,8 +1,5 @@
 import { View, Text } from "react-native";
-import {
-    calculateSaleByLiters,
-    formatLiquid,
-} from "../utils/salesCalculations";
+import { calculateSaleByLiters, formatLiquid, } from "../utils/salesCalculations";
 
 export default function ResultBox({
     quantity = 0,

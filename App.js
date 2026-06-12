@@ -6,14 +6,20 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { products } from "./src/data/Products";
 import { loadProducts, saveProducts } from "./src/storage/productsStorage";
-import AddSaleScreen from "./src/screens/AddSaleScreen";
-import CalculatorScreen from "./src/screens/CalculatorScreen";
 import HomeScreen from "./src/screens/HomeScreen";
+import CalculatorScreen from "./src/screens/CalculatorScreen";
+import AddSaleScreen from "./src/screens/AddSaleScreen";
 import ListScreen from "./src/screens/ListScreen";
 import ProductCatalogScreen from "./src/screens/ProductCatalogScreen";
 import ProductFormScreen from "./src/screens/ProductFormScreen";
 
 const Stack = createNativeStackNavigator();
+
+const screenOptions = {
+  headerTitleStyle: {
+    fontSize: 22,
+  },
+};
 
 export default function App() {
   const [salesList, setSalesList] = useState([]);
@@ -33,6 +39,7 @@ export default function App() {
         setProductsList(storedProducts);
       }
     }
+
     loadInitialData();
   }, []);
 
@@ -46,15 +53,11 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-
-        <Stack.Screen
-          name="Home"
-          options={{
-            title: "Inicio",
-            headerTitleStyle: { fontSize: 22, },
-          }}
-        >
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={screenOptions}
+      >
+        <Stack.Screen name="Home" options={{ title: "Inicio" }}>
           {(props) => (
             <HomeScreen
               {...props}
@@ -66,10 +69,7 @@ export default function App() {
 
         <Stack.Screen
           name="Calculator"
-          options={{
-            title: "Venta por monto",
-            headerTitleStyle: { fontSize: 22, },
-          }}
+          options={{ title: "Venta por monto" }}
         >
           {(props) => (
             <CalculatorScreen
@@ -83,10 +83,7 @@ export default function App() {
 
         <Stack.Screen
           name="AddSale"
-          options={{
-            title: "Venta por cantidad",
-            headerTitleStyle: { fontSize: 22, },
-          }}
+          options={{ title: "Venta por cantidad" }}
         >
           {(props) => (
             <AddSaleScreen
@@ -100,10 +97,7 @@ export default function App() {
 
         <Stack.Screen
           name="SalesList"
-          options={{
-            title: "Lista de venta",
-            headerTitleStyle: { fontSize: 22, },
-          }}
+          options={{ title: "Lista de venta" }}
         >
           {(props) => (
             <ListScreen
@@ -116,10 +110,7 @@ export default function App() {
 
         <Stack.Screen
           name="ProductsCatalog"
-          options={{
-            title: "Catálogo",
-            headerTitleStyle: { fontSize: 22 },
-          }}
+          options={{ title: "Catálogo" }}
         >
           {(props) => (
             <ProductCatalogScreen
@@ -132,10 +123,7 @@ export default function App() {
 
         <Stack.Screen
           name="ProductForm"
-          options={{
-            title: "Producto",
-            headerTitleStyle: { fontSize: 22 },
-          }}
+          options={{ title: "Producto" }}
         >
           {(props) => (
             <ProductFormScreen

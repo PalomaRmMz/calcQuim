@@ -1,11 +1,5 @@
 import { useRef, useState } from "react";
-import {
-    View,
-    Text,
-    TextInput,
-    Alert,
-    ScrollView,
-} from "react-native";
+import { View, Text, TextInput, Alert, ScrollView, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ActionButton from "../components/ActionButton";
 import ProductSearchInput from "../components/ProductSearchInput";

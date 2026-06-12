@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-    View,
-    Text,
-    ScrollView,
-    Pressable,
-    Alert,
-} from "react-native";
+import { View, Text, ScrollView, Pressable, Alert, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import QuickNav from "../components/QuickNav";
 import SaleCard from "../components/SaleCard";
