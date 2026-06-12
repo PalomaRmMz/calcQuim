@@ -120,7 +120,7 @@ export default function HomeScreen({ navigation, salesList }) {
                                 color="#ea580c"
                             />
                         }
-                        onPress={() => navigation.navigate("ProductsAdmin")}
+                        onPress={() => navigation.navigate("ProductsCatalog")}
                     />
                 </View>
             </View>

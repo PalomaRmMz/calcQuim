@@ -1,11 +1,5 @@
 import { View, Text, Pressable } from "react-native";
-
-import {
-    MaterialIcons,
-    FontAwesome5,
-    Ionicons,
-    Feather,
-} from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome5, Ionicons, Feather, } from "@expo/vector-icons";
 
 export default function QuickNav({ navigation, active }) {
     const items = [
@@ -54,13 +48,13 @@ export default function QuickNav({ navigation, active }) {
             ),
         },
         {
-            label: "Prod.",
-            route: "ProductsAdmin",
+            label: "Cat.",
+            route: "ProductsCatalog",
             icon: (
                 <Feather
                     name="box"
                     size={17}
-                    color={active === "ProductsAdmin" ? "white" : "#475569"}
+                    color={active === "ProductsCatalog" ? "white" : "#475569"}
                 />
             ),
         },

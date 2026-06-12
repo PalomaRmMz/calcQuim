@@ -10,7 +10,8 @@ import AddSaleScreen from "./src/screens/AddSaleScreen";
 import CalculatorScreen from "./src/screens/CalculatorScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ListScreen from "./src/screens/ListScreen";
-import ProductAdminScreen from "./src/screens/ProductAdminScreen";
+import ProductCatalogScreen from "./src/screens/ProductCatalogScreen";
+import ProductFormScreen from "./src/screens/ProductFormScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -114,14 +115,30 @@ export default function App() {
         </Stack.Screen>
 
         <Stack.Screen
-          name="ProductsAdmin"
+          name="ProductsCatalog"
           options={{
-            title: "Productos",
-            headerTitleStyle: { fontSize: 22, },
+            title: "Catálogo",
+            headerTitleStyle: { fontSize: 22 },
           }}
         >
           {(props) => (
-            <ProductAdminScreen
+            <ProductCatalogScreen
+              {...props}
+              productsList={productsList}
+              setProductsList={setProductsList}
+            />
+          )}
+        </Stack.Screen>
+
+        <Stack.Screen
+          name="ProductForm"
+          options={{
+            title: "Producto",
+            headerTitleStyle: { fontSize: 22 },
+          }}
+        >
+          {(props) => (
+            <ProductFormScreen
               {...props}
               productsList={productsList}
               setProductsList={setProductsList}
