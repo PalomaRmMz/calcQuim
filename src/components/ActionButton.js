@@ -1,9 +1,5 @@
 import { Pressable, Text } from "react-native";
-
-import {
-    Feather,
-    MaterialIcons,
-} from "@expo/vector-icons";
+import { Feather, MaterialIcons, } from "@expo/vector-icons";
 
 export default function ActionButton({
     label,
@@ -73,13 +69,38 @@ export default function ActionButton({
                 />
             )}
 
-            {label === "Limpiar venta" && (
+            {label === "Nueva venta" && (
                 <MaterialIcons
                     name="delete-sweep"
                     size={18}
                     color="white"
                 />
             )}
+
+            {label === "Agregar producto" && (
+                <Feather
+                    name="plus-circle"
+                    size={18}
+                    color="white"
+                />
+            )}
+
+            {label === "Exportar catálogo" && (
+                <Feather
+                    name="download"
+                    size={18}
+                    color="white"
+                />
+            )}
+
+            {label === "Importar catálogo" && (
+                <Feather
+                    name="upload"
+                    size={18}
+                    color="#0f172a"
+                />
+            )}
+
             <Text
                 className={`text-center text-sm font-bold ${textVariants[variant]}`}
             >
