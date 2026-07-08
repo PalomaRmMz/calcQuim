@@ -24,32 +24,37 @@ const screenOptions = {
 export default function App() {
   const [salesList, setSalesList] = useState([]);
   const [productsList, setProductsList] = useState(products);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     async function loadInitialData() {
-      const storedSales = await AsyncStorage.getItem("currentSale");
-
-      if (storedSales) {
-        setSalesList(JSON.parse(storedSales));
-      }
-
-      const storedProducts = await loadProducts();
-
-      if (storedProducts) {
-        setProductsList(storedProducts);
+      try {
+        const storedSales = await AsyncStorage.getItem("currentSale");
+        if (storedSales) {
+          setSalesList(JSON.parse(storedSales));
+        }
+        const storedProducts = await loadProducts();
+        if (storedProducts) {
+          setProductsList(storedProducts);
+        }
+      } catch (error) {
+        console.error("Error cargando datos iniciales:", error);
+      } finally {
+        setDataLoaded(true);
       }
     }
-
     loadInitialData();
   }, []);
 
   useEffect(() => {
+    if (!dataLoaded) return;
     AsyncStorage.setItem("currentSale", JSON.stringify(salesList));
-  }, [salesList]);
+  }, [salesList, dataLoaded]);
 
   useEffect(() => {
+    if (!dataLoaded) return;
     saveProducts(productsList);
-  }, [productsList]);
+  }, [productsList, dataLoaded]);
 
   return (
     <NavigationContainer>
@@ -67,10 +72,7 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen
-          name="Calculator"
-          options={{ title: "Venta por monto" }}
-        >
+        <Stack.Screen name="Calculator" options={{ title: "Venta por monto" }}>
           {(props) => (
             <CalculatorScreen
               {...props}
@@ -81,10 +83,7 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen
-          name="AddSale"
-          options={{ title: "Venta por cantidad" }}
-        >
+        <Stack.Screen name="AddSale" options={{ title: "Venta por cantidad" }}>
           {(props) => (
             <AddSaleScreen
               {...props}
@@ -95,10 +94,7 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen
-          name="SalesList"
-          options={{ title: "Lista de venta" }}
-        >
+        <Stack.Screen name="SalesList" options={{ title: "Lista de venta" }}>
           {(props) => (
             <ListScreen
               {...props}
@@ -108,10 +104,7 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen
-          name="ProductsCatalog"
-          options={{ title: "Catálogo" }}
-        >
+        <Stack.Screen name="ProductsCatalog" options={{ title: "Catálogo" }}>
           {(props) => (
             <ProductCatalogScreen
               {...props}
@@ -121,10 +114,7 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen
-          name="ProductForm"
-          options={{ title: "Producto" }}
-        >
+        <Stack.Screen name="ProductForm" options={{ title: "Producto" }}>
           {(props) => (
             <ProductFormScreen
               {...props}
