@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable, ScrollView } from "react-native";
 
 export default function ProductSearchInput({
     inputRef,
@@ -15,9 +15,28 @@ export default function ProductSearchInput({
         setSearchText(selectedProduct?.name || "");
     }, [selectedProduct]);
 
-    const filteredProducts = products.filter((product) =>
-        product.name.toLowerCase().includes(searchText.toLowerCase())
-    );
+    const normalizedSearch = searchText
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    const filteredProducts = products.filter((product) => {
+        const productName = String(product.name || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        const productCategory = String(product.category || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        return (
+            productName.includes(normalizedSearch) ||
+            productCategory.includes(normalizedSearch)
+        );
+    });
 
     function handleSelect(product) {
         onSelectProduct(product);
@@ -46,27 +65,33 @@ export default function ProductSearchInput({
             />
 
             {showResults && searchText.length > 0 && (
-                <View className="mt-2 max-h-60 rounded-2xl border border-slate-200 bg-white">
+                <View className="mt-2 max-h-72 rounded-2xl border border-slate-200 bg-white">
                     {filteredProducts.length === 0 ? (
                         <Text className="p-4 text-slate-500">
                             No se encontraron productos.
                         </Text>
                     ) : (
-                        filteredProducts.slice(0, 8).map((product) => (
-                            <Pressable
-                                key={product.id}
-                                onPress={() => handleSelect(product)}
-                                className="border-b border-slate-100 p-4"
-                            >
-                                <Text className="font-bold text-slate-900">
-                                    {product.name}
-                                </Text>
+                        <ScrollView
+                            nestedScrollEnabled
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator
+                        >
+                            {filteredProducts.map((product) => (
+                                <Pressable
+                                    key={product.id}
+                                    onPress={() => handleSelect(product)}
+                                    className="border-b border-slate-100 p-4"
+                                >
+                                    <Text className="font-bold text-slate-900">
+                                        {product.name}
+                                    </Text>
 
-                                <Text className="mt-1 text-sm text-slate-500">
-                                    ${product.price} por {product.unit}
-                                </Text>
-                            </Pressable>
-                        ))
+                                    <Text className="mt-1 text-sm text-slate-500">
+                                        ${product.price} por {product.unit}
+                                    </Text>
+                                </Pressable>
+                            ))}
+                        </ScrollView>
                     )}
                 </View>
             )}
