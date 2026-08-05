@@ -73,7 +73,13 @@ export default function ProductFormScreen({
                 price: Number(price),
                 isCustom: true,
             };
-            setProductsList((prev) => [...prev, newProduct]);
+            console.log("ANTES:", productsList.length);
+            console.log("NUEVO:", newProduct);
+            setProductsList((prev) => {
+                const updatedProducts = [...prev, newProduct];
+                console.log("DESPUÉS:", updatedProducts.length);
+                return updatedProducts;
+            });
         }
         Alert.alert(
             editingProduct ? "Producto actualizado" : "Producto agregado",

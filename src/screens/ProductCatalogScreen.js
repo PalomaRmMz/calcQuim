@@ -115,11 +115,10 @@ export default function ProductCatalogScreen({
 
                         <ActionButton
                             label="Exportar catálogo"
-                            onPress={() =>
-                                exportProducts(
-                                    productsList
-                                )
-                            }
+                            onPress={() => {
+                                console.log("PRODUCTOS EN PANTALLA:", productsList.length);
+                                exportProducts([...productsList]);
+                            }}
                             variant="primary"
                         />
                     </View>
