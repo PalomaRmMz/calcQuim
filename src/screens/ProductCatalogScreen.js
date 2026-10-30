@@ -14,15 +14,43 @@ export default function ProductCatalogScreen({
 }) {
     const [searchText, setSearchText] = useState("");
 
+    const normalizedSearch = searchText
+        .trim()
+        .toLowerCase();
+
     const filteredProducts = [...productsList]
-        .filter((product) =>
-            product.name
-                .toLowerCase()
-                .includes(searchText.toLowerCase())
-        )
-        .sort((a, b) =>
-            a.name.localeCompare(b.name)
-        );
+        .filter((product) => {
+            const productName = String(
+                product.name || ""
+            ).toLowerCase();
+
+            const productCategory = String(
+                product.category || ""
+            ).toLowerCase();
+
+            return (
+                productName.includes(normalizedSearch) ||
+                productCategory.includes(normalizedSearch)
+            );
+        })
+        .sort((a, b) => {
+            const categoryComparison =
+                String(a.category || "").localeCompare(
+                    String(b.category || ""),
+                    "es",
+                    { sensitivity: "base" }
+                );
+
+            if (categoryComparison !== 0) {
+                return categoryComparison;
+            }
+
+            return String(a.name || "").localeCompare(
+                String(b.name || ""),
+                "es",
+                { sensitivity: "base" }
+            );
+        });
 
     function handleDelete(id) {
         Alert.alert(
@@ -115,11 +143,10 @@ export default function ProductCatalogScreen({
 
                         <ActionButton
                             label="Exportar catálogo"
-                            onPress={() =>
-                                exportProducts(
-                                    productsList
-                                )
-                            }
+                            onPress={() => {
+                                console.log("PRODUCTOS EN PANTALLA:", productsList.length);
+                                exportProducts([...productsList]);
+                            }}
                             variant="primary"
                         />
                     </View>

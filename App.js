@@ -1,11 +1,14 @@
 import "./global.css";
-
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { products } from "./src/data/Products";
-import { loadProducts, saveProducts } from "./src/storage/productsStorage";
+import {
+  loadProducts,
+  saveProducts,
+} from "./src/storage/productsStorage";
+
 import HomeScreen from "./src/screens/HomeScreen";
 import CalculatorScreen from "./src/screens/CalculatorScreen";
 import AddSaleScreen from "./src/screens/AddSaleScreen";
@@ -30,10 +33,18 @@ export default function App() {
     async function loadInitialData() {
       try {
         const storedSales = await AsyncStorage.getItem("currentSale");
+
         if (storedSales) {
           setSalesList(JSON.parse(storedSales));
         }
-        const storedProducts = await loadProducts();
+
+        /*
+         * Se envían los productos actuales de Products.js.
+         * loadProducts se encargará de combinarlos con los
+         * productos personalizados guardados anteriormente.
+         */
+        const storedProducts = await loadProducts(products);
+
         if (storedProducts) {
           setProductsList(storedProducts);
         }
@@ -43,16 +54,24 @@ export default function App() {
         setDataLoaded(true);
       }
     }
+
     loadInitialData();
   }, []);
 
   useEffect(() => {
     if (!dataLoaded) return;
-    AsyncStorage.setItem("currentSale", JSON.stringify(salesList));
+
+    AsyncStorage.setItem(
+      "currentSale",
+      JSON.stringify(salesList)
+    ).catch((error) => {
+      console.error("Error guardando la venta:", error);
+    });
   }, [salesList, dataLoaded]);
 
   useEffect(() => {
     if (!dataLoaded) return;
+
     saveProducts(productsList);
   }, [productsList, dataLoaded]);
 
@@ -62,7 +81,10 @@ export default function App() {
         initialRouteName="Home"
         screenOptions={screenOptions}
       >
-        <Stack.Screen name="Home" options={{ title: "Inicio" }}>
+        <Stack.Screen
+          name="Home"
+          options={{ title: "Inicio" }}
+        >
           {(props) => (
             <HomeScreen
               {...props}
@@ -72,7 +94,10 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="Calculator" options={{ title: "Venta por monto" }}>
+        <Stack.Screen
+          name="Calculator"
+          options={{ title: "Venta por monto" }}
+        >
           {(props) => (
             <CalculatorScreen
               {...props}
@@ -83,7 +108,10 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="AddSale" options={{ title: "Venta por cantidad" }}>
+        <Stack.Screen
+          name="AddSale"
+          options={{ title: "Venta por cantidad" }}
+        >
           {(props) => (
             <AddSaleScreen
               {...props}
@@ -94,7 +122,10 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="SalesList" options={{ title: "Lista de venta" }}>
+        <Stack.Screen
+          name="SalesList"
+          options={{ title: "Lista de venta" }}
+        >
           {(props) => (
             <ListScreen
               {...props}
@@ -104,7 +135,10 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="ProductsCatalog" options={{ title: "Catálogo" }}>
+        <Stack.Screen
+          name="ProductsCatalog"
+          options={{ title: "Catálogo" }}
+        >
           {(props) => (
             <ProductCatalogScreen
               {...props}
@@ -114,7 +148,10 @@ export default function App() {
           )}
         </Stack.Screen>
 
-        <Stack.Screen name="ProductForm" options={{ title: "Producto" }}>
+        <Stack.Screen
+          name="ProductForm"
+          options={{ title: "Producto" }}
+        >
           {(props) => (
             <ProductFormScreen
               {...props}

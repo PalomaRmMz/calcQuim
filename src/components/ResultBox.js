@@ -28,7 +28,9 @@ export default function ResultBox({
                         </Text>
 
                         <Text className="mt-3 text-center text-lg">
-                            {numericSaleQuantity} {saleUnit} de {product.name}
+                            {numericSaleQuantity}{" "}
+                            {numericSaleQuantity === 1 ? "litro" : "litros"}{" "}
+                            de {product.name}
                         </Text>
                     </>
                 ) : (

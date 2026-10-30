@@ -64,7 +64,8 @@ export default function SaleCard({
                     {isQuantitySale ? (
                         <>
                             <Text className="mt-3 text-2xl font-extrabold text-green-600">
-                                {item.quantity} litro
+                                {item.quantity}{" "}
+                                {Number(item.quantity) === 1 ? "litro" : "litros"}
                             </Text>
 
                             <Text className="mt-1 text-base text-slate-500">
