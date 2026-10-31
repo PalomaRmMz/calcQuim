@@ -5,6 +5,12 @@
   },
   "build": {
     "apk": {
+      "autoIncrement": true,
+      "distribution": "internal",
+      "env": {
+        "CALCQUIM_BUILD_VARIANT": "tests",
+        "EXPO_PUBLIC_CALCQUIM_API_URL": "http://192.168.1.64:3016"
+      },
       "android": {
         "buildType": "apk"
       }

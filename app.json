@@ -24,7 +24,8 @@
     },
     "plugins": [
       "expo-status-bar",
-      "expo-sharing"
+      "expo-sharing",
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {

@@ -1,111 +1,49 @@
 import { Pressable, Text } from "react-native";
-import { Feather, MaterialIcons, } from "@expo/vector-icons";
-
+import { Feather } from "@expo/vector-icons";
+import { COLORS as C } from "../domain/brand.mjs";
 export default function ActionButton({
-    label,
-    onPress,
-    variant = "primary",
-    fullWidth = false,
+  label,
+  onPress,
+  variant = "primary",
+  fullWidth = false,
+  disabled = false,
+  icon,
 }) {
-    const variants = {
-        primary: "bg-blue-600 border-blue-600",
-        danger: "bg-white border-red-500",
-        dark: "bg-white border-slate-900",
-        success: "bg-green-600 border-green-600",
-        white: "bg-white border-white",
-    };
-
-    const textVariants = {
-        primary: "text-white",
-        danger: "text-red-500",
-        dark: "text-slate-900",
-        success: "text-white",
-        white: "text-slate-900",
-    };
-
-    return (
-        <Pressable
-            onPress={onPress}
-            className={`${fullWidth ? "w-full" : "flex-1"
-                } flex-row items-center justify-center gap-2 rounded-2xl border py-3 ${variants[variant]}`}
-        >
-            {label === "Agregar venta" && (
-                <Feather
-                    name="plus-circle"
-                    size={18}
-                    color="white"
-                />
-            )}
-
-            {label === "Editar" && (
-                <Feather
-                    name="edit-2"
-                    size={16}
-                    color="#0f172a"
-                />
-            )}
-
-            {label === "Eliminar" && (
-                <MaterialIcons
-                    name="delete-outline"
-                    size={18}
-                    color="#ef4444"
-                />
-            )}
-
-            {label === "Guardar" && (
-                <Feather
-                    name="check"
-                    size={18}
-                    color="white"
-                />
-            )}
-
-            {label === "Cancelar" && (
-                <MaterialIcons
-                    name="close"
-                    size={18}
-                    color="#0f172a"
-                />
-            )}
-
-            {label === "Nueva venta" && (
-                <MaterialIcons
-                    name="delete-sweep"
-                    size={18}
-                    color="white"
-                />
-            )}
-
-            {label === "Agregar producto" && (
-                <Feather
-                    name="plus-circle"
-                    size={18}
-                    color="white"
-                />
-            )}
-
-            {label === "Exportar catálogo" && (
-                <Feather
-                    name="download"
-                    size={18}
-                    color="white"
-                />
-            )}
-
-            {label === "Importar catálogo" && (
-                <Feather
-                    name="upload"
-                    size={18}
-                    color="#0f172a"
-                />
-            )}
-
-            <Text
-                className={`text-center text-sm font-bold ${textVariants[variant]}`}
-            >
-                {label}
-            </Text>
-        </Pressable>
-    );
+  const filled = ["primary", "success"].includes(variant),
+    color = filled ? C.white : variant === "danger" ? C.coral : C.primary;
+  return (
+    <Pressable
+      disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      onPress={onPress}
+      style={{
+        flex: fullWidth ? undefined : 1,
+        width: fullWidth ? "100%" : undefined,
+        minHeight: 48,
+        padding: 12,
+        borderRadius: 13,
+        borderWidth: 1,
+        borderColor: filled
+          ? C.primary
+          : variant === "danger"
+            ? C.coral
+            : C.line,
+        backgroundColor: filled ? C.primary : C.white,
+        opacity: disabled ? 0.42 : 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+      }}
+    >
+      {icon && <Feather name={icon} size={18} color={color} />}
+      <Text
+        style={{ color, fontWeight: "700", fontSize: 14, textAlign: "center" }}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
 }
