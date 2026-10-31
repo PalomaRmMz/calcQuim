@@ -8,7 +8,6 @@ export default function ResultBox({
     mode = "money",
     amount,
     product,
-    saleUnit,
 }) {
     const numericAmount = Number(amount);
     const numericSaleQuantity = Number(saleQuantity);

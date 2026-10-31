@@ -20,3 +20,37 @@ credentials.json
 *.key
 *.p12
 npm-debug.*
+
+# Work documents, local caches and recovery material are not build inputs.
+.claude/
+AGENTS.md
+CLAUDE.md
+artifacts/
+backups/
+tickets/
+receipts/
+**/.cache/
+**/.npm-cache/
+**/*.log
+**/*.tmp
+**/*.bak
+**/*.dump
+**/*.backup
+**/*.private.md
+**/*.private.xml
+**/*.xlsx
+**/*.xls
+**/*.docx
+**/*.pdf
+**/*.apk
+**/*.aab
+CalcQuim_*.json
+
+# Signing material and native tool caches.
+*.pem
+*.p8
+*.mobileprovision
+*.tsbuildinfo
+.kotlin/
+.metro-health-check*
+.DS_Store

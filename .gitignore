@@ -42,3 +42,30 @@ yarn-error.*
 
 # Resultados y registros locales de verificación
 .artifacts/
+
+# Private data and reproducible local output. Existing tracked evidence is retained.
+.env
+.env.*
+!.env.example
+credentials.json
+*.keystore
+*.dump
+*.backup
+*.private.json
+*.private.md
+*.private.xml
+*.log
+*.tmp
+*.bak
+*.apk
+*.aab
+/artifacts/
+/backups/
+/tickets/
+/receipts/
+/output/
+**/.npm-cache/
+**/.cache/
+**/.vite*/
+CalcQuim_*.json
+CalcQuim_*.xlsx

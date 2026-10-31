@@ -10,7 +10,6 @@ import { calculateSaleByLiters } from "../utils/salesCalculations";
 
 export default function AddSaleScreen({
     navigation,
-    salesList,
     setSalesList,
     productsList,
 }) {

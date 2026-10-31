@@ -10,7 +10,6 @@ export default function HomeScreen({ navigation, salesList }) {
         title,
         subtitle,
         icon,
-        iconColor,
         bgColor,
         onPress,
     }) {

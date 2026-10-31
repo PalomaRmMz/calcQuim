@@ -8,7 +8,7 @@ import ResultBox from "../components/ResultBox";
 import { sanitizeDecimalInput } from "../utils/numberInput";
 import { calculateSaleByAmount } from "../utils/salesCalculations";
 
-export default function CalculatorScreen({ navigation, salesList, setSalesList, productsList, }) {
+export default function CalculatorScreen({ navigation, setSalesList, productsList, }) {
     const amountInputRef = useRef(null);
     const productSearchRef = useRef(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
