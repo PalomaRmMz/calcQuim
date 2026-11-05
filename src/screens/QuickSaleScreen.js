@@ -28,7 +28,7 @@ import {
   searchCommercial,
   specificChoices,
 } from "../domain/commercial.mjs";
-import { makeLine, money, total } from "../domain/sale.mjs";
+import { makeLine, money, total, repriceLines } from "../domain/sale.mjs";
 export { styles } from "../components/BrandUI";
 
 export default function QuickSaleScreen({ navigation, model: m }) {
@@ -36,6 +36,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
     [selection, setSelection] = useState(null),
     [tariffKey, setTariffKey] = useState(""),
     [value, setValue] = useState(""),
+    [confirmedQuantity,setConfirmedQuantity]=useState(""),
     [editingId, setEditingId] = useState(null),
     [notice, setNotice] = useState(""),
     [showSpecific, setShowSpecific] = useState(false),
@@ -60,13 +61,14 @@ export default function QuickSaleScreen({ navigation, model: m }) {
   );
   const choice = selection && choices.find((c) => c.key === selection),
     tariff = choice?.tariffs.find((t) => t.key === tariffKey);
-  let preview = null;
+  let preview = null,pricingMessage="";
   try {
-    if (choice && value)
-      preview = makeLine(choice, tariff, s.mode, value, editingId || "preview");
-  } catch {
-    /* Agregar muestra el error concreto. */
-  }
+    if (choice && value) {
+      const line = makeLine(choice, tariff, s.mode, value, editingId || 'preview',confirmedQuantity);
+      const lines=editingId?s.draft.lines.map(old=>old.id===editingId?line:old):[...s.draft.lines,line];
+      preview=repriceLines(lines).find(row=>row.id===line.id);
+    }
+  } catch(error) {pricingMessage=error.message;}
   useEffect(() => {
     if (selection) {
       didSelect.current = true;
@@ -96,7 +98,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
   function reset() {
     setSelection(null);
     setTariffKey("");
-    setValue("");
+    setValue("");setConfirmedQuantity("");
     setEditingId(null);
     setQuery("");
     setShowSpecific(false);
@@ -105,7 +107,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
   function select(c) {
     setSelection(c.key);
     setTariffKey(c.tariffs.length === 1 ? c.tariffs[0].key : "");
-    setValue("");
+    setValue("");setConfirmedQuantity("");
     setEditingId(null);
     setQuery("");
     setShowSpecific(false);
@@ -121,6 +123,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
         s.mode,
         value,
         editingId || randomUUID(),
+        confirmedQuantity,
       );
       if (await m.add(line, editingId)) {
         reset();
@@ -145,7 +148,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
     }
     select(c);
     setTariffKey(line.tariffKey);
-    setValue(line.capturedValue);
+    setValue(line.capturedValue);setConfirmedQuantity(line.confirmedQuantity??"");
     setEditingId(line.id);
     await m.mode(line.entryMode);
     focusValue();
@@ -363,7 +366,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
                         key={t.key}
                         onPress={() => {
                           setTariffKey(t.key);
-                          setValue("");
+                          setValue("");setConfirmedQuantity("");
                         }}
                         style={[
                           styles.chip,
@@ -394,7 +397,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
                       onPress={async () => {
                         if (mode !== s.mode) {
                           await m.mode(mode);
-                          setValue("");
+                          setValue("");setConfirmedQuantity("");
                           focusValue();
                         }
                       }}
@@ -433,7 +436,7 @@ export default function QuickSaleScreen({ navigation, model: m }) {
                     }
                     keyboardType="decimal-pad"
                     value={value}
-                    onChangeText={setValue}
+                    onChangeText={next=>{setValue(next);setConfirmedQuantity("");}}
                     placeholder={
                       s.mode === "amount" ? "Importe en pesos" : "Cantidad"
                     }
@@ -451,12 +454,15 @@ export default function QuickSaleScreen({ navigation, model: m }) {
                     {s.mode === "amount" ? "MXN" : tariff?.unit}
                   </Text>
                 </View>
+                {pricingMessage&&<Text style={styles.danger}>{pricingMessage}</Text>}
+                {s.mode==='amount'&&tariff?.pricingVersion&&(pricingMessage||confirmedQuantity)&&<View><Text style={styles.muted}>Cantidad física para resolver tarifa ({tariff.unit}). El importe se conserva.</Text><TextInput accessibilityLabel="Cantidad física confirmada" keyboardType="decimal-pad" value={confirmedQuantity} onChangeText={setConfirmedQuantity} style={styles.input}/></View>}
                 {preview && (
                   <Text style={styles.muted}>
                     {preview.entryMode === "amount" ? "≈ " : ""}
                     {Number(preview.quantity.toFixed(6))} {preview.unit} ·{" "}
                     <Text style={styles.price}>{money(preview.amount)}</Text>
-                    {preview.discountRate ? " · Mayoreo 15 %" : ""}
+                    {preview.priceTier === "wholesale" ? ` · Mayoreo ${money(preview.price)} / ${preview.unit}` : ""}
+                    {preview.pricingWarning ? ` · ${preview.pricingWarning}` : ""}
                   </Text>
                 )}
               </>
@@ -491,7 +497,8 @@ export default function QuickSaleScreen({ navigation, model: m }) {
                     {line.entryMode === "amount" ? "≈ " : ""}
                     {Number(line.quantity.toFixed(6))} {line.unit} ·{" "}
                     {money(line.price)} / {line.unit}
-                    {line.discountRate ? " · Mayoreo 15 %" : ""}
+                    {line.priceTier === "wholesale" ? " · Tarifa de mayoreo" : ""}
+                    {line.pricingWarning ? ` · ${line.pricingWarning}` : ""}
                   </Text>
                   <View
                     style={[

@@ -29,7 +29,7 @@
     "tailwindcss": "^3.4.19"
   },
   "scripts": {
-    "test": "node --test tests/mobile.test.mjs tests/redesign.test.mjs tests/lan-access.test.mjs tests/apk-config.test.mjs tests/metro-loopback.test.mjs",
+    "test": "node --test tests/mobile.test.mjs tests/redesign.test.mjs tests/lan-access.test.mjs tests/apk-config.test.mjs tests/metro-loopback.test.mjs tests/wholesale.test.mjs",
     "test:integration": "node --test tests/postgres-mobile.test.mjs",
     "demo:server": "node integration/synthetic-server.mjs",
     "real:server": "node integration/operational-mobile-server.mjs",

@@ -16,7 +16,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.pamrm2089.calcQuim"
+      "package": "com.pamrm2089.calcQuim",
+      "versionCode": 4
     },
     "web": {
       "favicon": "./assets/favicon.png",

@@ -6,7 +6,7 @@ import { submitSale } from '../src/domain/submission.mjs';
 import { ticketHtml } from '../src/domain/ticket.mjs';
 import { serverUrl } from '../src/services/mobileApi.mjs';
 import { createMobileStorage, initialState, MOBILE_KEY } from '../src/domain/persistence.mjs';
-export const catalog = { generation: 'synthetic-generation', revision: 1, pricingVersion: 'admin-sales-v1', data: {
+export const catalog = { generation: 'synthetic-generation', revision: 1, pricingVersion: 'admin-sales-normal-v1', data: {
   categories: [{ id: 1, name: 'Limpieza', active: true }, { id: 2, name: 'Lavandería', active: true }],
   productLines: [{ id: 10, name: 'Carisma', categoryId: 1, active: true }, { id: 20, name: 'Carisma', categoryId: 2, active: true }],
   priceGroups: [{ id: 30, name: 'Lavatrastes', price: 20, active: true }],
@@ -15,6 +15,21 @@ export const catalog = { generation: 'synthetic-generation', revision: 1, pricin
 const choices = catalogChoices(catalog.data), choice = choices.find(c => c.key === 'product:100');
 const line = (mode, value) => makeLine(choice, choice.tariffs[0], mode, value, 'line1');
 test('catálogo oficial completo y versión de precios requerida', () => { assert.equal(validateCatalog(catalog), catalog); assert.throws(() => validateCatalog({ ...catalog, pricingVersion: 'other' })); assert.throws(() => validateCatalog({ ...catalog, data: {} })); });
+test('11 L sin mayoreo configurado usan normal y el catálogo antiguo no permite enviar',async()=>{
+ const row=line('quantity','11');assert.equal(row.amount,220);assert.equal(row.discountRate,0);
+ const {requestBody}=await import('../src/domain/sale.mjs');
+ assert.throws(()=>requestBody({lines:[row]}, {...catalog,pricingVersion:'admin-sales-v1'}),/Sincroniza/);
+ assert.throws(()=>requestBody({lines:[{...row,amount:187,discountRate:0.15}]},catalog),/borrador/);
+});
+test('intento antiguo se consulta: recupera ticket existente y nunca reenvía el cálculo del 15%',async()=>{
+ const draft={lines:[line('quantity','11')],attempt:{key:'legacy-attempt',server:'same',body:{items:[]}}};
+ let posted=0;
+ const missing=await submitSale({draft,catalog,api:{identity:'same',status:async()=>({status:'not_found'}),register:async()=>{posted++;}},persist:async()=>{}});
+ assert.equal(missing.status,'rejected');assert.equal(posted,0);
+ const known={id:'existing',folio:'V-00001',status:'confirmed',total:187,items:[]};
+ const found=await submitSale({draft,catalog,api:{identity:'same',status:async()=>({receipt:known}),register:async()=>{posted++;}},persist:async()=>{}});
+ assert.equal(found.status,'confirmed');assert.equal(found.receipt.total,187);assert.equal(posted,0);
+});
 test('búsqueda sin acentos, por contexto y por los cuatro tipos', () => {
   assert.equal(searchChoices(choices, 'CARISMA LIMON').length, 2);
   for (const kind of ['line', 'priceGroup', 'category', 'product']) assert.ok(searchChoices(choices, '').some(c => c.kind === kind));
@@ -29,8 +44,8 @@ test('precio individual, grupo y línea mixta requieren tarifa explícita', () =
 });
 test('cantidad exacta, pesos originales, umbral de mayoreo y centavos', () => {
   assert.equal(line('quantity', '3.123456').quantity, 3.123456);
-  assert.equal(line('quantity', '10').amount, 170);
-  assert.equal(line('amount', '170').quantity, 10);
+  assert.equal(line('quantity', '10').amount, 200);
+  assert.equal(line('amount', '170').quantity, 8.5);
   assert.equal(line('amount', '169.99').discountRate, 0);
   assert.equal(line('amount', '1.01').amount, 1.01);
   assert.equal(total([line('amount', '.01'.replace('.', '0.')), line('amount', '1.01')]), 1.02);
@@ -83,7 +98,7 @@ test('tarifa oficial cero solo admite cantidad física', () => {
   assert.throws(()=>makeLine(c,c.tariffs[0],'amount','1','zero'));
 });
 test('paridad con motor real de Admin en unidades, umbrales y redondeos', async () => {
-  const {calculateItems}=await import('file:///D:/ReactApps/calcQuim-admin/src/utils/salesUtils.js');
+  const {calculateItems}=await import('../../calcQuim-admin/src/utils/salesUtils.js');
   for(const unit of ['litro','kg','pieza'])for(const price of [0.01,13.33,20,99.99])for(const mode of ['quantity','amount'])for(const value of ['0.01','9.999999','10','10.01','169.99','170']){
     if(mode==='amount'&&value==='9.999999')continue;
     const t={key:`${price}:${unit}`,price,unit,productIds:[100]},c={...choice,tariffs:[t]};

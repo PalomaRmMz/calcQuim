@@ -50,7 +50,7 @@ test('integración PostgreSQL aislada: móvil, desglose, origen, reinicio, idemp
       state = await service.read();
       const choices = catalogChoices(state.data), line = choices.find(c => c.key === 'line:1');
       assert.equal(line.tariffs.length, 2);
-      body = { revision: state.revision, generation: state.generation, payment: 'Efectivo', origin: 'WEB', items: [
+      body = { pricingVersion: 'admin-sales-normal-v1', revision: state.revision, generation: state.generation, payment: 'Efectivo', origin: 'WEB', items: [
         { reference: { kind: 'line', id: 1 }, tariffKey: '20:litro', price: 20, unit: 'litro', entryMode: 'quantity', value: '3' },
         { reference: { kind: 'priceGroup', id: 1 }, tariffKey: '20:litro', price: 20, unit: 'litro', entryMode: 'amount', value: '1.01' },
         { reference: { kind: 'product', id: 3 }, tariffKey: '25:litro', price: 25, unit: 'litro', entryMode: 'quantity', value: '1' },

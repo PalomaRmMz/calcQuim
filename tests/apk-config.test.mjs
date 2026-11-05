@@ -14,6 +14,9 @@ test('APK de pruebas usa paquete separado y conserva el paquete original',()=>{
     delete process.env.CALCQUIM_BUILD_VARIANT;
     assert.equal(configFactory({config:base}).android.package,base.android.package);
     assert.equal(base.android.package,'com.pamrm2089.calcQuim');
+    process.env.CALCQUIM_BUILD_VARIANT='revisionqa';
+    const qa=configFactory({config:base});assert.equal(qa.android.package,'com.pamrm2089.calcQuim.revisionqa');assert.equal(qa.android.versionCode,1);assert.equal(qa.name,'CalcQuim QA Mayoreo');
+    assert.equal(base.android.versionCode,4);
   }finally{if(before===undefined)delete process.env.CALCQUIM_BUILD_VARIANT;else process.env.CALCQUIM_BUILD_VARIANT=before;}
 });
 test('archivo de EAS excluye respaldos y credenciales locales',()=>{

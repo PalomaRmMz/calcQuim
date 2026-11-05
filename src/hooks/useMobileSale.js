@@ -1,3 +1,4 @@
+import {repriceLines} from '../domain/sale.mjs';
 import { useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
@@ -187,7 +188,7 @@ export function useMobileSale() {
           draft: {
             ...s.draft,
             generation: s.catalog.generation,
-            lines,
+            lines: repriceLines(lines),
             status: "draft",
             attempt: null,
           },
@@ -201,7 +202,7 @@ export function useMobileSale() {
           ...current.current,
           draft: {
             ...current.current.draft,
-            lines: current.current.draft.lines.filter((l) => l.id !== id),
+            lines: repriceLines(current.current.draft.lines.filter((l) => l.id !== id)),
             status: "draft",
             attempt: null,
           },

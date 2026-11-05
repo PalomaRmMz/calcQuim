@@ -1,7 +1,7 @@
 {
   "cli": {
     "version": ">= 19.0.8",
-    "appVersionSource": "remote"
+    "appVersionSource": "local"
   },
   "build": {
     "apk": {
@@ -24,6 +24,19 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "distribution": {
+      "extends": "apk",
+      "autoIncrement": false,
+      "credentialsSource": "remote",
+      "env": {
+        "CALCQUIM_BUILD_VARIANT": "tests",
+        "EXPO_PUBLIC_CALCQUIM_API_URL": "http://192.168.1.64:3016",
+        "EXPO_PUBLIC_CALCQUIM_QA": "0"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

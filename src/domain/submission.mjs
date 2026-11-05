@@ -13,12 +13,18 @@ export async function submitSale({ draft, catalog, api, persist, uuid }) {
     let receipt = previous?.receipt;
     if (!receipt) {
       if (previous?.status !== 'not_found') throw new Error('No se pudo determinar el estado anterior.');
+      if (!['admin-sales-normal-v1','admin-sales-wholesale-v2'].includes(attempt.body?.pricingVersion) || catalog.pricingVersion !== attempt.body.pricingVersion) {
+        const error = new Error('El intento anterior no fue registrado. Actualiza el catálogo y revisa el borrador; no se enviará con el descuento fijo.');
+        error.definitive = true;
+        registrationStarted = true;
+        throw error;
+      }
       registrationStarted = true;
       evidence = await api.register(attempt.key, attempt.body);
       receipt = evidence.receipt;
     }
     if (!receipt?.id || !receipt.folio || receipt.status !== 'confirmed' || !Array.isArray(receipt.items) || !Number.isFinite(receipt.total)) throw new Error('Respuesta sin evidencia de confirmación.');
-    const confirmed = { ...sending, status: 'confirmed', receipt, serverRevision: evidence.revision, serverGeneration: evidence.generation };
+    const confirmed = { ...sending, status: 'confirmed', receipt, inventoryPending:evidence.inventoryPending??[], serverRevision: evidence.revision, serverGeneration: evidence.generation };
     await persist(confirmed);
     return confirmed;
   } catch (error) {
