@@ -42,6 +42,7 @@ yarn-error.*
 
 # Resultados y registros locales de verificación
 .artifacts/
+.playwright-mcp/
 
 # Private data and reproducible local output. Existing tracked evidence is retained.
 .env

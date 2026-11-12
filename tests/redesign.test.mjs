@@ -11,7 +11,7 @@ import { logoDataUri } from "../src/domain/logo.mjs";
 import { catalogChoices } from '../src/domain/catalog.mjs';
 import { makeLine } from '../src/domain/sale.mjs';
 import { saleCapturedAt,saleLastChangedAt,saleMoment } from '../integration/admin-saleAuditView.mjs';
-import { ticketHtml as adminTicketHtml } from '../../calcQuim-admin/src/services/saleReceipt.js';
+import { ticketHtml as adminTicketHtml, ticketModel as adminTicketModel } from '../../calcQuim-admin/src/services/saleReceipt.js';
 const data = {
   categories: [
     { id: 1, name: "Multiusos", active: true },
@@ -137,8 +137,10 @@ test('cantidades y pesos a tarifa 19 conservan los importes solicitados',()=>{
  assert.equal(makeLine(choice,choice.tariffs[0],'quantity','3','a').amount,57);
  const amount=makeLine(choice,choice.tariffs[0],'amount','20','b');assert.equal(amount.amount,20);assert.ok(Math.abs(amount.quantity-20/19)<1e-12);assert.equal(amount.capturedValue,'20');
 });
-test('Admin y móvil generan el mismo contenido y preservan auditoría sin inventar horas',()=>{
- assert.equal(adminTicketHtml(receipt),ticketHtml(receipt));
+test('Admin y móvil preservan modelo y contenido del recibo móvil; estilos web independientes',()=>{
+ assert.deepEqual(adminTicketModel(receipt),ticketModel(receipt));
+ const body = html => html.match(/<body>([\s\S]*)<\/body>/)[1];
+ assert.equal(body(adminTicketHtml(receipt)),body(ticketHtml(receipt)));
  const sale={createdAt:'2026-10-30T18:00:00Z',history:[{at:'2026-10-30T20:00:00Z',action:'breakdown'},{at:'2026-10-30T19:00:00Z',action:'commercial_correction'}]};
  assert.equal(saleCapturedAt(sale),sale.createdAt);assert.equal(saleLastChangedAt(sale),'2026-10-30T20:00:00Z');assert.equal(saleMoment(null),'Sin dato histórico');assert.equal(saleCapturedAt({createdAt:'2026-10-30'}),null);
 });

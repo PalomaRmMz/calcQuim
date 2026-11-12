@@ -31,7 +31,7 @@ import {
 import { makeLine, money, total, repriceLines } from "../domain/sale.mjs";
 export { styles } from "../components/BrandUI";
 
-export default function QuickSaleScreen({ navigation, model: m }) {
+export default function QuickSaleScreen({ navigation, model: m, mainSections = false }) {
   const [query, setQuery] = useState(""),
     [selection, setSelection] = useState(null),
     [tariffKey, setTariffKey] = useState(""),
@@ -180,10 +180,11 @@ export default function QuickSaleScreen({ navigation, model: m }) {
   }
   return (
     <SafeAreaView
-      edges={["top", "left", "right", "bottom"]}
+      edges={mainSections ? ["top", "left", "right"] : ["top", "left", "right", "bottom"]}
       style={styles.root}
     >
       <KeyboardAvoidingView
+        enabled={!mainSections}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.root}
       >

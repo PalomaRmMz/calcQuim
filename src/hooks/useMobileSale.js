@@ -1,3 +1,5 @@
+import {productCreationAttempts} from '../services/productCreationStorage';
+import {pendingProductCreation} from '../domain/productCreationSubmission.mjs';
 import {repriceLines} from '../domain/sale.mjs';
 import { useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
@@ -14,6 +16,8 @@ import { createMobileApi, serverUrl } from "../services/mobileApi.mjs";
 import { validateCatalog } from "../domain/catalog.mjs";
 import { submitSale } from "../domain/submission.mjs";
 import { EMULATOR_QA } from "../domain/persistence.mjs";
+import { inventoryAttempts } from '../services/inventoryStorage';
+import { unresolvedInventory } from '../domain/inventorySubmission.mjs';
 const credentialKey = EMULATOR_QA
   ? "calcquim.mobile.token.qa"
   : "calcquim.mobile.token";
@@ -134,6 +138,12 @@ export function useMobileSale() {
     configure: (url, secret) =>
       run(async () => {
         const baseUrl = serverUrl(url);
+        if ((baseUrl !== current.current.baseUrl || secret.trim() !== token) &&
+            pendingProductCreation(await productCreationAttempts.all()))
+          throw new Error('Consulta primero el resultado del alta pendiente con la conexión y credencial originales.');
+        if ((baseUrl !== current.current.baseUrl || secret.trim() !== token) &&
+            unresolvedInventory(await inventoryAttempts.all()).some(a => a.server === current.current.baseUrl))
+          throw new Error('Consulta primero el resultado del inventario pendiente con la conexión original.');
         if (
           baseUrl !== current.current.baseUrl &&
           current.current.draft.status !== "confirmed" &&

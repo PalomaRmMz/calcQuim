@@ -9,7 +9,8 @@ import {makeLine as serverLine} from '../../calcQuim-admin/server/src/mobile/sal
 const data={wholesalePricing:{version:WHOLESALE_VERSION,amountPolicy:'wholesale-threshold'},categories:[{id:1,name:'Sintética',active:true}],productLines:[],priceGroups:[{id:1,name:'Grupo sintético',price:20,wholesalePrice:15,active:true}],products:[{id:1,name:'Producto sintético',categoryId:1,priceGroupId:1,price:null,unit:'litro',active:true}]};
 const choice=catalogChoices(data).find(c=>c.key==='product:1'),tariff=choice.tariffs[0];
 test('móvil reutiliza exactamente el motor oficial y produce los mismos renglones que Express',async()=>{
- assert.equal(await readFile(new URL('../src/domain/wholesalePricing.mjs',import.meta.url),'utf8'),await readFile(new URL('../../calcQuim-admin/src/domain/wholesalePricing.mjs',import.meta.url),'utf8'));
+ const source = async path => (await readFile(new URL(path,import.meta.url),'utf8')).replace(/\r\n/g,'\n');
+ assert.equal(await source('../src/domain/wholesalePricing.mjs'),await source('../../calcQuim-admin/src/domain/wholesalePricing.mjs'));
  for(const [mode,value]of [['quantity','9.999999'],['quantity','10'],['amount','149.99'],['amount','150'],['amount','190.01']])assert.deepEqual(makeLine(choice,tariff,mode,value,'id'),serverLine(choice,tariff,mode,value,'id'));
 });
 test('mayoreo automático por litros e importe, sin cambiar centavos y con evidencia de tarifa',()=>{

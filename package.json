@@ -29,8 +29,11 @@
     "tailwindcss": "^3.4.19"
   },
   "scripts": {
-    "test": "node --test tests/mobile.test.mjs tests/redesign.test.mjs tests/lan-access.test.mjs tests/apk-config.test.mjs tests/metro-loopback.test.mjs tests/wholesale.test.mjs",
+    "test": "node --test tests/mobile.test.mjs tests/redesign.test.mjs tests/lan-access.test.mjs tests/apk-config.test.mjs tests/metro-loopback.test.mjs tests/wholesale.test.mjs tests/inventory.test.mjs tests/inventory-capture.test.mjs",
     "test:integration": "node --test tests/postgres-mobile.test.mjs",
+    "test:inventory": "node --test tests/inventory.test.mjs tests/inventory-capture.test.mjs",
+    "test:inventory:qa": "node --test tests/inventory-qa.test.mjs",
+    "test:inventory:web-qa": "node --test tests/inventory-web-qa.test.mjs",
     "demo:server": "node integration/synthetic-server.mjs",
     "real:server": "node integration/operational-mobile-server.mjs",
     "real:server:lan": "node integration/operational-mobile-server.mjs --lan-host 192.168.1.64",

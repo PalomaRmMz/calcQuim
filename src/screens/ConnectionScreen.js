@@ -11,15 +11,7 @@ import ActionButton from "../components/ActionButton";
 import { styles, Field } from "../components/BrandUI";
 export default function ConnectionScreen({ model: m, navigation }) {
   const [url, setUrl] = useState(m.state?.baseUrl || ""),
-    [secret, setSecret] = useState(m.token),
-    [showLegacy, setShowLegacy] = useState(false);
-  const legacySales = (() => {
-    try {
-      return JSON.parse(m.legacy?.currentSale || "[]");
-    } catch {
-      return null;
-    }
-  })();
+    [secret, setSecret] = useState(m.token);
   return (
     <SafeAreaView edges={["bottom"]} style={styles.root}>
       <ScrollView
@@ -27,7 +19,7 @@ export default function ConnectionScreen({ model: m, navigation }) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.card}>
-          <Text style={styles.heading}>Conectar con Admin</Text>
+          <Text style={styles.heading}>Configuración de conexión</Text>
           <Field
             label="Dirección del servidor local"
             autoCapitalize="none"
@@ -80,47 +72,6 @@ export default function ConnectionScreen({ model: m, navigation }) {
               {m.error}
             </Text>
           ) : null}
-        </View>
-        <View style={styles.card}>
-          <Text style={styles.heading}>Datos anteriores conservados</Text>
-          <Text style={styles.muted}>
-            {legacySales
-              ? `${legacySales.length} renglones en la venta local anterior.`
-              : "La venta anterior requiere revisar su formato."}{" "}
-            No se convierten ni se envían como ventas oficiales.
-          </Text>
-          <Pressable onPress={() => setShowLegacy(!showLegacy)}>
-            <Text style={styles.link}>Consultar datos anteriores</Text>
-          </Pressable>
-          {showLegacy && (
-            <>
-              <Text selectable>{JSON.stringify(m.legacy, null, 2)}</Text>
-              <ActionButton
-                label="Compartir respaldo anterior"
-                fullWidth
-                onPress={() =>
-                  Share.share({
-                    message: JSON.stringify(m.legacy, null, 2),
-                  }).catch(() => {})
-                }
-              />
-            </>
-          )}
-        </View>
-        <View style={styles.card}>
-          <Text style={styles.heading}>Tickets originales guardados</Text>
-          {m.state?.receipts.map((r) => (
-            <Pressable
-              key={r.id}
-              onPress={() =>
-                navigation.navigate("SaleSummary", { receiptId: r.id })
-              }
-            >
-              <Text style={styles.link}>
-                {r.folio} · ${r.total.toFixed(2)}
-              </Text>
-            </Pressable>
-          ))}
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -1,0 +1,18 @@
+export const canonicalReceipt=v=>Array.isArray(v)?'['+v.map(canonicalReceipt).join(',')+']':v&&typeof v==='object'?'{'+Object.keys(v).sort().map(k=>JSON.stringify(k)+':'+canonicalReceipt(v[k])).join(',')+'}':JSON.stringify(v);
+const amount=v=>typeof v==='string'&&/^\d+(?:\.\d+)?$/.test(v);
+function base(value){if(value?.source!=='postgresql'||!Number.isSafeInteger(value.revision)||typeof value.generation!=='string'||!Number.isFinite(Date.parse(value.generatedAt)))throw Error('Respuesta del historial no verificable.');}
+export function validateSalesPage(value){base(value);if(!value.filters||['folio','from','to'].some(k=>value.filters[k]!==null&&typeof value.filters[k]!=='string')||!Array.isArray(value.sales)||value.sales.length>50||value.sales.some(s=>typeof s.id!=='string'||!amount(s.total)||!/^\d{4}-\d{2}-\d{2}$/.test(s.date)||!Array.isArray(s.activities)||!Array.isArray(s.issues))||new Set(value.sales.map(s=>s.id)).size!==value.sales.length||(value.nextCursor!==null&&typeof value.nextCursor!=='string'))throw Error('Listado oficial inválido.');return value;}
+export function validateOfficialSale(value){base(value);if(typeof value.sale?.id!=='string'||!amount(value.sale.total)||!Array.isArray(value.sale.activities)||!Array.isArray(value.sale.issues)||!Array.isArray(value.items)||value.items.length>50||!Number.isSafeInteger(value.itemCount)||value.items.some(i=>!Number.isSafeInteger(i.ordinal)||!amount(i.quantity)||!amount(i.price)||!amount(i.amount)||!Array.isArray(i.issues))||(value.nextCursor!==null&&typeof value.nextCursor!=='string'))throw Error('Detalle oficial inválido.');return value;}
+export function receiptMatches(receipt,fingerprint,detail){const r=detail.originalReceiptReference;return !!r&&String(receipt.id)===detail.sale.id&&r.id===detail.sale.id&&receipt.folio===r.folio&&r.folio===detail.sale.folio&&fingerprint===r.sha256;}
+// This session never writes storage or calls sale registration/status endpoints.
+// Each connection/credential gets a fresh instance. Old replies cannot cross sessions.
+export function createOfficialSalesSession(api){
+ let value={page:null,detail:null,busy:false,error:'',current:false,pageCurrent:false,linkedLocal:false},request=0,disposed=false;
+ const listeners=new Set(),emit=patch=>{if(disposed)return;value={...value,...patch};for(const listener of listeners)listener(value);};
+ async function run(task,apply){const id=++request;emit({busy:true,error:'',current:false});try{const result=await task();if(!disposed&&id===request)emit({...apply(result),busy:false,error:'',current:true});return id===request?result:null;}catch(error){if(!disposed&&id===request)emit({busy:false,error:error.status===404?'La venta no está disponible en este servidor.':error.message,current:false,pageCurrent:false});return null;}}
+ return {getState:()=>value,subscribe(fn){disposed=false;listeners.add(fn);return()=>listeners.delete(fn);},dispose(){disposed=true;request++;listeners.clear();},
+ query:options=>run(async()=>validateSalesPage(await api.salesHistory(options)),page=>({page,pageCurrent:true,detail:null,linkedLocal:false})),
+ open:(id,options={},local=null)=>run(async()=>{const detail=validateOfficialSale(await api.officialSale(id,options));if(detail.sale.id!==String(id))throw Error('El detalle no corresponde a la venta solicitada.');if(local&&!receiptMatches(local.receipt,local.fingerprint,detail))throw Error('No existe un vínculo verificable por ID y comprobante original. Se conserva el ticket local.');return detail;},detail=>({detail,linkedLocal:!!local})),
+ closeDetail(){request++;emit({detail:null,busy:false,error:'',current:value.pageCurrent,linkedLocal:false});},
+ };
+}
