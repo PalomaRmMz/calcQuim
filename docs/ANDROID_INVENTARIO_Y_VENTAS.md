@@ -24,5 +24,14 @@ QA existente y sus fixtures privados locales; no deben ejecutarse contra una bas
 operativa. Los fixtures, respaldos, credenciales, registros y capturas se mantienen
 fuera del control de versiones.
 
+Las herramientas `integration/existing-inventory-qa.mjs` y
+`integration/verify-inventory-qa.mjs` preparan y comprueban ese entorno existente.
+El servidor inicia en modo de lectura; `--write-authorized` habilita exclusivamente
+las capturas permitidas dentro del QA verificado. No ejecutarlas para esta tarea
+de revisión de Git ni utilizar configuración operativa como sustituto del QA.
+
 Las copias preparadas de despliegue, diagnósticos de Expo y reportes operativos
 locales se conservan en el equipo y no forman parte de esta entrega de fuentes.
+Sus exclusiones específicas de esta estación se guardan en `.git/info/exclude`.
+Esto incluye las pruebas históricas que importan esas copias preparadas; no se
+confunden con las pruebas mantenidas en los comandos de `package.json`.
