@@ -54,3 +54,6 @@ CalcQuim_*.json
 .kotlin/
 .metro-health-check*
 .DS_Store
+
+# Local QA source and evidence never enter a phone build.
+qa/

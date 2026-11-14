@@ -42,7 +42,7 @@ export default function HomeScreen({ navigation, salesList }) {
         >
             <View className="pt-3 pb-5 pl-5 pr-5">
                 <Text className="mt-2 text-4xl font-extrabold text-blue-600">
-                    CalcQuim
+                    Nexo · Ventas
                 </Text>
 
                 <Text className="mt-1 text-base text-slate-500">

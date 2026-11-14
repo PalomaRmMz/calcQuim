@@ -1,72 +1,233 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# ============================================================
+# NEXO — GITIGNORE
+# React Native / Expo / React / Vite / Node.js / PostgreSQL
+# Desarrollo, QA y operación local
+# ============================================================
+
+# ------------------------------------------------------------
+# 1. Dependencias
+# ------------------------------------------------------------
 node_modules/
+**/node_modules/
+.pnpm-store/
+.npm/
 
-# Expo
+# ------------------------------------------------------------
+# 2. Expo y React Native
+# ------------------------------------------------------------
 .expo/
-dist/
-web-build/
+.expo-shared/
 expo-env.d.ts
 
-# Native
+dist/
+web-build/
+
+# Metro Bundler
+.metro-health-check*
+.metro-cache/
+.metro/
+
+# Carpetas nativas generadas
+/android/
+/ios/
+
+# Archivos de compilación Android
+.gradle/
 .kotlin/
+*.apk
+*.aab
+*.apks
+*.hprof
 *.orig.*
+
+# Firmas y certificados privados
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
 
-# Metro
-.metro-health-check*
+# ------------------------------------------------------------
+# 3. React, Vite y frontend web
+# ------------------------------------------------------------
+.vite/
+.vite-*/
+**/.vite/
+**/.vite-*/
+**/.vite*/
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+build/
+coverage/
+.nyc_output/
 
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
+# Resultados generados
 *.tsbuildinfo
 
-# generated native folders
-/ios
-/android
+# ------------------------------------------------------------
+# 4. Entornos QA de Nexo
+# ------------------------------------------------------------
 
-# Resultados y registros locales de verificación
+# Compilaciones temporales de QA
+qa/admin/.qa-vite*/
+qa/web-build/
+qa/**/dist/
+qa/**/build/
+
+# Resultados de pruebas
+qa/**/coverage/
+qa/**/test-results/
+qa/**/playwright-report/
+
+# Resultados temporales
+qa/**/*.log
+qa/**/*.tmp
+qa/**/*.bak
+
+# IMPORTANTE:
+# No ignorar qa/ completo.
+# Se deben conservar scripts, pruebas, fixtures,
+# configuraciones y migraciones SQL.
+
+# ------------------------------------------------------------
+# 5. Resultados locales de herramientas
+# ------------------------------------------------------------
 .artifacts/
 .playwright-mcp/
+playwright-report/
+test-results/
 
-# Private data and reproducible local output. Existing tracked evidence is retained.
+# ------------------------------------------------------------
+# 6. Variables de entorno y credenciales
+# ------------------------------------------------------------
 .env
 .env.*
 !.env.example
+
 credentials.json
-*.keystore
-*.dump
-*.backup
 *.private.json
 *.private.md
 *.private.xml
-*.log
-*.tmp
-*.bak
-*.apk
-*.aab
-/artifacts/
+
+# ------------------------------------------------------------
+# 7. PostgreSQL y bases de datos
+# ------------------------------------------------------------
+
+# Respaldos y volcados
+*.dump
+*.backup
+*.pgdump
+
+# Archivos de base de datos local
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Respaldos locales
 /backups/
+
+# No ignorar migraciones SQL.
+# Los archivos *.up.sql y *.down.sql deben versionarse.
+
+# ------------------------------------------------------------
+# 8. Información privada del negocio
+# ------------------------------------------------------------
 /tickets/
 /receipts/
 /output/
-**/.npm-cache/
-**/.cache/
-**/.vite*/
+
 CalcQuim_*.json
 CalcQuim_*.xlsx
+
+# ------------------------------------------------------------
+# 9. Logs y archivos temporales
+# ------------------------------------------------------------
+*.log
+*.tmp
+*.bak
+
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.log*
+
+# Cachés
+**/.npm-cache/
+**/.cache/
+
+# ------------------------------------------------------------
+# 10. Sistema operativo y editores
+# ------------------------------------------------------------
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Archivos temporales de editores
+*.swp
+*.swo
+*~
+
+# ------------------------------------------------------------
+# 11. Seguridad adicional
+# ------------------------------------------------------------
+
+*.pem
+*.pfx
+*.p12
+
+# ============================================================
+# IMPORTANTE
+#
+# NO ignorar:
+# - src/
+# - tests/
+# - qa/ completo
+# - src/components/ItemSelect.js
+# - src/domain/commerce.mjs
+# - src/domain/laundryPricing.mjs
+# - Migraciones SQL
+# - Scripts de estabilidad
+# - Configuraciones QA sin secretos
+#
+# Los archivos ya rastreados por Git no dejan de estar
+# rastreados automáticamente por agregarlos aquí.
+# ============================================================
+
+# Copias locales completas: versionar scripts y el parche selectivo de Admin.
+# Los originales y las evidencias anteriores se conservan en disco.
+/qa/admin/
+/qa/stability/admin/
+/qa/stability/mobile/
+/qa/stability/calcQuim-admin/
+/qa/integrated/admin/
+/qa/stability/closure-*/
+/qa/integrated/closure-*/
+/qa/emulator-evidence.json
+/qa/naturella-results.json
+/qa/stability/emulator-results.json
+/qa/stability/baseline.json
+/qa/stability/processes-after.json
+/qa/stability/postgres-baseline.json
+/qa/integrated/naturella-results.json
+
+# Copias locales completas: versionar scripts y el parche selectivo de Admin.
+# Los originales y las evidencias anteriores se conservan en disco.
+/qa/admin/
+/qa/stability/admin/
+/qa/stability/mobile/
+/qa/stability/calcQuim-admin/
+/qa/integrated/admin/
+/qa/stability/closure-*/
+/qa/integrated/closure-*/
+/qa/emulator-evidence.json
+/qa/naturella-results.json
+/qa/stability/emulator-results.json
+/qa/stability/baseline.json
+/qa/stability/processes-after.json
+/qa/stability/postgres-baseline.json
+/qa/integrated/naturella-results.json

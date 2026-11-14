@@ -1,0 +1,635 @@
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@ -4,7 +4,7 @@
+     <meta charset="UTF-8" />
+     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-    <title>calcquim-admin</title>
++    <title>Nexo · Administración</title>
+   </head>
+   <body>
+     <div id="root"></div>
+diff --git a/server/src/mobile/domain.mjs b/server/src/mobile/domain.mjs
+--- a/server/src/mobile/domain.mjs
++++ b/server/src/mobile/domain.mjs
+@@ -48,8 +48,8 @@ export function correctMobileSale(sales, id, input) {
+   const items = corrected.some(row=>row.pricingVersion===WHOLESALE_VERSION)?repriceLines(corrected):corrected;
+   const at = new Date().toISOString(), version = (previous.commercialVersion || 1) + 1;
+   const updated = { ...previous, items, total: total(items), commercialVersion: version, breakdowns: {},
+-    revisions: [...(previous.revisions || []), { at, channel: 'WEB', reason: input.reason.trim(), version: version - 1, id: previous.id, date: previous.date, payment: previous.payment, origin: previous.origin, items: previous.items, total: previous.total, breakdowns: previous.breakdowns || {} }],
+-    history: [...previous.history, { action: 'commercial_correction', channel: 'WEB', at, reason: input.reason.trim(), version }],
++    revisions: [...(previous.revisions || []), { at, channel: input.auditChannel==='MOVIL'?'MOVIL':'WEB', reason: input.reason.trim(), version: version - 1, id: previous.id, date: previous.date, payment: previous.payment, origin: previous.origin, items: previous.items, total: previous.total, breakdowns: previous.breakdowns || {} }],
++    history: [...previous.history, { action: 'commercial_correction', channel: input.auditChannel==='MOVIL'?'MOVIL':'WEB', at, reason: input.reason.trim(), version }],
+   };
+   updated.updatedReceipt = { ...previous.originalReceipt, createdAt: at, version, corrected: true, total: updated.total, items: items.map(receiptItem) };
+   if (JSON.stringify(items) === JSON.stringify(previous.items)) throw new Error('No hay cambios comerciales.');
+diff --git a/server/src/mobile/hardware-creation.mjs b/server/src/mobile/hardware-creation.mjs
+--- a/server/src/mobile/hardware-creation.mjs
++++ b/server/src/mobile/hardware-creation.mjs
+@@ -4,18 +4,21 @@ const keyValid=k=>typeof k==='string'&&/^[a-zA-Z0-9_-]{8,64}$/.test(k);
+ export function installHardwareCreation(router,service,{principal=null}={}){
+   const permitted=()=>{if(!principal?.permissions?.includes('hardware:create'))fail(403,'HARDWARE_CREATE_FORBIDDEN','No tienes permiso para dar de alta Jarcería.');};
+   const key=k=>`mobile-product:${principal.id}:${k}`;
+-  router.get('/hardware/creation-options',async(_req,res)=>{permitted();const s=await service.read();res.json({revision:s.revision,generation:s.generation,categories:s.data.procurement.hardwareCategories.filter(c=>c.active),permission:true});});
++  router.get('/hardware/creation-options',async(_req,res)=>{permitted();const s=await service.read();res.json({revision:s.revision,generation:s.generation,categories:s.data.procurement.hardwareCategories.filter(c=>c.active),permission:true,creationVersion:2});});
+   router.get('/hardware/operations/:key',async(req,res)=>{permitted();if(!keyValid(req.params.key))fail(400,'INVALID_KEY','Clave inválida.');const saved=await service.inventoryOperationStatus(key(req.params.key));res.json(saved?{status:'confirmed',operationId:req.params.key,productId:saved.response.id}:{status:'not_found'});});
+   router.post('/hardware/products',async(req,res)=>{
+     permitted();const b=req.body,k=req.get('Idempotency-Key');
+     if(!keyValid(k))fail(400,'INVALID_KEY','Clave inválida.');
+     if(!b||b.confirmed!==true||Object.keys(b).some(k=>!['confirmed','zeroConfirmed','revision','generation','bundle'].includes(k))||!Number.isSafeInteger(b.revision)||typeof b.generation!=='string')fail(400,'INVALID_BODY','Revisa y confirma el alta.');
+     const p=b.bundle?.product,rows=b.bundle?.presentations;
+-    if(!p||Object.keys(b.bundle).some(k=>!['product','presentations','initialInventory'].includes(k))||Object.keys(p).some(k=>!['name','unit','hardwareCategoryId','characteristics','active','available','pricePending'].includes(k))||!Array.isArray(rows)||rows.length>20||rows.some(r=>Object.keys(r).some(k=>!['name','unit','factor','price','integerOnly','active'].includes(k))))fail(400,'HARDWARE_ONLY','Solo se permite un producto nuevo de Jarcería.');
+-    if(rows.some(r=>typeof r.price!=='number'||r.price<=0||!Number.isFinite(r.price)||Math.abs(r.price*100-Math.round(r.price*100))>0.00001))fail(422,'INVALID_PRICE','Introduce un precio positivo confirmado.');
++    if(!p||Object.keys(b.bundle).some(k=>!['product','presentations','initialInventory'].includes(k))||Object.keys(p).some(k=>!['name','unit','hardwareCategoryId','characteristics','active','available','pricePending','enforceStock','autoOpenPackages'].includes(k))||!Array.isArray(rows)||rows.length>20||rows.some(r=>Object.keys(r).some(k=>!['name','unit','factor','price','integerOnly','active','saleEnabled','purchaseEnabled'].includes(k))))fail(400,'HARDWARE_ONLY','Solo se permite un producto nuevo de Jarcería.');
++    if(!p.pricePending&&rows.some(r=>r.saleEnabled!==false&&(typeof r.price!=='number'||r.price<=0||!Number.isFinite(r.price)||Math.abs(r.price*100-Math.round(r.price*100))>0.00001)))fail(422,'INVALID_PRICE','Introduce un precio positivo confirmado.');
+     const initial=b.bundle.initialInventory;
+     if(initial&&Number(initial.quantity)===0&&b.zeroConfirmed!==true)fail(422,'ZERO_CONFIRMATION_REQUIRED','Confirma expresamente el inventario inicial en cero.');
+-    if(initial&&(Object.keys(initial).some(k=>!['quantity','unit','observations'].includes(k))||String(initial.quantity).trim()===''||Number(initial.quantity)<0))fail(422,'INVALID_INITIAL','Cantidad inicial inválida.');
++    if(initial&&(Object.keys(initial).some(k=>!['quantity','unit','observations','physicalComposition'].includes(k))||String(initial.quantity).trim()===''||Number(initial.quantity)<0))fail(422,'INVALID_INITIAL','Cantidad inicial inválida.');
++    if(initial?.physicalComposition){const v=initial.physicalComposition;
++      if(Object.keys(v).some(k=>!['presentationIndex','closedPackages','looseUnits'].includes(k))||!Number.isInteger(v.presentationIndex)||v.presentationIndex<0||v.presentationIndex>=rows.length)fail(422,'INVALID_COMPOSITION','Selecciona el paquete f?sico.');
++    }
+     const audit={responsibleId:principal.id,responsible:principal.name,channel:'ANDROID',operationId:k};
+     const bundle={...b.bundle,product:{...p,creationAudit:audit,active:true,available:p.pricePending?false:true},...(initial?{initialInventory:{...initial,observations:`ANDROID_PRODUCT ${JSON.stringify(audit)}\n${String(initial.observations||'').slice(0,1000)}`}}:{})};
+     const s=await service.command({name:'saveHardwareProductBundle',args:[bundle],revision:b.revision,generation:b.generation,requestKey:key(k),channel:'MOVIL'});
+diff --git a/server/src/mobile/router.mjs b/server/src/mobile/router.mjs
+--- a/server/src/mobile/router.mjs
++++ b/server/src/mobile/router.mjs
+@@ -1,3 +1,4 @@
++import {installStability} from './stability.mjs';
+ import {installSalesHistory} from './sales-history-route.mjs';
+ import {salesHistoryReader} from './sales-history-policy.mjs';
+ import {installHardwareCreation} from './hardware-creation.mjs';
+@@ -11,7 +12,7 @@ import { PRICING_VERSION } from './catalog.mjs';
+ import { commercialChoices } from './commercial.mjs';
+ import { wholesaleSettings, WHOLESALE_VERSION } from '../../../src/domain/wholesalePricing.mjs';
+ const authorized = (provided, expected) => expected.length >= 32 && Buffer.byteLength(provided) === Buffer.byteLength(expected) && timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
+-export function mobileRouter(service, { mode = 'synthetic', token = '', enabled = false } = {}) {
++export function mobileRouter(service, { mode = 'synthetic', token = '', enabled = false, qaPrincipal = null } = {}) {
+   const r = Router();
+   r.use((req, _res, next) => {
+     if (!enabled || (mode === 'operational' && process.env.CALCQUIM_MOBILE_OPERATIONAL_AUTHORIZED !== 'yes')) throw new ApiError(403, 'MOBILE_DISABLED', 'Registro móvil pendiente de habilitación autorizada.');
+@@ -44,7 +45,8 @@ export function mobileRouter(service, { mode = 'synthetic', token = '', enabled
+     mode, writeEnabled: mode === 'operational' && inventoryWritesAuthorized && inventoryOwner(token) !== null,
+     principal: mode === 'operational' ? inventoryOwner(token) : null,
+   });
+-  installHardwareCreation(r,service,{principal:mode==='operational'?inventoryOwner(token):null});
+-  installSalesHistory(r,service,{principal:mode==='operational'?salesHistoryReader(token):null});
++  installHardwareCreation(r,service,{principal:mode==='operational'?inventoryOwner(token):qaPrincipal});
++  installSalesHistory(r,service,{principal:mode==='operational'?salesHistoryReader(token):qaPrincipal});
++  installStability(r,service,{principal:qaPrincipal});
+   return r;
+ }
+diff --git a/server/src/mobile/stability.mjs b/server/src/mobile/stability.mjs
+new file mode 100644
+--- /dev/null
++++ b/server/src/mobile/stability.mjs
+@@ -0,0 +1,38 @@
++import {ApiError} from '../services/commands.mjs';
++const fail=(code,message,status=422)=>{throw new ApiError(status,code,message);};
++const key=value=>typeof value==='string'&&/^[a-zA-Z0-9_-]{8,100}$/.test(value);
++export function installStability(router,service,{principal=null}={}){
++ const permit=permission=>{if(!principal?.permissions?.includes(permission))fail('FORBIDDEN','Operación no autorizada.',403);};
++ router.post('/sales/attempts/:key/cancel',async(req,res)=>{
++  permit('sales:reconcile');const b=req.body;
++  if(!key(req.params.key)||!b||b.confirmed!==true||typeof b.generation!=='string'||typeof b.reason!=='string'||!b.reason.trim()||b.reason.length>1000||Object.keys(b).some(k=>!['generation','reason','linkedSaleId','confirmed'].includes(k)))fail('INVALID_RECONCILIATION','Confirma el motivo y la operación pendiente.');
++  res.json(await service.cancelMobileAttempt(req.params.key,{...b,reason:b.reason.trim()},principal));
++ });
++ router.get('/sales/reconciliation/:reference',async(req,res)=>{
++  permit('sales:reconcile');const reference=req.params.reference;if(!reference||reference.length>150)fail('INVALID_REFERENCE','Escribe el folio o identificador exacto.');
++  const s=await service.read(),matches=s.data.sales.filter(s=>(String(s.id)===reference||s.folio===reference)&&s.origin==='WEB'&&!s.voidedAt);
++  if(matches.length!==1)fail('WEB_SALE_NOT_FOUND','No existe una única venta web vigente con esa referencia.',404);
++  const sale=matches[0];res.json({id:String(sale.id),folio:sale.folio,date:sale.date,total:sale.total,payment:sale.payment,origin:sale.origin});
++ });
++ router.get('/sales/:id/editor',async(req,res)=>{
++  permit('sales:edit');const s=await service.operations(),sale=s.data.sales.find(s=>String(s.id)===req.params.id&&s.origin==='MOVIL');
++  if(!sale)fail('SALE_NOT_FOUND','Venta móvil no encontrada.',404);
++  const snapshot=await service.read();if(snapshot.revision!==s.revision)fail('STALE_DATA','Actualiza la consulta.',409);
++  res.json({sale,revision:s.revision,generation:snapshot.generation,products:s.data.products,pending:s.inventory.pending.filter(p=>String(p.sale_id)===String(sale.id)&&p.state==='pending'),inventory:s.inventory});
++ });
++ router.get('/sales/changes/:key',async(req,res)=>{
++  permit('sales:edit');if(!key(req.params.key))fail('INVALID_KEY','Clave inválida.');
++  const saved=await service.inventoryOperationStatus('mobile-change:'+req.params.key);res.json(saved?{status:'confirmed',result:saved.response}:{status:'not_found'});
++ });
++ router.post('/sales/:id/changes',async(req,res)=>{
++  permit('sales:edit');const b=req.body,k=req.get('Idempotency-Key');
++  if(!key(k)||!b||!['correction','breakdown'].includes(b.kind)||!Number.isSafeInteger(b.revision)||typeof b.generation!=='string'||!b.change||typeof b.change!=='object')fail('INVALID_CHANGE','Revisa la modificación.');
++  const snapshot=await service.read(),sale=snapshot.data.sales.find(s=>String(s.id)===req.params.id&&s.origin==='MOVIL');if(!sale||sale.voidedAt)fail('SALE_NOT_EDITABLE','Venta no disponible para edición.');
++  if(b.kind==='correction'&&Object.keys(b.change).some(k=>!['values','confirmedQuantities','reason','physicalTreatment','baselineTreatment','packReturnDisposition'].includes(k)))fail('INVALID_CHANGE','Campos de revisión no autorizados.');
++  if(b.kind==='breakdown'&&Object.keys(b.change).some(k=>!['rows','observations'].includes(k)))fail('INVALID_CHANGE','Campos de desglose no autorizados.');
++  const name=b.kind==='correction'?'correctMobileSale':'resolveSaleBreakdowns';
++  const args=b.kind==='correction'?[sale.id,{...b.change,auditChannel:'MOVIL'}]:[{...b.change,saleId:sale.id}];
++  const result=await service.command({name,args,revision:b.revision,generation:b.generation,requestKey:'mobile-change:'+k,channel:'MOVIL'});
++  res.json({status:'confirmed',result:result.result,revision:result.revision,generation:result.generation,replayed:result.replayed});
++ });
++}
+diff --git a/server/src/repositories/inventory.mjs b/server/src/repositories/inventory.mjs
+--- a/server/src/repositories/inventory.mjs
++++ b/server/src/repositories/inventory.mjs
+@@ -1,5 +1,6 @@
++import {ApiError} from '../services/commands.mjs';
+ import { randomUUID } from 'node:crypto';
+-import {syncPackMovement,readPackInventory} from './packInventory.mjs';
++import {syncPackMovement,readPackInventory,baseStock} from './packInventory.mjs';
+ import { normalizeUnit } from '../../../src/utils/units.js';
+ import { inventoryDecimal,inventoryText } from '../../../src/services/inventoryUnits.js';
+ // El hash de respaldos anteriores no incluía los campos derivados del inventario inicial.
+@@ -27,6 +28,7 @@ export async function inventoryAccount(c,product){
+ }
+ export async function appendInventoryMovement(c,product,input){
+   await inventoryAccount(c,product);
++  if(product.enforceStock&&input.kind==='sale'){const stock=await baseStock(c,product.id);if(stock==null||inventoryDecimal(stock)+inventoryDecimal(input.quantity)<0n)throw new ApiError(422,'INSUFFICIENT_STOCK','Existencias insuficientes o inventario inicial desconocido.');}
+   const id=randomUUID();
+   await syncPackMovement(c,product,input,id);
+   const fields={id,product_id:String(product.id),kind:input.kind,quantity:input.quantity,unit:normalizeUnit(product.unit),certainty:input.certainty??'confirmed',reason:input.reason,occurred_at:input.occurredAt??new Date().toISOString(),purchase_id:input.purchaseId??null,sale_id:input.saleId??null,sale_ordinal:input.saleOrdinal??null,reversal_of:input.reversalOf??null,origin_key:input.originKey??null,reference:JSON.stringify(input.reference??{})};
+diff --git a/server/src/repositories/packInventory.mjs b/server/src/repositories/packInventory.mjs
+--- a/server/src/repositories/packInventory.mjs
++++ b/server/src/repositories/packInventory.mjs
+@@ -65,7 +65,8 @@ async function applyPackMovement(c,product,input,movementId){
+   if(delta<0n){
+    if(input.kind==='sale'&&isPack){if(!before.known)fail('La composición física es desconocida: concilia los paquetes cerrados desde Inventarios.');if(quantity%whole(row.factor))fail('Cantidad de paquete no representable.');after=consumeClosed(before,String(quantity/whole(row.factor)));action='sale_package';}
+    else if(before.known&&(isUnit||input.kind==='sale'&&!isPack||input.reference?.packOutflowDisposition==='units')){
+-    const result=consumeUnits(before,String(quantity));if(result.opened!=='0')await event(c,product,movementId,'automatic_open',before,result.afterOpen,{openedPackages:result.opened,factor:before.factor,reason:'Apertura automática para atender unidades sueltas; sin movimiento base adicional'});
++    if(input.kind==='sale'&&!entry.definitionsList.some(p=>p.active&&p.saleEnabled!==false&&p.unit==='pieza'&&Number(p.factor)===1))fail('Este producto no permite venta individual.');
++    const result=consumeUnits(before,String(quantity));if(product.autoOpenPackages===false&&result.opened!=='0')fail('La apertura autom�tica no est� habilitada para este producto.');if(result.opened!=='0')await event(c,product,movementId,'automatic_open',before,result.afterOpen,{openedPackages:result.opened,factor:before.factor,reason:'Apertura automática para atender unidades sueltas; sin movimiento base adicional'});
+     after=result.after;action=input.kind==='sale'?'sale_units':'outflow_units';
+    }else if(before.known&&isPack){if(quantity%whole(row.factor))fail('Confirma la composición física del retiro parcial.');after=consumeClosed(before,String(quantity/whole(row.factor)));action='outflow_packages';}
+    else after=unknown(row,nextTotal);
+diff --git a/server/src/services/commerce.mjs b/server/src/services/commerce.mjs
+--- a/server/src/services/commerce.mjs
++++ b/server/src/services/commerce.mjs
+@@ -24,8 +24,8 @@ export function saveCommerce(data,name,input){
+  }
+  if(name==='saveHardwareProductBundle'){
+    if(!Array.isArray(input.presentations)||(!input.presentations.length&&!(input.product?.pricePending===true&&input.product?.available===false)))throw Error('Agrega una presentación con precio o marca el producto no disponible con precio pendiente.');
+-   if(input.product?.pricePending===true&&(input.product.available!==false||input.presentations.length))throw Error('Un precio pendiente no puede tener presentaciones de venta habilitadas.');
+-   if(input.product?.id==null&&input.presentations.some(p=>typeof p.price!=='number'||!Number.isFinite(p.price)||p.price<=0))throw Error('Confirma un precio positivo para cada presentación de venta.');
++   if(input.product?.pricePending===true&&(input.product.available!==false))throw Error('Un precio pendiente no puede tener presentaciones de venta habilitadas.');
++   if(!input.product?.pricePending&&input.product?.id==null&&input.presentations.some(p=>p.saleEnabled!==false&&(typeof p.price!=='number'||!Number.isFinite(p.price)||p.price<=0)))throw Error('Confirma un precio positivo para cada presentación de venta.');
+    const next=structuredClone(data),result=saveCommerce(next,'saveCommerceProduct',input.product);
+    const existing=(data.procurement.presentations||[]).filter(p=>sameId(p.productId,result.id));
+    if(existing.some(p=>!input.presentations.some(r=>r.id===p.id)))throw Error('Conserva las presentaciones anteriores; puedes desactivarlas.');
+@@ -40,6 +40,7 @@ export function saveCommerce(data,name,input){
+    Object.assign(data,next);return result;
+  }
+  if(name==='saveCommerceProduct'){
++   if(['autoOpenPackages','pricePending'].some(k=>input[k]!==undefined&&typeof input[k]!=='boolean'))throw Error('Confirma las opciones del producto.');
+    if(!input.name?.trim()||!['pieza','kg','gramo','bolsa','envase','botella'].includes(input.unit))throw Error('Nombre y unidad base requeridos.');
+    const old=data.products.find(p=>sameId(p.id,input.id));if(old&&old.activity!=='JARCERIA')throw Error('Conserva el artículo histórico de limpieza.');
+    if(old&&old.unit!==input.unit)throw Error('Conserva la unidad base; crea otro artículo si es distinto.');
+@@ -49,6 +50,7 @@ export function saveCommerce(data,name,input){
+    const row={...old,id,hardwareCategoryId,name:validateHardwareName(data,input),unit:input.unit,activity:'JARCERIA',price:null,priceGroupId:null,categoryId:input.categoryId??old?.categoryId??null,lineId:null,active:input.active!==false,available:input.available??old?.available??true,externalKey:input.externalKey??old?.externalKey??null};
+    row.creationAudit=input.creationAudit??old?.creationAudit??null;
+    row.pricePending=input.pricePending===true;
++   row.enforceStock=old?old.enforceStock??false:true;row.autoOpenPackages=input.autoOpenPackages??old?.autoOpenPackages;
+    row.characteristics=String(input.characteristics??old?.characteristics??'').trim().slice(0,1000);
+    data.products=old?data.products.map(p=>p.id===old.id?row:p):[...data.products,row];return {ok:true,id};
+  }
+@@ -82,7 +84,7 @@ export function presentationPurchase(data,input,catalog){
+  const entries=input.items??[input];
+  if(!Array.isArray(entries)||!entries.length)throw Error('Agrega al menos un producto.');
+  const physical=entries.map(entry=>{
+-   const p=data.procurement.presentations?.find(p=>p.id===entry.presentationId&&p.active);if(!p)throw Error('Presentación no disponible.');
++   const p=data.procurement.presentations?.find(p=>p.id===entry.presentationId&&p.active&&p.purchaseEnabled!==false);if(!p)throw Error('Presentación no disponible.');
+    const count=Number(entry.quantity);decimal(entry.quantity);if(p.integerOnly&&!Number.isInteger(count))throw Error('Cantidad de empaques entera requerida.');
+    const base=baseQuantity(entry.quantity,p.factor),calculation=presentationPurchaseCost(entry);
+    return {p,count,base,...calculation};
+diff --git a/server/src/services/dataset.mjs b/server/src/services/dataset.mjs
+--- a/server/src/services/dataset.mjs
++++ b/server/src/services/dataset.mjs
+@@ -47,8 +47,20 @@ export function createDatasetService(pool, schema='calcquim_sandbox',purpose='sy
+     mobileStatus:key=>transaction(async c=>{
+       const row=(await c.query('SELECT response FROM idempotency_requests WHERE request_key=$1',['mobile:'+key])).rows[0];
+       const snapshot=await read(c);
+-      return row?.response?.receipt?{receipt:row.response.receipt,revision:snapshot.revision,generation:snapshot.generation,inventoryPending:(await inventoryPending(c)).filter(p=>p.saleId===row.response.receipt.id)}:{status:'not_found'};
++      return row?.response?.cancelled?{status:'cancelled',...row.response}:row?.response?.receipt?{receipt:row.response.receipt,revision:snapshot.revision,generation:snapshot.generation,inventoryPending:(await inventoryPending(c)).filter(p=>p.saleId===row.response.receipt.id)}:{status:'not_found'};
+     },true),
++    cancelMobileAttempt:(key,input,principal)=>transaction(async c=>{
++      const current=await read(c,true); // Same lock as sale creation: cancellation and late POST cannot both win.
++      if(input.generation!==current.generation)throw new ApiError(409,'GENERATION_CHANGED','Verifica el envío en el conjunto de datos original.');
++      const previous=(await c.query('SELECT response FROM idempotency_requests WHERE request_key=$1',['mobile:'+key])).rows[0]?.response;
++      if(previous?.receipt)return {receipt:previous.receipt,revision:current.revision,generation:current.generation};
++      if(previous?.cancelled)return {status:'cancelled',...previous};
++      if(input.linkedSaleId){const sale=current.data.sales.find(s=>String(s.id)===String(input.linkedSaleId)&&s.origin==='WEB'&&!s.voidedAt);if(!sale)throw new ApiError(422,'INVALID_WEB_LINK','Selecciona una venta web vigente por su identificador exacto.');}
++      const response={cancelled:true,reason:input.reason,linkedSaleId:input.linkedSaleId||null,at:new Date().toISOString(),responsibleId:principal.id};
++      await c.query('INSERT INTO idempotency_requests(request_key,request_hash,response) VALUES($1,$2,$3)',['mobile:'+key,createHash('sha256').update('cancelled:'+key).digest('hex'),JSON.stringify(response)]);
++      await c.query("INSERT INTO inventory_changes(action,reference) VALUES('mobile_attempt_reconciled',$1)",[JSON.stringify({operationId:key,...response,channel:'MOVIL'})]);
++      return {status:'cancelled',...response};
++    }),
+     async command({name,args,revision,generation,requestKey,channel='WEB'}) {
+       if(name==='createMobileSale'&&channel!=='MOVIL')throw new ApiError(403,'CHANNEL_FORBIDDEN','Canal no autorizado.');
+       if (!Number.isSafeInteger(revision)||typeof generation!=='string'||!requestKey||!/^[a-zA-Z0-9:_-]{8,150}$/.test(requestKey)) throw new ApiError(400,'INVALID_PRECONDITION','Se requieren revisión, generación y clave de idempotencia.');
+diff --git a/server/src/services/inventory.mjs b/server/src/services/inventory.mjs
+--- a/server/src/services/inventory.mjs
++++ b/server/src/services/inventory.mjs
+@@ -249,7 +249,7 @@ export async function syncInventory(c,before,data,name,args){
+         await appendInventoryMovement(c,product,{kind:'sale',quantity:inventoryText(-inventoryDecimal(physical)),reason:args[1].reason,saleId:sale.id,saleOrdinal:ordinal,originKey:'correction:'+sale.id+':'+sale.commercialVersion+':'+ordinal,reference:{physicalPresentation:item.presentationSnapshot??null,commercialVersion:sale.commercialVersion,...baseline}});
+       }
+     }
+-    await inventoryChange(c,'commercial_correction',{saleId:sale.id,version:sale.commercialVersion,channel:'WEB',reason:args[1].reason});
++    await inventoryChange(c,'commercial_correction',{saleId:sale.id,version:sale.commercialVersion,channel:args[1].auditChannel==='MOVIL'?'MOVIL':'WEB',reason:args[1].reason});
+   }
+   if(name==='createSale'||name==='createMobileSale'||name==='createCommercialSale'){
+     const sale=data.sales.find(s=>!before.sales.some(old=>old.id===s.id));if(!sale)return;
+diff --git a/server/src/services/productInitialInventory.mjs b/server/src/services/productInitialInventory.mjs
+--- a/server/src/services/productInitialInventory.mjs
++++ b/server/src/services/productInitialInventory.mjs
+@@ -3,15 +3,22 @@ import {productInitialInventory} from '../../../src/domain/productInitialInvento
+ import {executeInventoryCommand} from './inventory.mjs';
+ import {inventoryChange} from '../repositories/inventory.mjs';
+ export async function syncProductInitialInventory(c,before,data,name,args,{channel='WEB'}={}){
+- const input=args?.[0],initial=input?.initialInventory;
++ const input=args?.[0],initial=input?.initialInventory==null?input?.initialInventory:structuredClone(input.initialInventory);
+  if(initial===undefined){
+   if(args?.slice(1).some(a=>a?.initialInventory!==undefined)||input?.product?.initialInventory!==undefined||input?.rows?.some(r=>r.initialInventory!==undefined||r.product?.initialInventory!==undefined))throw new ApiError(422,'INITIAL_CREATION_SCOPE','El inicial integrado corresponde al alta individual. En lote o para productos existentes, utiliza Inventarios.');
+   return;
+  }
+- if(!['addProduct','saveHardwareProductBundle'].includes(name)||name==='saveHardwareProductBundle'&&input.product?.id!=null)throw new ApiError(422,'INITIAL_CREATION_ONLY','El inicial en catálogo solo corresponde a un producto nuevo. Para existentes utiliza Inventarios y sus correcciones.');
++ if(!['addProduct','saveHardwareProductBundle'].includes(name)||name==='saveHardwareProductBundle'&&input.product?.id!=null)throw new ApiError(422,'INITIAL_CREATION_ONLY','El inicial en catÃ¡logo solo corresponde a un producto nuevo. Para existentes utiliza Inventarios y sus correcciones.');
+  const added=data.products.filter(p=>!before.products.some(old=>String(old.id)===String(p.id)));
+  if(added.length!==1)throw new ApiError(422,'INITIAL_CREATION_ONLY','Se requiere exactamente un producto nuevo.');
+- const product=added[0];let converted;
++ const product=added[0];
++ if(initial.physicalComposition?.presentationIndex!==undefined){
++  const index=initial.physicalComposition.presentationIndex;
++  const definitions=data.procurement.presentations.filter(p=>String(p.productId)===String(product.id));
++  if(!Number.isInteger(index)||index<0||index>=definitions.length)throw new ApiError(422,'INVALID_COMPOSITION','Presentación física inválida.');
++  initial.physicalComposition={presentationId:definitions[index].id,closedPackages:initial.physicalComposition.closedPackages,looseUnits:initial.physicalComposition.looseUnits};
++ }
++ let converted;
+  try{converted=productInitialInventory(initial,product,data.procurement.presentations||[]);}catch(e){throw new ApiError(422,'INITIAL_CREATION_VALIDATION',e.message);}
+  const result=await executeInventoryCommand(c,data,'inventoryInitial',[{...initial,productId:product.id,observations:initial.observations??''}]);
+  await inventoryChange(c,'product_initial_creation',{productId:product.id,movementId:result.movementId,origin:channel==='MOVIL'?'ANDROID_PRODUCT_CREATION':'WEB_PRODUCT_CREATION',channel,confirmed:true,command:name,source:converted.source,quantity:converted.quantity,unit:converted.unit,reason:'Inventario inicial opcional confirmado al crear el producto'});
+diff --git a/src/App.jsx b/src/App.jsx
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -30,7 +30,7 @@ function App() {
+   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+   const { storageError } = useCatalog();
+ 
+-  if (storageError) return <main className="container py-4"><h1>CalcQuim</h1><Feedback message={storageError} /><Link to="/administracion/datos">Administración de datos: exportar o restablecer</Link></main>;
++  if (storageError) return <main className="container py-4"><h1>Nexo · Administración</h1><Feedback message={storageError} /><Link to="/administracion/datos">Administración de datos: exportar o restablecer</Link></main>;
+ 
+   return (
+     <div className="app-layout">
+@@ -54,7 +54,7 @@ function App() {
+           {!import.meta.env.CALCQUIM_OPERATIONAL&&<Route path="/comercial" element={<Navigate to="/reportes/comerciales" replace/>}/>}
+           {!import.meta.env.CALCQUIM_OPERATIONAL&&<Route path="/reportes/comerciales" element={<CommercePage reportOnly/>}/>}
+           <Route path="/proveedores" element={<SuppliersPanel/>}/>
+-          <Route path="/productos-jarceria" element={<><Header title="Productos de jarcería" subtitle="Administra tu catálogo de CalcQuim" onOpenMenu={() => setMobileMenuOpen(true)} /><HardwareProductsPage/></>}/>
++          <Route path="/productos-jarceria" element={<><Header title="Productos de jarcería" subtitle="Administra tu catálogo de Nexo" onOpenMenu={() => setMobileMenuOpen(true)} /><HardwareProductsPage/></>}/>
+           <Route path="/productos-jarceria/categorias" element={<><Header title="Categorías de jarcería" subtitle="Organiza el catálogo de jarcería" onOpenMenu={() => setMobileMenuOpen(true)} /><HardwareCategoriesPage/></>}/>
+           <Route path="/lavanderia" element={<LaundryPage/>}/>
+           <Route path="/comparadores/limpieza" element={<CleaningScope><ProcurementComparator/></CleaningScope>}/>
+@@ -70,7 +70,7 @@ function App() {
+           <Route path="/administracion/proveedores" element={<Navigate to="/compras/proveedores" replace />} />
+           <Route path="/reportes" element={<><Header title="Reportes" subtitle="Abastecimiento, rendimientos, compras y catálogo" onOpenMenu={() => setMobileMenuOpen(true)} /><ReportsPage /></>} />
+           <Route path="*" element={<Navigate to="/productos" replace />} />
+-          <Route path="/ventas" element={<><Header title="Ventas" subtitle="Registra y consulta las ventas de CalcQuim" onOpenMenu={() => setMobileMenuOpen(true)} /><SalesPage /></>} />
++          <Route path="/ventas" element={<><Header title="Ventas" subtitle="Registra y consulta las ventas de Nexo" onOpenMenu={() => setMobileMenuOpen(true)} /><SalesPage /></>} />
+ 
+           <Route
+             path="/productos/:section?"
+@@ -78,7 +78,7 @@ function App() {
+               <>
+                 <Header
+                   title={sectionTitles[pathname] || 'Productos de limpieza'}
+-                  subtitle="Administra tu catálogo de CalcQuim"
++                  subtitle="Administra tu catálogo de Nexo"
+                   onOpenMenu={() => setMobileMenuOpen(true)}
+                 />
+                 <CleaningScope><ProductsModule /></CleaningScope>
+diff --git a/src/ApplicationRoot.jsx b/src/ApplicationRoot.jsx
+--- a/src/ApplicationRoot.jsx
++++ b/src/ApplicationRoot.jsx
+@@ -13,7 +13,7 @@ import App from "./App";
+ function AdministrationLayout() {
+     const [collapsed, setCollapsed] = useState(false);
+     const [mobile, setMobile] = useState(false);
+-    return <div className="app-layout">{mobile && <div className="sidebar-overlay" onClick={() => setMobile(false)} aria-hidden="true" />}<Sidebar activeModule="/administracion" collapsed={collapsed} setCollapsed={setCollapsed} mobileMenuOpen={mobile} setMobileMenuOpen={setMobile} /><main className={`main-content ${collapsed ? "main-content-expanded" : ""}`}><Header title="Datos y respaldos" subtitle="Administración de datos de CalcQuim" onOpenMenu={() => setMobile(true)} /><DataManagementPage /></main></div>;
++    return <div className="app-layout">{mobile && <div className="sidebar-overlay" onClick={() => setMobile(false)} aria-hidden="true" />}<Sidebar activeModule="/administracion" collapsed={collapsed} setCollapsed={setCollapsed} mobileMenuOpen={mobile} setMobileMenuOpen={setMobile} /><main className={`main-content ${collapsed ? "main-content-expanded" : ""}`}><Header title="Datos y respaldos" subtitle="Administración de datos de Nexo" onOpenMenu={() => setMobile(true)} /><DataManagementPage /></main></div>;
+ }
+ 
+ export default function ApplicationRoot() {
+@@ -25,10 +25,10 @@ export default function ApplicationRoot() {
+     function resetData(confirmation) {
+         try {
+             const generation = resetCalcQuimData(confirmation);
+-            setRuntime({ generation, notice: "Todos los datos se eliminaron. CalcQuim está listo para comenzar de cero.", error: "" });
++            setRuntime({ generation, notice: "Todos los datos se eliminaron. Nexo está listo para comenzar de cero.", error: "" });
+             return { ok: true };
+         } catch (error) {
+-            const message = `No se pudo completar el restablecimiento: ${error.message} Si ya comenzó, se completará al volver a abrir CalcQuim o al reintentar.`;
++            const message = `No se pudo completar el restablecimiento: ${error.message} Si ya comenzó, se completará al volver a abrir Nexo o al reintentar.`;
+             setRuntime(current => ({ ...current, error: message }));
+             return { ok: false, message };
+         }
+diff --git a/src/PostgresApplication.jsx b/src/PostgresApplication.jsx
+--- a/src/PostgresApplication.jsx
++++ b/src/PostgresApplication.jsx
+@@ -29,7 +29,7 @@ function ConnectedApplication({ operational=false }) {
+         return ()=>{active=false;};
+     },[client]);
+     useEffect(()=>{const timer=setInterval(()=>setToday(localDate()),60000);return()=>clearInterval(timer);},[]);
+-    if (!snapshot) return <main className="container py-5"><h1>{operational?'CalcQuim · PostgreSQL local':'PostgreSQL de ensayo'}</h1><p role="status">{error || 'Consultando servidor local…'}</p><button onClick={()=>window.location.reload()}>Reintentar</button></main>;
++    if (!snapshot) return <main className="container py-5"><h1>{operational?'Nexo · Administración':'PostgreSQL de ensayo'}</h1><p role="status">{error || 'Consultando servidor local…'}</p><button onClick={()=>window.location.reload()}>Reintentar</button></main>;
+     async function refreshData(){
+         if(refreshing)return;setRefreshing(true);
+         try{setSnapshot(await client.read());setError('');}
+@@ -61,5 +61,5 @@ function ConnectedApplication({ operational=false }) {
+ }
+ export default function PostgresApplication({ operational=false }) {
+     const [accepted,setAccepted]=useState(false);
+-    return operational||accepted?<ConnectedApplication operational={operational}/>:<main className="container py-5"><h1>CalcQuim · PostgreSQL de ensayo</h1><p>Este modo utiliza una base local con datos sintéticos. No carga, importa ni sustituye los datos de tu navegador habitual.</p><button className="btn btn-primary" onClick={()=>setAccepted(true)}>Abrir entorno PostgreSQL de ensayo</button></main>;
++    return operational||accepted?<ConnectedApplication operational={operational}/>:<main className="container py-5"><h1>Nexo · Administración · QA</h1><p>Este modo utiliza una base local con datos sintéticos. No carga, importa ni sustituye los datos de tu navegador habitual.</p><button className="btn btn-primary" onClick={()=>setAccepted(true)}>Abrir entorno PostgreSQL de ensayo</button></main>;
+ }
+diff --git a/src/components/CommercialSaleForm.jsx b/src/components/CommercialSaleForm.jsx
+--- a/src/components/CommercialSaleForm.jsx
++++ b/src/components/CommercialSaleForm.jsx
+@@ -16,6 +16,7 @@ import {wholesaleSettings} from '../domain/wholesalePricing.mjs';
+ export default function CommercialSaleForm({snapshot,onSave,onClose}){
+  const [query,setQuery]=useState(''),[selection,setSelection]=useState(null),[tariffKey,setTariffKey]=useState(''),[mode,setMode]=useState('quantity'),[value,setValue]=useState(''),[manualPhysical,setManualPhysical]=useState(''),[physicalEdited,setPhysicalEdited]=useState(false),[addons,setAddons]=useState([]),[description,setDescription]=useState(''),[lines,setLines]=useState([]),[payment,setPayment]=useState('Efectivo'),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+  const data={...snapshot.data,wholesalePricing:wholesaleSettings(snapshot.data)},choices=captureChoices(catalogChoices(data)),choice=choices.find(c=>c.key===selection),tariff=choice?.tariffs.find(t=>t.key===tariffKey),custom=tariff?.service?.priceMode==='custom',commercial=!!tariff?.commerceVersion;
++ const integerQuantity=mode!=='amount'&&['pieza','rollo','paquete','envase','botella','bolsa'].includes(captureUnit(tariff));
+  const paymentPolicy=snapshot.webPaymentPolicy?.enabled?snapshot.webPaymentPolicy.version:null;
+  const paymentPreview=paymentPolicy?paymentAmounts(lines,payment,paymentPolicy):null;
+  const matches=query.trim()?searchChoices(choices,query).slice(0,30):[];
+@@ -34,13 +35,13 @@ export default function CommercialSaleForm({snapshot,onSave,onClose}){
+  {error&&<p role="alert" className="alert alert-danger">{error}</p>}
+  {!choice?<><Autocomplete value={null} inputValue={query} onInputChange={(_,value)=>setQuery(value)} options={matches} filterOptions={options=>options} getOptionLabel={c=>c.name} getOptionKey={c=>c.key} isOptionEqualToValue={(a,b)=>a.key===b.key} onChange={(_,c)=>{if(c)select(c);}} noOptionsText={query.trim()?'Sin coincidencias':'Escribe para buscar'} renderOption={(props,c)=>{const {key,...rest}=props;return <li key={key} {...rest}><div>{c.name}<small className="d-block text-muted">{c.context}</small></div></li>;}} renderInput={params=><TextField {...params} autoFocus label="Buscar producto o servicio" placeholder="Escribe para buscar"/>}/></>:<section className="sale-section border rounded p-3 my-2"><button className="btn btn-link float-end" onClick={clear}>Cambiar concepto</button><h3 className="h5">{choice.name}</h3><p>{choice.context}</p>
+  {tariff?.service?<LaundrySaleFields service={tariff.service} value={value} onValue={setValue} addons={addons} onAddons={setAddons} description={description} onDescription={setDescription} preview={servicePreview} error={serviceError}/>:<><p className="sale-price-information">Precio de venta: <strong>{money(cleaningPreview?.price??tariff?.price)} / {captureUnit(tariff)}</strong>{cleaningPreview?.priceTier==='wholesale'&&<small> · Mayoreo automático</small>}</p><div className={`sale-capture-grid ${commercial?'sale-capture-hardware':'sale-capture-cleaning'}`}>
+- {!commercial?<CleaningSaleFields mode={mode} value={value} confirmed={confirmed} unit={tariff?.unit} onMode={next=>{setMode(next);setValue('');resetPhysical();}} onValue={setValue} onConfirmed={next=>{setManualPhysical(next);setPhysicalEdited(true);}} suggestion={suggestion} physicalEdited={physicalEdited} onRestore={resetPhysical}/>:<label className="d-block sale-capture-quantity">{custom||mode==='amount'?'Importe en pesos':`Cantidad (${captureUnit(tariff)||'unidad'})`}<input className="form-control" inputMode="decimal" value={value} onChange={e=>setValue(e.target.value)} placeholder="" /></label>}
+- </div>
++ {!commercial?<CleaningSaleFields mode={mode} value={value} confirmed={confirmed} unit={tariff?.unit} onMode={next=>{setMode(next);setValue('');resetPhysical();}} onValue={setValue} onConfirmed={next=>{setManualPhysical(next);setPhysicalEdited(true);}} suggestion={suggestion} physicalEdited={physicalEdited} onRestore={resetPhysical}/>:<label className="d-block sale-capture-quantity">{custom||mode==='amount'?'Importe en pesos':`Cantidad (${captureUnit(tariff)||'unidad'})`}<input className="form-control" type="number" min={integerQuantity?"1":"0.000001"} step={integerQuantity?"1":"0.000001"} inputMode={integerQuantity?"numeric":"decimal"} value={value} onChange={e=>setValue(e.target.value)} placeholder="" /></label>}
++ {commercial&&<button disabled={busy||!tariff||!value.trim()} className="btn btn-primary align-self-end" onClick={add}>Agregar a la venta</button>}</div>
+  {cleaningError&&<p role="alert" className="form-text text-danger">{cleaningError}</p>}
+  {tariff?.service?.addons?.map(a=><label key={a.id} className="d-block my-2"><input type="checkbox" checked={addons.includes(a.id)} onChange={e=>setAddons(e.target.checked?[...addons,a.id]:addons.filter(id=>id!==a.id))}/> {a.name} +{money(a.price)} por {tariff.unit}</label>)}
+  {custom&&<label className="d-block">Concepto breve (opcional)<input className="form-control" maxLength={200} value={description} onChange={e=>setDescription(e.target.value)}/></label>}
+  </>}
+- <button disabled={busy||!tariff||!value.trim()||Boolean(tariff?.service&&!servicePreview)} className="btn btn-primary mt-2" onClick={add}>Agregar a la venta</button></section>}
++ {!commercial&&<button disabled={busy||!tariff||!value.trim()||Boolean(tariff?.service&&!servicePreview)} className="btn btn-primary mt-2" onClick={add}>Agregar a la venta</button>}</section>}
+  <div className="table-responsive sale-items mt-3"><table className="table align-middle"><thead><tr><th>Concepto</th><th>Cantidad</th><th>Importe</th><th/></tr></thead><tbody>{lines.map(l=><tr key={l.id}><td>{l.name}{l.addons?.length>0&&<small className="d-block">{l.addons.map(a=>a.name).join(', ')}</small>}{l.description&&<small className="d-block">{l.description}</small>}</td><td>{l.quantity} {l.unit}{l.webPhysicalQuantity&&<small className="d-block">Entregado: {l.webPhysicalQuantity.quantity} {l.unit}</small>}</td><td>{money(l.amount)}</td><td><button className="btn btn-sm btn-outline-danger" onClick={()=>{try{setLines(repriceLines(lines.filter(i=>i.id!==l.id)));}catch(e){setError(e.message);}}}>Quitar</button></td></tr>)}</tbody></table></div>
+  <label>Forma de pago<select className="form-select" value={payment} onChange={e=>setPayment(e.target.value)}>{['Efectivo','Transferencia','Tarjeta'].map(p=><option key={p}>{p}</option>)}</select></label>
+  </DialogContent><DialogActions className="sale-modal-actions"><div className="sale-footer-total"><span>{paymentPolicy?'Total a cobrar':'Total'}</span><WebMoneyBreakdown monetary={paymentPreview}/><strong>{money(paymentPreview?paymentPreview.collectedCents/100:total(lines))}</strong></div><Button disabled={busy} onClick={onClose}>Cancelar</Button><Button variant="contained" disabled={busy||!!choice||!lines.length} onClick={save}>{busy?'Registrando…':'Registrar venta'}</Button></DialogActions></Dialog>;
+diff --git a/src/components/InitialInventoryFields.jsx b/src/components/InitialInventoryFields.jsx
+--- a/src/components/InitialInventoryFields.jsx
++++ b/src/components/InitialInventoryFields.jsx
+@@ -10,7 +10,7 @@ export function productInitialPayload(draft,unit,presentations=[]){
+ }
+ export default function InitialInventoryFields({value,onChange,unit,presentations=[]}){
+  const id=useId(),base=UNITS.find(u=>u.id===normalizeUnit(unit)),units=UNITS.filter(u=>u.dimension===base?.dimension),options=presentations.filter(p=>p.active!==false);
+- const packs=unit==='pieza'&&options.some(p=>p.unit==='pieza'&&Number(p.factor)===1)?options.filter(p=>p.unit==='paquete'&&Number(p.factor)>1):[];
++ const packs=unit==='pieza'?options.filter(p=>p.unit==='paquete'&&Number(p.factor)>1):[];
+  const change=patch=>onChange({...value,...patch});
+  let preview='',error='';
+  if(value.enabled&&(value.quantity!==''||value.composition?.enabled))try{const product={id:'new',unit},converted=productInitialInventory(productInitialPayload(value,unit,options),product,options.map(p=>({...p,productId:'new',baseUnit:unit})));preview=`Inicial que se registrará: ${converted.quantity} ${unitLabel(unit)}`;}catch(e){error=e.message;}
+diff --git a/src/components/QuickHardwareCreate.jsx b/src/components/QuickHardwareCreate.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/components/QuickHardwareCreate.jsx
+@@ -0,0 +1,20 @@
++import {useState} from 'react';
++import {Dialog,DialogContent,DialogActions,Button} from '@mui/material';
++import {hardwareCreationBundle} from '../domain/hardwareCreation.mjs';
++export default function QuickHardwareCreate({categories,onClose,onSave,AdvancedEditor,...props}){
++ const [form,setForm]=useState({name:'',saleMode:'piece',piecePrice:'',packPrice:'',packSize:'',initialEnabled:false,closedPackages:'',looseUnits:'0',quantity:'',pricePending:false}),[busy,setBusy]=useState(false),[error,setError]=useState('');
++ const set=(k,v)=>setForm(f=>({...f,[k]:v}));
++ if(form.saleMode==='advanced')return <AdvancedEditor {...props} categories={categories} onClose={onClose} onSave={onSave}/>;
++ const field=(key,label,type='text')=><label className="form-label d-block">{label}<input className="form-control" type={type} min={type==='number'?'0':undefined} step={type==='number'?'1':undefined} inputMode={type==='number'?'numeric':key.includes('Price')?'decimal':undefined} value={form[key]} onChange={e=>set(key,e.target.value)}/></label>;
++ async function submit(e){e.preventDefault();if(busy)return;setBusy(true);try{const bundle=hardwareCreationBundle(form);if(!window.confirm(`Confirmar alta: ${bundle.product.name}. Inicial: ${bundle.initialInventory?.quantity??'sin registrar'} piezas.`))return;const r=await onSave(bundle);if(!r.ok)setError(r.message);}catch(e){setError(e.message);}finally{setBusy(false);}}
++ return <Dialog open fullWidth maxWidth="sm" onClose={busy?undefined:onClose}><form onSubmit={submit}><DialogContent><h2>Agregar producto</h2><fieldset disabled={busy}>
++ {field('name','Nombre comercial completo')}
++ <label className="form-label d-block">Categoría<select className="form-select" value={form.hardwareCategoryId||''} onChange={e=>set('hardwareCategoryId',e.target.value||null)}><option value="">Sin categoría</option>{categories.filter(c=>c.active).map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
++ <label className="form-label d-block">Forma de venta<select className="form-select" value={form.saleMode} onChange={e=>set('saleMode',e.target.value)}>{[['piece','Solo por pieza'],['pack','Solo por paquete'],['both','Por paquete y pieza'],['advanced','Más opciones']].map(([v,t])=><option key={v} value={v}>{t}</option>)}</select></label>
++ {form.saleMode!=='piece'&&field('packSize','Piezas por paquete','number')}
++ <label className="d-block my-3"><input type="checkbox" checked={form.pricePending} onChange={e=>set('pricePending',e.target.checked)}/> Precio pendiente (no disponible para venta)</label>
++ {!form.pricePending&&<>{form.saleMode!=='piece'&&field('packPrice','Precio por paquete (MXN)')}{form.saleMode!=='pack'&&field('piecePrice','Precio por pieza (MXN)')}</>}
++ <label className="d-block my-3"><input type="checkbox" checked={form.initialEnabled} onChange={e=>set('initialEnabled',e.target.checked)}/> Registrar inventario inicial</label>
++ {form.initialEnabled&&(form.saleMode==='piece'?field('quantity','Piezas iniciales','number'):<>{field('closedPackages','Paquetes cerrados','number')}{form.saleMode==='both'&&field('looseUnits','Piezas sueltas','number')}<p>Total equivalente: {Number(form.closedPackages||0)*Number(form.packSize||0)+Number(form.saleMode==='both'?form.looseUnits||0:0)} piezas</p></>)}
++ {error&&<p role="alert">{error}</p>}</fieldset></DialogContent><DialogActions><Button disabled={busy} onClick={onClose}>Cancelar</Button><Button type="submit" disabled={busy}>Guardar producto</Button></DialogActions></form></Dialog>;
++}
+diff --git a/src/components/SaleFormModal.jsx b/src/components/SaleFormModal.jsx
+--- a/src/components/SaleFormModal.jsx
++++ b/src/components/SaleFormModal.jsx
+@@ -151,7 +151,7 @@ export default function SaleFormModal({ onClose, onSave,inventoryEnabled=false }
+                     </td>
+                     <td>
+                         <div className="input-group flex-nowrap" style={{ width: "max-content" }}>
+-                            <input id={`sale-value-${item.productId}`} data-inline-error="true" aria-label={item.entryMode === "amount" ? `Monto de ${item.name} en pesos` : `Cantidad de ${item.name} en ${item.unit}`} style={{ width: "calc(5ch + 2.5rem)", flex: "0 0 auto" }} className="form-control" required aria-required="true" type="number" min="0" data-positive="true" step="any" value={item.entryMode === "amount" ? item.requestedAmount : items.find((entry) => entry.productId === item.productId).quantity} onChange={(e) => setItems(items.map((entry) => entry.productId === item.productId ? { ...entry, [item.entryMode === "amount" ? "requestedAmount" : "quantity"]: e.target.value } : entry))} />
++                            <input id={`sale-value-${item.productId}`} data-inline-error="true" aria-label={item.entryMode === "amount" ? `Monto de ${item.name} en pesos` : `Cantidad de ${item.name} en ${item.unit}`} style={{ width: "calc(5ch + 2.5rem)", flex: "0 0 auto" }} className="form-control" required aria-required="true" type="number" min="0" data-positive="true" step={item.entryMode!=="amount"&&["pieza","rollo","paquete","envase","botella","bolsa"].includes(item.unit)?"1":"any"} value={item.entryMode === "amount" ? item.requestedAmount : items.find((entry) => entry.productId === item.productId).quantity} onChange={(e) => setItems(items.map((entry) => entry.productId === item.productId ? { ...entry, [item.entryMode === "amount" ? "requestedAmount" : "quantity"]: e.target.value } : entry))} />
+                             <span className="input-group-text">{item.entryMode === "amount" ? "MXN" : item.unit}</span>
+                         </div>
+                         <FieldError id={`sale-value-${item.productId}`} />
+diff --git a/src/domain/commerce.mjs b/src/domain/commerce.mjs
+--- a/src/domain/commerce.mjs
++++ b/src/domain/commerce.mjs
+@@ -12,6 +12,7 @@ export function decimal(value,places=6,positive=true){
+ const num=n=>{if(n>BigInt(Number.MAX_SAFE_INTEGER))fail('Valor fuera de rango.');return Number(n);};
+ export function baseQuantity(quantity,factor){const n=decimal(quantity)*decimal(factor);if(n%1000000n)fail('Contenido no representable en seis decimales.');return num(n/1000000n)/1000000;}
+ export function validatePresentation(p,products){
++ if(['saleEnabled','purchaseEnabled'].some(k=>p?.[k]!==undefined&&typeof p[k]!=='boolean'))fail('Define si la presentaci\u00f3n admite compra y venta.');
+  if(!p?.id||!p.name?.trim()||p.name.length>200||!products.some(x=>sameId(x.id,p.productId)&&x.activity==='JARCERIA'))fail('Selecciona un artículo de jarcería y nombre de presentación.');
+  if(!['pieza','paquete','kg','gramo','bolsa','envase','botella'].includes(p.unit))fail('Unidad comercial inválida.');
+  decimal(p.factor);decimal(p.price,2,false);
+@@ -28,7 +29,7 @@ export function validateService(s){
+ }
+ export function commerceChoices(data){
+  const model=data?.procurement??data??{},products=data?.products??[];
+- return [...(model.presentations||[]).filter(p=>p.active&&products.some(x=>sameId(x.id,p.productId)&&x.active&&x.available!==false)).map(p=>({key:'presentation:'+p.id,kind:'presentation',refId:p.id,name:p.name,context:'Jarcería · '+(products.find(x=>sameId(x.id,p.productId))?.name||''),tariffs:[{key:'commerce:'+p.id,price:Number(p.price),unit:p.unit,productIds:[p.productId],commerceVersion:COMMERCE_VERSION,presentation:p}]})),
++ return [...(model.presentations||[]).filter(p=>p.active&&p.saleEnabled!==false&&Number(p.price)>0&&products.some(x=>sameId(x.id,p.productId)&&x.active&&x.available!==false)).map(p=>({key:'presentation:'+p.id,kind:'presentation',refId:p.id,name:p.name,context:'Jarcería · '+(products.find(x=>sameId(x.id,p.productId))?.name||''),tariffs:[{key:'commerce:'+p.id,price:Number(p.price),unit:p.unit,productIds:[p.productId],commerceVersion:COMMERCE_VERSION,presentation:p}]})),
+  ...(model.services||[]).filter(s=>s.active).map(s=>({key:'service:'+s.id,kind:'service',refId:s.id,name:s.name,context:'Lavandería',tariffs:[{key:'commerce:'+s.id,price:s.priceMode==='custom'?0:Number(s.price),unit:s.unit,productIds:[],commerceVersion:COMMERCE_VERSION,service:s}]}))];
+ }
+ export function makeCommerceLine(choice,tariff,mode,value,id,options={}){
+diff --git a/src/domain/hardwareCreation.mjs b/src/domain/hardwareCreation.mjs
+--- a/src/domain/hardwareCreation.mjs
++++ b/src/domain/hardwareCreation.mjs
+@@ -2,27 +2,49 @@ export const hardwareIdentity = value => String(value ?? '').normalize('NFD').re
+   .replace(/(\d)\s*(ml|kg|g|l)\b/g,'$1 $2').replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).sort().join(' ');
+ export function suggestHardwareCategory(name, categories) {
+   const n=hardwareIdentity(name);
+-  const label=/inodoro|bano|harpic|lysol|bomba/.test(n)?'Productos para baño':/guante|cepillo/.test(n)?'Accesorios de limpieza':/tocador|shampoo|manos/.test(n)?'Higiene personal':/insecticida|matamoscas|tron/.test(n)?'Control de plagas':/muriatico|fabuloso|limpiahornos/.test(n)?'Limpiadores envasados':null;
++  const label=/inodoro|bano|harpic|lysol|bomba/.test(n)?'Productos para baño':/guante|cepillo/.test(n)?'Accesorios de limpieza':/tocador|shampoo|manos|naturella|toalla sanitaria/.test(n)?'Higiene personal':/insecticida|matamoscas|tron/.test(n)?'Control de plagas':/muriatico|fabuloso|limpiahornos/.test(n)?'Limpiadores envasados':null;
+   return categories.find(c=>c.active&&c.name===label)?.id??null;
+ }
++export function quickPresentations(form) {
++  if (!['piece','pack','both'].includes(form.saleMode)) return form.presentations;
++  const rows=[];
++  if(form.saleMode!=='piece') rows.push({name:`Paquete de ${form.packSize} piezas`,unit:'paquete',factor:form.packSize,price:form.packPrice});
++  if(form.saleMode!=='pack') rows.push({name:'Pieza individual',unit:'pieza',factor:'1',price:form.piecePrice});
++  return rows;
++}
+ export function hardwareCreationBundle(form) {
++  if (['piece','pack','both'].includes(form.saleMode)) form={...form,unit:'pieza',presentations:quickPresentations(form)};
+   const name=String(form.name??'').trim(),variant=String(form.variant??'').trim();
+   if(!name)throw Error('Escribe el nombre del producto.');
+   if(!['pieza','kg','gramo','bolsa','envase','botella'].includes(form.unit))throw Error('Selecciona una unidad válida.');
+   const pricePending=form.pricePending===true;
+-  const presentations=pricePending?[]:form.presentations.map(p=>{
+-    if(!p.name?.trim()||!/^\d+(?:\.\d{1,2})?$/.test(String(p.price))||Number(p.price)<=0)throw Error('Cada presentación requiere nombre y precio positivo con hasta dos decimales.');
++  const presentations=(pricePending&&!form.saleMode?[]:form.presentations).map(p=>{
++    if(!p.name?.trim()||(!pricePending&&p.saleEnabled!==false&&(!/^\d+(?:\.\d{1,2})?$/.test(String(p.price))||Number(p.price)<=0)))throw Error('Cada presentación requiere nombre y precio positivo con hasta dos decimales.');
+     if(!/^\d+(?:\.\d{1,6})?$/.test(String(p.factor))||Number(p.factor)<=0)throw Error('Indica el contenido real de cada presentación.');
+-    return {name:p.name.trim(),unit:p.unit,factor:Number(p.factor),price:Number(p.price),integerOnly:!['kg','gramo'].includes(form.unit),active:true};
++    return {name:p.name.trim(),unit:p.unit,factor:Number(p.factor),price:pricePending||p.saleEnabled===false?0:Number(p.price),saleEnabled:p.saleEnabled!==false,purchaseEnabled:p.purchaseEnabled!==false,integerOnly:!['kg','gramo'].includes(form.unit),active:true};
+   });
+   if(!pricePending&&!presentations.length)throw Error('Agrega una presentación.');
++  if (['pack','both'].includes(form.saleMode) && (!/^\d+$/.test(String(form.packSize)) || Number(form.packSize)<2 || !Number.isSafeInteger(Number(form.packSize)))) throw Error('Indica al menos dos piezas por paquete.');
+   const product={name:name+(variant?` · ${variant}`:''),unit:form.unit,hardwareCategoryId:form.hardwareCategoryId||null,
+-    characteristics:variant?`Variante: ${variant}`:'',active:true,available:!pricePending,pricePending};
++    characteristics:variant?`Variante: ${variant}`:'',active:true,available:!pricePending,pricePending,enforceStock:true,autoOpenPackages:form.saleMode==='both'||form.autoOpenPackages===true};
+   let initialInventory;
+   if(form.initialEnabled){
+-    const q=String(form.quantity??'').trim();
++    let q=String(form.quantity??'').trim();
++    const advancedPack=form.saleMode==='advanced'&&form.unit==='pieza'&&form.presentations.some(p=>p.unit==='paquete');
++    if (['pack','both'].includes(form.saleMode)||advancedPack) {
++      const index=advancedPack?Number(form.initialPresentationIndex):0;
++      const factor=advancedPack?form.presentations[index]?.factor:form.packSize;
++      if(advancedPack&&(form.initialPresentationIndex==null||form.initialPresentationIndex===''||form.presentations[index]?.unit!=='paquete'))throw Error('Selecciona el paquete que contaste.');
++      if(!/^\d+$/.test(String(factor))||Number(factor)<2)throw Error('El paquete necesita un contenido entero de al menos dos piezas.');
++      const closed=String(form.closedPackages??'').trim(),loose=form.saleMode==='pack'?'0':String(form.looseUnits??'').trim();
++      if(!/^\d+$/.test(closed)||!/^\d+$/.test(loose))throw Error('Captura paquetes cerrados y piezas sueltas enteros; vacío no equivale a cero.');
++      const total=BigInt(closed)*BigInt(factor)+BigInt(loose);
++      if(total>9007199254n)throw Error('Inventario inicial fuera de rango.');
++      q=String(total);
++      initialInventory={physicalComposition:{presentationIndex:index,closedPackages:closed,looseUnits:loose}};
++    }
+     if(!/^\d+(?:\.\d{1,6})?$/.test(q)||(!['kg','gramo'].includes(form.unit)&&!Number.isInteger(Number(q))))throw Error('Captura la cantidad inicial explícita y válida; vacío no equivale a cero.');
+-    initialInventory={quantity:q,unit:form.unit,observations:'Inventario inicial confirmado al dar de alta el producto'};
++    initialInventory={...initialInventory,quantity:q,unit:form.unit,observations:'Inventario inicial confirmado al dar de alta el producto'};
+   }
+   return {product,presentations,...(initialInventory?{initialInventory}:{})};
+ }
+diff --git a/src/domain/packInventory.mjs b/src/domain/packInventory.mjs
+--- a/src/domain/packInventory.mjs
++++ b/src/domain/packInventory.mjs
+@@ -3,7 +3,6 @@ export function whole(value){const n=inventoryDecimal(value);if(n<0n||n%1000000n
+ export function packOptions(product,presentations){
+  if(product?.activity!=='JARCERIA'||product.unit!=='pieza')return [];
+  const rows=presentations.filter(p=>String(p.productId)===String(product.id)&&p.active);
+- if(!rows.some(p=>p.unit==='pieza'&&Number(p.factor)===1))return [];
+  return rows.filter(p=>p.unit==='paquete'&&Number.isSafeInteger(Number(p.factor))&&Number(p.factor)>1);
+ }
+ export function composition(spec,presentation){
+diff --git a/src/layout/Sidebar.jsx b/src/layout/Sidebar.jsx
+--- a/src/layout/Sidebar.jsx
++++ b/src/layout/Sidebar.jsx
+@@ -19,7 +19,7 @@ export default function Sidebar({ collapsed, setCollapsed, mobileMenuOpen, setMo
+     const compact = collapsed && !mobileMenuOpen;
+     const closeMenu = () => setMobileMenuOpen?.(false);
+     return <aside className={`sidebar ${compact ? "sidebar-collapsed" : ""} ${mobileMenuOpen ? "mobile-open" : ""}`}>
+-        <div className="sidebar-header"><div className="brand-icon">C</div>{!compact && <div className="brand-text"><h1>CalcQuim</h1><span>Panel de Administración</span></div>}</div>
++        <div className="sidebar-header"><div className="brand-icon">C</div>{!compact && <div className="brand-text"><h1>Nexo</h1><span>Panel de Administración</span></div>}</div>
+         <nav className="sidebar-menu" aria-label="Navegación principal">
+             {menuItems.map(item => {
+                 if (!item.children) return <NavLink key={item.path} to={item.path} title={item.label} aria-label={item.label} className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`} onClick={closeMenu}><FontAwesomeIcon icon={item.icon} className="sidebar-item-icon" />{!compact && <span>{item.label}</span>}</NavLink>;
+@@ -37,6 +37,6 @@ export default function Sidebar({ collapsed, setCollapsed, mobileMenuOpen, setMo
+                 </div>;
+             })}
+         </nav>
+-        <div className="sidebar-footer">{!compact && <div><div>CalcQuim Admin</div><small>Uso personal</small></div>}<button type="button" className="sidebar-collapse-button" onClick={() => setCollapsed?.(!collapsed)} aria-label={collapsed ? "Expandir menú" : "Contraer menú"}><FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronLeft} /></button></div>
++        <div className="sidebar-footer">{!compact && <div><div>Nexo · Administración</div><small>Uso personal</small></div>}<button type="button" className="sidebar-collapse-button" onClick={() => setCollapsed?.(!collapsed)} aria-label={collapsed ? "Expandir menú" : "Contraer menú"}><FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronLeft} /></button></div>
+     </aside>;
+ }
+diff --git a/src/pages/DataManagementPage.jsx b/src/pages/DataManagementPage.jsx
+--- a/src/pages/DataManagementPage.jsx
++++ b/src/pages/DataManagementPage.jsx
+@@ -24,7 +24,7 @@ export default function DataManagementPage() {
+     const counts = inventory ? [["Productos", inventory.products.length], ["Ventas", inventory.sales.length], ["Compras", inventory.procurement.purchases.length], ["Proveedores", inventory.procurement.suppliers.length], ["Abastecimiento", inventory.procurement.supplyItems.length], ["Costos del proveedor", inventory.procurement.supplierPrices.length]] : [];
+     return <>
+         <Feedback message={notice} variant="success" /><Feedback message={error} />
+-        <ContentPanel title="Respaldo de CalcQuim" subtitle="Descarga un respaldo JSON para poder restaurar tus datos; usa Excel para consultarlos.">
++        <ContentPanel title="Respaldo de Nexo" subtitle="Descarga un respaldo JSON para poder restaurar tus datos; usa Excel para consultarlos.">
+             <p className="alert alert-warning">Los datos viven en este navegador y dispositivo. Si se borran sus datos o usas otro navegador, no aparecerán aquí. Guarda periódicamente el respaldo JSON fuera de la carpeta del proyecto.</p>
+             <p>Incluye registros activos e inactivos, historial, revisiones, ventas y datos del comparador. Los filtros de las tablas no limitan la exportación.</p>
+             <div className="data-inventory">{counts.map(([label, count]) => <div key={label}><strong>{count}</strong><span>{label}</span></div>)}</div>
+@@ -35,12 +35,12 @@ export default function DataManagementPage() {
+             {inventory?.issues.length > 0 && <p className="alert alert-warning">Hay datos que no se pudieron interpretar. El Excel incluirá los registros legibles y una hoja INCONSISTENCIAS. Revísalo antes de borrar.</p>}
+             <RawBackupButton primary />
+             <div className="mt-3"><ExportExcelButton scope="full" onBusy={setExporting}>Exportar todos los datos</ExportExcelButton></div>
+-            <p className="form-text">Excel sirve para consultar y analizar información. No se puede importar para restaurar CalcQuim.</p>
++            <p className="form-text">Excel sirve para consultar y analizar información. No se puede importar para restaurar Nexo.</p>
+             <p className="form-text">El respaldo original conserva todos los campos guardados. Puedes restaurar un archivo JSON desde Importar respaldo.</p>
+             <button type="button" className="btn btn-outline-primary" disabled={exporting} onClick={() => setImporting(true)}>Importar respaldo</button>
+             <p className="form-text mt-3">La exportación solo lee los datos. No repara relaciones ni modifica la información guardada.</p>
+         </ContentPanel>
+-        <section className="data-danger-zone" aria-labelledby="dangerTitle"><h2 id="dangerTitle">Zona de peligro</h2><p>Eliminar todos los datos de CalcQuim. Esta acción elimina de forma permanente la información almacenada en este dispositivo.</p><button type="button" className="btn btn-outline-danger" disabled={exporting} onClick={() => setConfirming(true)}>Eliminar todos los datos</button></section>
++        <section className="data-danger-zone" aria-labelledby="dangerTitle"><h2 id="dangerTitle">Zona de peligro</h2><p>Eliminar todos los datos de Nexo. Esta acción elimina de forma permanente la información almacenada en este dispositivo.</p><button type="button" className="btn btn-outline-danger" disabled={exporting} onClick={() => setConfirming(true)}>Eliminar todos los datos</button></section>
+         <p className="mt-4"><Link to="/productos">Ir a Productos</Link></p>
+         {confirming && <ResetDataModal onClose={() => setConfirming(false)} onReset={resetData} />}
+         {importing && <ImportBackupModal onClose={() => setImporting(false)} />}
+diff --git a/src/pages/HardwareProductsPage.jsx b/src/pages/HardwareProductsPage.jsx
+--- a/src/pages/HardwareProductsPage.jsx
++++ b/src/pages/HardwareProductsPage.jsx
+@@ -1,3 +1,4 @@
++import QuickHardwareCreate from '../components/QuickHardwareCreate';
+ import {suggestHardwareCategory} from '../domain/hardwareCreation.mjs';
+ import ActionMenu from '../components/ActionMenu';
+ import TableBadge from '../components/TableBadge';
+@@ -29,30 +30,31 @@ export default function HardwareProductsPage(){
+  const data=persistence.snapshot.data,products=data.products.filter(p=>p.activity==='JARCERIA'),presentations=data.procurement.presentations||[],categories=data.procurement.hardwareCategories||[];
+  const filtered=products.filter(p=>(!status||(status==='active')===(p.active&&p.available!==false))&&(!category||String(p.hardwareCategoryId)===category));
+  async function exportCatalog(){const {exportWorkbook}=await import('../services/excelExport.js');await exportWorkbook({scope:'products',capturedAt:new Date(),issueCount:0,sheets:[{name:'Jarcería',columns:[['name','Producto'],['category','Categoría'],['presentation','Presentación'],['unit','Unidad de venta'],['factor','Contenido'],['price','Precio de venta'],['state','Estado']].map(([key,label])=>({key,label,width:28,type:'text'})),rows:filtered.flatMap(p=>{const list=presentations.filter(r=>String(r.productId)===String(p.id));return (list.length?list:[{}]).map(r=>({name:p.name,category:categories.find(c=>String(c.id)===String(p.hardwareCategoryId))?.name||'Sin categoría',presentation:r.name||'Sin presentación',unit:r.unit||p.unit,factor:r.factor??'Sin determinar',price:r.price??'Sin determinar',state:p.active&&p.available!==false?'Disponible':'No disponible'}));})}]});}
+- const columns=[{accessorKey:'name',header:'Producto',size:170,minSize:120,Cell:({row})=><><span className="table-text-primary">{row.original.name}</span><small className="d-block text-muted">{row.original.characteristics}</small></>},
++ const columns=[{accessorKey:'name',header:'Producto',size:170,minSize:120,Cell:({row})=><><span className="table-text-primary">{row.original.name}</span></>},
+   {id:'price',header:'Precio',size:180,minSize:130,accessorFn:p=>presentations.filter(r=>String(r.productId)===String(p.id)).map(r=>`${r.name}: ${r.price==null?'Sin precio':money(r.price)} / ${r.unit}`).join(' / ')||'Sin precio',Cell:({row})=>{const list=presentations.filter(r=>String(r.productId)===String(row.original.id));return list.length?<div>{list.map(r=><div key={r.id} className="mb-1"><strong>{r.price==null?'Sin precio':money(r.price)}</strong> / {r.unit}<small className="d-block text-muted">{r.name}{r.active?'':' (inactiva)'}</small></div>)}</div>:'Sin precio';}},
+   {id:'category',header:'Categoría',size:155,minSize:110,accessorFn:p=>categories.find(c=>String(c.id)===String(p.hardwareCategoryId))?.name||'Sin categoría',Cell:({cell,row})=><TableBadge style={{...categoryStyle(categories.find(c=>String(c.id)===String(row.original.hardwareCategoryId))),backgroundColor:'var(--category-background)',color:'var(--category-accent)'}}>{cell.getValue()}</TableBadge>},
+   {id:'presentations',header:'Presentaciones',size:150,minSize:110,accessorFn:p=>presentations.filter(r=>String(r.productId)===String(p.id)).map(r=>`${r.unit} (${r.factor} ${r.baseUnit||p.unit})${r.active?'':' (inactiva)'}`).join(' / ')||'Sin presentaciones'},
+   {accessorKey:'unit',header:'Unidad de inventario',size:110,minSize:80},{id:'active',header:'Estado',size:105,minSize:90,accessorFn:p=>p.active&&p.available!==false?'Activo':'Inactivo',Cell:({row})=><StatusBadge active={Boolean(row.original.active&&row.original.available!==false)} inactiveText="No disponible"/>},
+   {id:'actions',header:'Acciones',size:80,minSize:65,enableSorting:false,Cell:({row})=><TableActions label={row.original.name} onEdit={()=>setEditing(row.original)} showDelete={false}/>}];
+- return <section className="hardware-catalog"><div className="row g-3 mb-4">{[[products.length,'Productos totales',faBox,'blue'],[products.filter(p=>p.active&&p.available!==false).length,'Disponibles',faCheck,'green'],[products.filter(p=>!p.active||p.available===false).length,'No disponibles',faBan,'purple'],[categories.length,'Categorías',faTags,'blue']].map(([value,title,icon,variant])=><SummaryCard key={title} {...{value,title,icon,variant}}/>)}</div><Feedback message={notice} variant="success"/><ContentPanel title="Lista de productos" subtitle="Consulta y administra los productos disponibles en CalcQuim." action={<div className="d-flex flex-wrap gap-2 hardware-catalog-actions"><a className="btn btn-outline-secondary" href="/productos-jarceria/categorias">Categorías</a><button type="button" className="btn btn-outline-secondary" onClick={()=>exportCatalog().catch(()=>setNotice('No se pudo exportar el catálogo.'))}>Exportar Excel</button><ActionMenu label="Acciones por lote" actions={[{label:'Agregar por lote',onClick:()=>setTool('batch')}]}/><PrimaryAction onClick={()=>setEditing({name:'',characteristics:'',unit:'pieza',active:true})}>Nuevo producto</PrimaryAction></div>}>
++ return <section className="hardware-catalog"><div className="row g-2 mb-4">{[[products.length,'Productos totales',faBox,'blue'],[products.filter(p=>p.active&&p.available!==false).length,'Disponibles',faCheck,'green'],[products.filter(p=>!p.active||p.available===false).length,'No disponibles',faBan,'purple'],[categories.length,'Categorías',faTags,'blue']].map(([value,title,icon,variant])=><SummaryCard key={title} {...{value,title,icon,variant}}/>)}</div><Feedback message={notice} variant="success"/><ContentPanel title="Lista de productos" subtitle="Consulta y administra los productos disponibles en Nexo." action={<div className="d-flex flex-wrap gap-2 hardware-catalog-actions"><a className="btn btn-outline-secondary" href="/productos-jarceria/categorias">Categorías</a><button type="button" className="btn btn-outline-secondary" onClick={()=>exportCatalog().catch(()=>setNotice('No se pudo exportar el catálogo.'))}>Exportar Excel</button><ActionMenu label="Acciones por lote" actions={[{label:'Agregar por lote',onClick:()=>setTool('batch')}]}/><PrimaryAction onClick={()=>setEditing({name:'',characteristics:'',unit:'pieza',active:true})}>Nuevo producto</PrimaryAction></div>}>
+  <div className="filter-bar hardware-catalog-filters"><label className="form-label">Categoría<select aria-label="Categoría" className="form-select" value={category} onChange={e=>setCategory(e.target.value)}><option value="">Todas</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label className="form-label">Estado<select aria-label="Estado" className="form-select" value={status} onChange={e=>setStatus(e.target.value)}><option value="">Todos</option><option value="active">Activos</option><option value="inactive">Inactivos</option></select></label></div>
+  <DataTable pinActions mobileCards mobilePrimaryColumns={['name','price','category','active']} mobileSecondaryColumns={['presentations','unit','actions']} columns={columns} data={filtered} searchPlaceholder="Buscar producto o presentación..." initialSorting={[{id:'name',desc:false}]}/>
+  </ContentPanel><details className="mt-3"><summary>Herramientas de carga inicial</summary><ReferenceImport activity="JARCERIA"/></details>
+  {editing&&<ProductEditor product={editing} categories={categories} presentations={presentations.filter(r=>String(r.productId)===String(editing.id))} onClose={()=>setEditing(null)} onSave={async input=>{const result=await persistence.command('saveHardwareProductBundle',[input]);if(result.ok){setNotice('Producto y presentaciones guardados.');setEditing(null);}return result;}}/>}{tool==='categories'&&<HardwareCategories categories={categories} onCommand={persistence.command} onClose={()=>setTool(null)}/ >}{tool==='batch'&&<HardwareBatch categories={categories} onClose={()=>setTool(null)} onSave={async input=>{const result=await persistence.command('saveHardwareProductsBatch',[input]);if(result.ok){setTool(null);setNotice('Lote completo guardado.');}return result;}}/>}</section>;
+ }
+-export function ProductEditor({product,categories,presentations,onClose,onSave}){
++export function ProductEditor(props){return props.product.id?<AdvancedProductEditor {...props}/>:<QuickHardwareCreate {...props} AdvancedEditor={AdvancedProductEditor}/>;}
++function AdvancedProductEditor({product,categories,presentations,onClose,onSave}){
+  const [initialInventory,setInitialInventory]=useState(emptyProductInitial);
+  const [draft,setDraft]=useState(product),[rows,setRows]=useState(()=>presentations.length?presentations.map(p=>({...p,key:p.id})):[newPresentation()]),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+  const change=(key,patch)=>setRows(rows.map(p=>p.key===key?{...p,...patch}:p));
+- async function submit(){if(busy)return;setBusy(true);setError('');try{if(!product.id&&!window.confirm(`Confirmar alta: ${draft.name}${draft.variant?' · '+draft.variant:''}${draft.pricePending?' · Precio pendiente, no disponible para venta':''}${initialInventory.enabled?' · Con inventario inicial '+initialInventory.quantity:''}`))return;const result=await onSave({product:{...draft,name:draft.name+(!product.id&&draft.variant?' · '+draft.variant:''),available:draft.pricePending?false:product.pricePending?true:(draft.available??true)},presentations:draft.pricePending?[]:rows.map(p=>{const row={...p,id:p.id??p.key,factor:Number(p.factor),price:Number(p.price)};delete row.key;return row;}),...(!product.id&&initialInventory.enabled?{initialInventory:productInitialPayload(initialInventory,draft.unit,rows.map(p=>({...p,id:p.id??p.key})))}:{})});if(!result.ok)setError(result.message);}catch(e){setError(e.message);}finally{setBusy(false);}}
++ async function submit(){if(busy)return;setBusy(true);setError('');try{if(!product.id&&!window.confirm(`Confirmar alta: ${draft.name}${draft.pricePending?' · Precio pendiente, no disponible para venta':''}${initialInventory.enabled?' · Con inventario inicial '+initialInventory.quantity:''}`))return;const result=await onSave({product:{...draft,autoOpenPackages:draft.autoOpenPackages??Boolean(product.id),name:draft.name,available:draft.pricePending?false:product.pricePending?true:(draft.available??true)},presentations:rows.map(p=>{const row={...p,id:p.id??p.key,factor:Number(p.factor),price:draft.pricePending||p.saleEnabled===false?0:Number(p.price)};delete row.key;return row;}),...(!product.id&&initialInventory.enabled?{initialInventory:productInitialPayload(initialInventory,draft.unit,rows.map(p=>({...p,id:p.id??p.key})))}:{})});if(!result.ok)setError(result.message);}catch(e){setError(e.message);}finally{setBusy(false);}}
+  return <Dialog className="app-dialog" PaperProps={{className:"sale-modal"}} open fullWidth maxWidth="md" onClose={busy?undefined:onClose} aria-labelledby="hardware-title"><ModalHeader titleId="hardware-title" title={product.id?'Editar producto':'Agregar producto'} onClose={busy?()=>{}:onClose}/><ValidatedForm className="sale-modal-form" onSubmit={submit}><DialogContent className="sale-modal-body"><fieldset disabled={busy}>
+  <div className="row g-3"><div className="col-md-8"><Field label="Nombre comercial" required maxLength={200} value={draft.name} onChange={e=>setDraft({...draft,name:e.target.value,...(!draft.hardwareCategoryId?{hardwareCategoryId:suggestHardwareCategory(e.target.value,categories)}:{})})}/></div><div className="col-md-4"><Field label="Unidad de inventario" disabled={Boolean(product.id)} value={draft.unit} onChange={e=>{setDraft({...draft,unit:e.target.value});setInitialInventory(emptyProductInitial());}}>{['pieza','kg','gramo','bolsa','envase','botella'].map(u=><option key={u}>{u}</option>)}</Field></div></div>
+  <Field label="Categoría de jarcería" value={draft.hardwareCategoryId??''} onChange={e=>setDraft({...draft,hardwareCategoryId:e.target.value||null})}><option value="">Sin categoría</option>{categories.filter(c=>c.active||String(c.id)===String(draft.hardwareCategoryId)).map(c=><option key={c.id} value={c.id}>{c.name}{c.active?'':' (inactiva)'}</option>)}</Field>
+- <Field label="Características" maxLength={1000} value={draft.characteristics||''} onChange={e=>setDraft({...draft,characteristics:e.target.value})}/><label className="form-check my-3"><input className="form-check-input" type="checkbox" checked={draft.active} onChange={e=>setDraft({...draft,active:e.target.checked})}/>Producto activo</label>
+- {!product.id&&<Field label="Variante o talla (existencia independiente)" value={draft.variant||''} onChange={e=>setDraft({...draft,variant:e.target.value})}/>}<label><input type="checkbox" checked={draft.pricePending===true} onChange={e=>setDraft({...draft,pricePending:e.target.checked})}/> Precio pendiente: no disponible para venta</label><h3 className="h6">Presentaciones y precios</h3><p className="form-text">Indica cómo lo vendes y cuántas {draft.unit} contiene cada presentación. Todas utilizan la misma existencia.</p>
+- {!draft.pricePending&&rows.map((p,index)=><section className="sale-section border rounded p-3 mb-3" key={p.key} aria-label={`Presentación ${index+1}`}><div className="row g-3"><div className="col-md-8"><Field label="Nombre de presentación" required value={p.name} onChange={e=>change(p.key,{name:e.target.value})}/></div><div className="col-md-4"><Field label="Unidad de venta" value={p.unit} onChange={e=>change(p.key,{unit:e.target.value})}>{['pieza','paquete','kg','gramo','bolsa','envase','botella'].map(u=><option key={u}>{u}</option>)}</Field></div><div className="col-md-6"><Field label={`Contenido (${draft.unit})`} required type="number" min="0.000001" step="0.000001" value={p.factor} onChange={e=>change(p.key,{factor:e.target.value})}/></div><div className="col-md-6"><Field label="Precio de venta" required type="number" min="0.01" step="0.01" value={p.price} onChange={e=>change(p.key,{price:e.target.value})}/></div></div>
+- <div className="d-flex flex-wrap gap-3 mt-3"><label><input type="checkbox" checked={p.integerOnly} onChange={e=>change(p.key,{integerOnly:e.target.checked})}/> Vender cantidades enteras</label><label><input type="checkbox" checked={p.active} onChange={e=>change(p.key,{active:e.target.checked})}/> Presentación activa</label>{!p.id&&rows.length>1&&<button type="button" className="btn btn-sm btn-outline-danger" onClick={()=>setRows(rows.filter(r=>r.key!==p.key))}>Quitar presentación</button>}</div>
++ <label className="form-check my-3"><input className="form-check-input" type="checkbox" checked={draft.active} onChange={e=>setDraft({...draft,active:e.target.checked})}/>Producto activo</label>
++ <label><input type="checkbox" checked={draft.pricePending===true} onChange={e=>setDraft({...draft,pricePending:e.target.checked})}/> Precio pendiente: no disponible para venta</label><label className="d-block"><input type="checkbox" checked={draft.autoOpenPackages??Boolean(product.id)} onChange={e=>setDraft({...draft,autoOpenPackages:e.target.checked})}/>Abrir paquetes para atender piezas</label><h3 className="h6">Presentaciones y precios</h3><p className="form-text">Indica cómo lo vendes y cuántas {draft.unit} contiene cada presentación. Todas utilizan la misma existencia.</p>
++ {rows.map((p,index)=><section className="sale-section border rounded p-2 mb-2" key={p.key} aria-label={`Presentación ${index+1}`}><div className="row g-3"><div className="col-md-8"><Field label="Nombre de presentación" required value={p.name} onChange={e=>change(p.key,{name:e.target.value})}/></div><div className="col-md-4"><Field label="Unidad de venta" value={p.unit} onChange={e=>change(p.key,{unit:e.target.value})}>{['pieza','paquete','kg','gramo','bolsa','envase','botella'].map(u=><option key={u}>{u}</option>)}</Field></div><div className="col-md-6"><Field label={`Contenido (${draft.unit})`} required type="number" min="0.000001" step="0.000001" value={p.factor} onChange={e=>change(p.key,{factor:e.target.value})}/></div><div className="col-md-6"><Field label="Precio de venta" required={!draft.pricePending&&p.saleEnabled!==false} type="number" min="0.01" step="0.01" disabled={draft.pricePending||p.saleEnabled===false} value={p.price} onChange={e=>change(p.key,{price:e.target.value})}/></div></div>
++ <div className="d-flex flex-wrap gap-3 mt-3"><label><input type="checkbox" checked={p.saleEnabled!==false} onChange={e=>change(p.key,{saleEnabled:e.target.checked})}/>Disponible para venta</label><label><input type="checkbox" checked={p.purchaseEnabled!==false} onChange={e=>change(p.key,{purchaseEnabled:e.target.checked})}/>Disponible para compras</label><label><input type="checkbox" checked={p.integerOnly} onChange={e=>change(p.key,{integerOnly:e.target.checked})}/> Vender cantidades enteras</label><label><input type="checkbox" checked={p.active} onChange={e=>change(p.key,{active:e.target.checked})}/> Presentación activa</label>{!p.id&&rows.length>1&&<button type="button" className="btn btn-sm btn-outline-danger" onClick={()=>setRows(rows.filter(r=>r.key!==p.key))}>Quitar presentación</button>}</div>
+  {p.priceHistory?.length>0&&<details className="mt-2"><summary>Historial de cambios</summary>{p.priceHistory.map((r,i)=><p key={i}>{r.at} · {money(r.price)} · Contenido: {r.factor} {draft.unit}</p>)}</details>}</section>)}
+  <button type="button" className="btn btn-outline-primary" onClick={()=>setRows([...rows,newPresentation()])}>Agregar presentación</button>
+  {!product.id?<InitialInventoryFields key={draft.unit} value={initialInventory} onChange={setInitialInventory} unit={draft.unit} presentations={rows.map(p=>({...p,id:p.id??p.key,baseUnit:draft.unit}))}/>:<p className="form-text mt-3">El inventario se administra desde Inventarios. Si ya tiene inicial, utiliza Correcciones.</p>}<Feedback message={error}/>
+diff --git a/src/styles/components/SaleFormModal.css b/src/styles/components/SaleFormModal.css
+--- a/src/styles/components/SaleFormModal.css
++++ b/src/styles/components/SaleFormModal.css
+@@ -92,6 +92,10 @@
+ .app-dialog .sale-footer-total { padding: 8px 14px; background: var(--cq-surface-selected); border-radius: var(--cq-radius-sm); }
+ .app-dialog .sale-section-heading > span { background: none; color: var(--cq-muted); padding: 0; }
+ 
++.sale-modal .sale-capture-hardware { display:flex; flex-wrap:wrap; gap:10px; align-items:end; }
++.sale-modal .sale-capture-quantity { max-width:12rem; }
++.sale-modal .sale-capture-quantity input { width:8rem; }
++.sale-modal .sale-section { margin-bottom:10px; }
+ .sale-price-information { margin: 4px 0 8px; font-size: 14px; }
+ .sale-modal .physical-suggestion { display:flex; flex-wrap:wrap; gap:4px 10px; margin-top:4px; color:#64748b; font-weight:400; }
+ .sale-modal .sale-capture-cleaning:has(.physical-suggestion) { align-items:start; }
+diff --git a/tests/postgres-operational.test.js b/tests/postgres-operational.test.js
+--- a/tests/postgres-operational.test.js
++++ b/tests/postgres-operational.test.js
+@@ -14,7 +14,7 @@ test('inicio operativo omite la aceptación sintética y nunca accede a localSto
+     try {
+         const {default:Application}=await server.ssrLoadModule('/src/PostgresApplication.jsx');
+         const html=renderToString(React.createElement(MemoryRouter,null,React.createElement(Application,{operational:true})));
+-        assert.ok(html.includes('CalcQuim'));
++        assert.ok(html.includes('Nexo'));
+         assert.ok(!html.includes('Abrir entorno'));
+         assert.ok(!html.includes('LOCALSTORAGE_FORBIDDEN'));
+     }finally{

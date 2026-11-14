@@ -81,7 +81,7 @@ export default function SaleSummaryScreen({ model: m, navigation, route }) {
       style={styles.root}
       edges={customer ? ["top", "bottom"] : ["bottom"]}
     >
-      {!customer&&m.state?.draft.receipt?.id===receipt.id&&m.state.draft.inventoryPending?.length>0&&<Text style={styles.muted}>Venta confirmada. Inventario pendiente: confirma cantidades físicas o desglose en CalcQuim Admin.</Text>}
+      {!customer&&m.state?.draft.receipt?.id===receipt.id&&m.state.draft.inventoryPending?.length>0&&<Text style={styles.muted}>Venta confirmada. Inventario pendiente: confirma cantidades físicas o desglose en Nexo · Administración.</Text>}
       <ScrollView
         collapsable={false}
         removeClippedSubviews={false}

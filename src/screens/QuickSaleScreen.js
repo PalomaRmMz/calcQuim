@@ -1,3 +1,4 @@
+import {canDiscardLocally} from '../domain/draftRecovery.mjs';
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
@@ -41,11 +42,16 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
     [notice, setNotice] = useState(""),
     [showSpecific, setShowSpecific] = useState(false),
     [limit, setLimit] = useState(6);
-  const didSelect = useRef(false);
+  const didSelect = useRef(false),restoredCapture=useRef(false);
   const searchRef = useRef(null),
     valueRef = useRef(null),
     scrollRef = useRef(null),
     s = m.state;
+  useEffect(()=>{
+    if(!s)return;
+    if(!restoredCapture.current){restoredCapture.current=true;const c=s.capture;if(c&&canDiscardLocally(s.draft)){setQuery(c.query||'');setSelection(c.selection||null);setTariffKey(c.tariffKey||'');setValue(c.value||'');setConfirmedQuantity(c.confirmedQuantity||'');setEditingId(c.editingId||null);}return;}
+    if(canDiscardLocally(s.draft))m.capture({query,selection,tariffKey,value,confirmedQuantity,editingId}).catch(()=>setNotice('No se pudo guardar la captura local. Conserva esta pantalla y reintenta.'));
+  },[!!s,query,selection,tariffKey,value,confirmedQuantity,editingId]);
   const choices = useMemo(() => catalogChoices(s?.catalog?.data), [s?.catalog]);
   const primary = useMemo(
     () => officialCommercialChoices(s?.catalog),
@@ -90,7 +96,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
         </View>
       </SafeAreaView>
     );
-  const editable = ["draft", "rejected"].includes(s.draft.status),
+  const editable = canDiscardLocally(s.draft),
     locked = !editable;
   function focusValue() {
     requestAnimationFrame(() => valueRef.current?.focus());
@@ -105,6 +111,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
     setNotice("");
   }
   function select(c) {
+    if(c.tariffs.some(t=>t.presentation)&&s.mode!=='quantity')m.mode('quantity');
     setSelection(c.key);
     setTariffKey(c.tariffs.length === 1 ? c.tariffs[0].key : "");
     setValue("");setConfirmedQuantity("");
@@ -389,7 +396,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
                   {[
                     ["quantity", "Por cantidad"],
                     ["amount", "Por importe"],
-                  ].map(([mode, label]) => (
+                  ].filter(([mode])=>!tariff?.presentation||mode==='quantity').map(([mode, label]) => (
                     <Pressable
                       key={mode}
                       accessibilityRole="button"
@@ -555,7 +562,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
                 ))}
               </View>
               <Pressable
-                disabled={locked || m.busy}
+                disabled={m.busy||!canDiscardLocally(s.draft)}
                 onPress={() =>
                   Alert.alert(
                     "Cancelar borrador",
@@ -565,7 +572,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
                       {
                         text: "Cancelar borrador",
                         style: "destructive",
-                        onPress: m.cancel,
+                        onPress: async()=>{if(await m.cancel())reset();},
                       },
                     ],
                   )
@@ -588,6 +595,8 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
               editar.
             </Text>
           )}
+          {!canDiscardLocally(s.draft)&&s.draft.status!=='confirmed'&&<ActionButton label="Revisar o conciliar pendiente" disabled={m.busy} onPress={()=>navigation.navigate('DraftRecovery')}/>}
+          <ActionButton label={m.connectionStatus==='checking'?'Comprobando conexión...':'Reintentar conexión'} disabled={m.connectionStatus==='checking'} variant="secondary" onPress={m.sync}/>
           <View style={styles.row}>
             {choice && (
               <View style={{ flex: 1 }}>

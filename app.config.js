@@ -3,7 +3,7 @@ module.exports = ({ config }) => {
   const qa = process.env.CALCQUIM_BUILD_VARIANT === 'revisionqa';
   return {
     ...config,
-    name: qa ? 'CalcQuim QA Mayoreo' : testing ? 'CalcQuim Pruebas' : config.name,
+    name: qa ? 'Nexo · Ventas' : testing ? 'Nexo · Ventas' : config.name,
     android: { ...config.android, package: qa ? `${config.android.package}.revisionqa` : testing ? `${config.android.package}.pruebas` : config.android.package, ...(qa ? {versionCode:1} : {}) },
     plugins: [...(config.plugins || []), './plugins/withLocalHttp'],
   };

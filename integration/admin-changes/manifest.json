@@ -1,0 +1,136 @@
+{
+  "base": "D:/ReactApps/calcQuim-admin",
+  "scope": "Selective source integration; not deployed",
+  "files": [
+    {
+      "path": "index.html",
+      "beforeSha256": "72a5bf9e1938a201970914957d677c4d99731efaf3176f6fa16f7c6778a5d8dd",
+      "afterLfSha256": "8976bc004fff0aec2a581ee331b6b33c6b95d5e0535b50c67c8e4132f87b0040"
+    },
+    {
+      "path": "server/src/mobile/domain.mjs",
+      "beforeSha256": "88d89a02668f6b54da9cedeb1f3b1772a0d374f0f0fb0f2e32bbd5f939c931eb",
+      "afterLfSha256": "cf0aecc107c55082871e19c49100b2c1e81a3f1338a31ef402b1a2a00ab25410"
+    },
+    {
+      "path": "server/src/mobile/hardware-creation.mjs",
+      "beforeSha256": "bc750f0e1fed8b20e8d538cabdbd5782f3a4ca0920d780e3ffa4ed9852512b3e",
+      "afterLfSha256": "23e5f936d08c2376c23e315bd8c690bc514ea13eae438964079b99f6141719db"
+    },
+    {
+      "path": "server/src/mobile/router.mjs",
+      "beforeSha256": "f16886b8bba0e356dc5837638eb8ff054b7e53183746ed4d1fa011636277bea2",
+      "afterLfSha256": "875500bd0907b2746a7239bf6746acd22a510b32de5f476c8929b69f7d42de1f"
+    },
+    {
+      "path": "server/src/mobile/stability.mjs",
+      "beforeSha256": null,
+      "afterLfSha256": "d50932a3eaf436fa8ee185dfe613ef1afb3eb44e450cead4481deebeccc387ec"
+    },
+    {
+      "path": "server/src/repositories/inventory.mjs",
+      "beforeSha256": "4c98a9d1aac2e67835fa6490269a53ac98c5120edb052d30ecddf3f36db6ebf0",
+      "afterLfSha256": "1e5ff2ec2d30c95938418563b73ee5ce876791738df9650497dfd90befad9b84"
+    },
+    {
+      "path": "server/src/repositories/packInventory.mjs",
+      "beforeSha256": "64543d7c1bba94e917e58c9513c65e81efdcb9e7e321fc081ac1639c786ee3e1",
+      "afterLfSha256": "5334d254d9deb612eb9f39018cf9802f9c4fc718e15899a44f39ed5cdf09f633"
+    },
+    {
+      "path": "server/src/services/commerce.mjs",
+      "beforeSha256": "450a238dca1f4842dcbeb759f51eeea17da995450b7d5f1a8b62d892a50fed4e",
+      "afterLfSha256": "62d61a0d7e2e0648d6d6df4c52f0ae3a1a14a7f4982fcaee33db5df02bc53706"
+    },
+    {
+      "path": "server/src/services/dataset.mjs",
+      "beforeSha256": "74f6f6b5afbd0a958b103f90ae22feed5c3e59aa5b5d5119d80d3117ad86aa2c",
+      "afterLfSha256": "ed51ee23bb157a89bc677813bac0530ea3f09ab6a8a42b3704a814bc267d17c3"
+    },
+    {
+      "path": "server/src/services/inventory.mjs",
+      "beforeSha256": "4718532d2950c9afb6304cbe1632e45602e38045bc794abbfef78f4928678e45",
+      "afterLfSha256": "811b45a3410316cef2fa4add296d3b7e89781068e6d8b8a0be44b646143b7122"
+    },
+    {
+      "path": "server/src/services/productInitialInventory.mjs",
+      "beforeSha256": "213d3bdea54b9001485cf57878fc720b88f7c9d7782a8127b14fbefdaa04d20b",
+      "afterLfSha256": "d974cc0ecd0664a665ed3a0f3df48c3e92ca115364e5141ce539eac7a5e5481b"
+    },
+    {
+      "path": "src/App.jsx",
+      "beforeSha256": "6c5d73cb5b1d296f4dbc1064c3fd798263e5efca483eecee74be7dfd18e93851",
+      "afterLfSha256": "31589c66e871e7d693e68afa345083038b0f6d908af72f540c5dfeefbe0e0393"
+    },
+    {
+      "path": "src/ApplicationRoot.jsx",
+      "beforeSha256": "32e564c7e62e7f158ce9a61b60c6313802e9e884b5313379b8e72661d6d4d226",
+      "afterLfSha256": "71a8632de024fdd4b8cc12bb3a19a765287ee2192871b416a7d35df8719ed2e0"
+    },
+    {
+      "path": "src/PostgresApplication.jsx",
+      "beforeSha256": "e7bbe1514ddbcc8f33bac5a59d3a58288f66da83e755918ac7342cc7f324d433",
+      "afterLfSha256": "ff43a69681c6cfb83c67b3eb6b1118f4ead96691bbd9591002bfc57a83f6cbfb"
+    },
+    {
+      "path": "src/components/CommercialSaleForm.jsx",
+      "beforeSha256": "8ad61a4e55a845489c48468ac6ad0a41f4bda9786bb6d3321986d42894f80f62",
+      "afterLfSha256": "86dbcf600f4c209e6fd637e5adf6f1808f1375589a204a3798a6374550c008cd"
+    },
+    {
+      "path": "src/components/InitialInventoryFields.jsx",
+      "beforeSha256": "be3896ce31cade21cec13415a9a7f8ce243811bdbb28862f70570a79f7961734",
+      "afterLfSha256": "571012f80d2b8c48891664e66235f482762505e0066bdb4a23f5fe91a8f0c1ec"
+    },
+    {
+      "path": "src/components/QuickHardwareCreate.jsx",
+      "beforeSha256": null,
+      "afterLfSha256": "5568f17ff0d886b3e162ba0f9f82598c15c992c089aa9a37e7ed09ddad8663a7"
+    },
+    {
+      "path": "src/components/SaleFormModal.jsx",
+      "beforeSha256": "1dcb55eae648617b4ee496260c2ea0896601ed5a38c25c4a761202f6b96af4c3",
+      "afterLfSha256": "f78eb5b49eae6c1ba168203c1ebba919f1968824332cc131d9d1ddcb8ecca764"
+    },
+    {
+      "path": "src/domain/commerce.mjs",
+      "beforeSha256": "6efd5e2a10cccbd53cac45dc415b9d4e3f74550481062da043ff5105e3b65684",
+      "afterLfSha256": "dbbc5878eee230ac109ccd1a626269a815dff35e88b9ecf7886ae0721388cc17"
+    },
+    {
+      "path": "src/domain/hardwareCreation.mjs",
+      "beforeSha256": "e92b302acf61383901cbaf80d33855ae5bfbd980a405d9136a3f1f10d4b5984f",
+      "afterLfSha256": "08a85287665045217a68d90050248bc8ab935aad8c1ecd8a8aa8e0d1893fff9b"
+    },
+    {
+      "path": "src/domain/packInventory.mjs",
+      "beforeSha256": "ef793f7348bcdf1fe6f29e6ba7bc65496377d4e7eb2203fc17e21b7455781adb",
+      "afterLfSha256": "e3513a2172c5be36457fbb612f1593dfb5b16ae6aece2f266402a67dd0b71064"
+    },
+    {
+      "path": "src/layout/Sidebar.jsx",
+      "beforeSha256": "a43f4200d243dc680de22515556f45364f9c998001ee0c5cf9c34d59c315adba",
+      "afterLfSha256": "6a9de91c147acbf4cf8acf429d3ed85a9adf41a406946e3eec8ea941ee892a1a"
+    },
+    {
+      "path": "src/pages/DataManagementPage.jsx",
+      "beforeSha256": "3e8f2b0da717fd51feabd62a91f8a2576f0408705ea1f5c346a8eebe0436891f",
+      "afterLfSha256": "7c3288aa538ef7f52cebe23fb70148006cec475011b064251acfd0a0517465d9"
+    },
+    {
+      "path": "src/pages/HardwareProductsPage.jsx",
+      "beforeSha256": "08a48bc435bc6c6b0d0d5bd2378737114b58b4dc1d7698d2d3a861274c81796c",
+      "afterLfSha256": "bc7529a12fbb6317b7314e253ff5454b106c5b4b5e027eca13c3e07a604ed0b5"
+    },
+    {
+      "path": "src/styles/components/SaleFormModal.css",
+      "beforeSha256": "a08abbc89ce2a788b1f90d140d8872c241744f11974c6e1b40b8599ff1e968fe",
+      "afterLfSha256": "861b0e747c462a70360cbab6870f017908ef5e34be85f7def1d753940a5704d1"
+    },
+    {
+      "path": "tests/postgres-operational.test.js",
+      "beforeSha256": "6b0f452e8290c3d28f33adf2b59a57fa2f3f7cc6b0febda333b446e1e7b5ab80",
+      "afterLfSha256": "41eb5ee9e09d564dd8cea1881c8a6642843a03a9dc7246a574b921d4a935aa5e"
+    }
+  ]
+}

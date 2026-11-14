@@ -1,6 +1,7 @@
 import {
   Image,
   Pressable,
+  Switch,
   StyleSheet,
   Text,
   TextInput,
@@ -85,7 +86,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
 });
-export function BrandHeader({ title = "Venta rápida", onSettings }) {
+export function BrandHeader({ title = "Nexo · Ventas", onSettings }) {
   return (
     <View
       style={[
@@ -153,7 +154,7 @@ export function ConnectionBadge({ status, catalog, onPress }) {
       })
     : "";
   const label =
-    status === "syncing"
+    ["syncing","checking"].includes(status)
       ? "Actualizando catálogo…"
       : status === "connected"
         ? "Admin conectado"
@@ -183,7 +184,7 @@ export function ConnectionBadge({ status, catalog, onPress }) {
         name={
           status === "connected"
             ? "wifi"
-            : status === "syncing"
+            : ["syncing","checking"].includes(status)
               ? "refresh-cw"
               : "wifi-off"
         }
@@ -197,4 +198,11 @@ export function ConnectionBadge({ status, catalog, onPress }) {
       <Feather name="chevron-right" size={14} color={C.muted} />
     </Pressable>
   );
+}
+
+export function ToggleField({label,description,value,onValueChange,disabled=false}){
+ return <Pressable accessibilityRole="switch" accessibilityLabel={label} accessibilityState={{checked:value,disabled}} disabled={disabled} onPress={()=>onValueChange(!value)} style={[styles.card,styles.row,{minHeight:64,opacity:disabled?0.6:1}]}>
+ <View style={{flex:1,gap:4}}><Text style={styles.price}>{label}</Text>{description&&<Text style={styles.muted}>{description}</Text>}</View>
+ <View pointerEvents="none"><Switch value={value} trackColor={{false:'#94A3B8',true:C.primary}} thumbColor={C.white}/></View>
+ </Pressable>;
 }

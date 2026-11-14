@@ -1,0 +1,170 @@
+[
+  {
+    "copy": "mobile",
+    "path": "App.js",
+    "baselineSha256": "2857eb06ff2df3dd55073ec1d8ccbe96e22fe1f2343e0a58922f8e873e08937b",
+    "qaSha256": "036f46f05208c0c197ba710bc5917a8ca00a35d1a61685b78a966c6548d6f023"
+  },
+  {
+    "copy": "mobile",
+    "path": "app.json",
+    "baselineSha256": "c7d0e1354a2aed90850df32490ba3a6b925f07c05ea4043c84a8b131af7c0d8e",
+    "qaSha256": "330df00417f47c43d60d4383b1167e34ba222441ecabbfd4ba1fc5466b76e730"
+  },
+  {
+    "copy": "mobile",
+    "path": "metro.config.js",
+    "baselineSha256": "d914004d91d814e075ad5e1c53d2953e2b05d4e97d855c1aebfe24bf5b988970",
+    "qaSha256": "3ba96ce17d1be964d6374c932fcd55b81a46ba023ce93c34cd2006f0509d4954"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/components/ActionButton.js",
+    "baselineSha256": "b9015d373db85fbffb0edf8624572e4152efba6293bf2925d7b3db99d20b1bbd",
+    "qaSha256": "c0955c390363ea9607a1c5f899c36ad15ca88f3b3eb5d1c67073431005a4f6c5"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/components/MainSections.js",
+    "baselineSha256": "b4892481b435cb0777768d58a316c63a274be26c963dae4b5c2037882bd97791",
+    "qaSha256": "95830e6f9a9f796db68cbd5d0a8bdcfd94fa7007cb897d3106841da2d08f22c9"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/domain/draftRecovery.mjs",
+    "baselineSha256": null,
+    "qaSha256": "215e2a1917f857e396525417e78498047142b8859538627de36cbd53139aa55f"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/domain/mobileSession.mjs",
+    "baselineSha256": null,
+    "qaSha256": "3193b988eaa8d15cd46e11b5e24ce3c53f735558cf349840653343728533371e"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/domain/persistence.mjs",
+    "baselineSha256": "3868ec87b72f7b2436d12fed2849878d89408157b3b135fa93c3cda8a8b498c2",
+    "qaSha256": "0a5a79e1a5e53e698ea1d3050f4bace6cd15626adbb463465e3d8746b133e3a2"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/domain/reconnection.mjs",
+    "baselineSha256": null,
+    "qaSha256": "52a4a914bfc4ccf47855ceba9e3e3c810e6e16b9a054e85702a314547b63221c"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/domain/saleChanges.mjs",
+    "baselineSha256": null,
+    "qaSha256": "2a8a4e205e7e33921601d37c93db4bb6a05a0399084f99e05d68f8383cad5c1b"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/domain/submission.mjs",
+    "baselineSha256": "62beaf0e7dbe44319630bd00fef5b72136b16b004a1b636816ac9734cec20c75",
+    "qaSha256": "96bad51d084e268f2ab76802a1499ed2a8f4267c4c913a85bfc37ac0591fe316"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/hooks/useMobileSale.js",
+    "baselineSha256": "1f72fde58b3d5a8da413bfd874a358651e766be39e5a079289b4309b0210f27e",
+    "qaSha256": "bcb96967102e49ade3f3b6dcfe83d7130451d8ebbcf3a217d9f14bbe07aed043"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/screens/DraftRecoveryScreen.js",
+    "baselineSha256": null,
+    "qaSha256": "24e9181effaffc5753305b04e21577adebc6cd5b4986e7b2526c02d857651f43"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/screens/QuickSaleScreen.js",
+    "baselineSha256": "7ec5c3adcf14101003d65015ce97fc7babfb78ed2260d16683af9b4ed83db1f6",
+    "qaSha256": "cdefe7c5e94bdcdc5455840bf1731099ed99b4446870adb8870a3ab16134b8d6"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/screens/SaleEditScreen.js",
+    "baselineSha256": null,
+    "qaSha256": "5f0634f8bcc70a6a7be9e4ada44abe0f72bf3ed956fd9ed462e3044d3cf8480c"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/screens/SalesScreen.js",
+    "baselineSha256": "b9de00e07b8373923326081b2f01c0b62486ec7bab5868cb80bf03835704db70",
+    "qaSha256": "101dd3fd932a4afec72fd068e9227983d63f6039c2d4bf9007289235eb907cda"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/services/mobileApi.mjs",
+    "baselineSha256": "519f4d215f6a7bc716318e1635c463c5c1ad0bf712312ca283c5f64e4e4703d9",
+    "qaSha256": "95c8157cd4f032317b12897233f2f2a3eb65096d51b5cd1b771ca60cfecc46ef"
+  },
+  {
+    "copy": "mobile",
+    "path": "src/services/saleChangesStorage.js",
+    "baselineSha256": null,
+    "qaSha256": "506164bdfc9a60f734bb3cf4f503ce9e134ffd46af2a082b689ba71bfa7f4a5b"
+  },
+  {
+    "copy": "mobile",
+    "path": "tests/inventory.test.mjs",
+    "baselineSha256": "9ac675f9c2a8e0f744146085846c9f36271232fe3a78aea3199a7ee37523abcf",
+    "qaSha256": "306efee22a5d84b6ca3594109257514b37acda41f7965b2fa2623b38d6c323ba"
+  },
+  {
+    "copy": "admin",
+    "path": "vite.stability.config.mjs",
+    "baselineSha256": null,
+    "qaSha256": "7f3e407dfa8097431db98deb709a678ebe06954d3b452eb2b38ead0f06fd42e0"
+  },
+  {
+    "copy": "admin",
+    "path": "server/src/mobile/domain.mjs",
+    "baselineSha256": "88d89a02668f6b54da9cedeb1f3b1772a0d374f0f0fb0f2e32bbd5f939c931eb",
+    "qaSha256": "50300b7f3719c87b0ba3e195b0e19a51da9ee6d67c81ddc0e361a14c38e4388b"
+  },
+  {
+    "copy": "admin",
+    "path": "server/src/mobile/router.mjs",
+    "baselineSha256": "6d7eb336505deee3b5a4b85500f40e0f7d91f73e1e4837b859d3145cdee9aa6d",
+    "qaSha256": "f6821c830bf1bdb55372049235ada6e71814473b5dc362f8a504f2b5edca6fec"
+  },
+  {
+    "copy": "admin",
+    "path": "server/src/mobile/stability.mjs",
+    "baselineSha256": null,
+    "qaSha256": "d50932a3eaf436fa8ee185dfe613ef1afb3eb44e450cead4481deebeccc387ec"
+  },
+  {
+    "copy": "admin",
+    "path": "server/src/services/dataset.mjs",
+    "baselineSha256": "74f6f6b5afbd0a958b103f90ae22feed5c3e59aa5b5d5119d80d3117ad86aa2c",
+    "qaSha256": "ed51ee23bb157a89bc677813bac0530ea3f09ab6a8a42b3704a814bc267d17c3"
+  },
+  {
+    "copy": "admin",
+    "path": "server/src/services/inventory.mjs",
+    "baselineSha256": "4718532d2950c9afb6304cbe1632e45602e38045bc794abbfef78f4928678e45",
+    "qaSha256": "6a46efdefabeb43f6be44be24faa009dc8cd2afceb20c922a2fd34130b85a739"
+  },
+  {
+    "copy": "admin",
+    "path": "src/domain/commerce.mjs",
+    "baselineSha256": "cdd3b532d4a8b87910416c4b95a3c7bd46279e1861d4cf9ca6c9977bb9c7ac4d",
+    "qaSha256": "d01df0cbe59a40104cd9794d7272312f27cc9c339efb5519dec2e7b937634516"
+  },
+  {
+    "copy": "admin",
+    "path": "src/domain/hardwareCreation.mjs",
+    "baselineSha256": "5dda44842448fe309e9f2c4b511ca1e4ac5b24b78a537e39d562c357cd454f29",
+    "qaSha256": "cbdba00b3c7ec6b280a55a5dec894a3da88152f5f2bb2f5bcdba213386eaccbd"
+  },
+  {
+    "copy": "admin",
+    "path": "src/domain/laundryPricing.mjs",
+    "baselineSha256": "84a6884ab5d416ef1b2c34e98dd266793bc1da90bb785115e76b834b28fe0502",
+    "qaSha256": "de89510538b0c01d47a2dd6b758f31658faad32c167fb4f14c77aae357f37735"
+  }
+]

@@ -1,3 +1,4 @@
+import {commerceChoices} from './commerce.mjs';
 import { normalizeUnit } from './adminUnits.mjs';
 import { normalizeText } from './text.mjs';
 import { wholesaleSettings, WHOLESALE_VERSION, productRates } from './wholesalePricing.mjs';
@@ -28,7 +29,7 @@ export function catalogChoices(data) {
   if (!data) return [];
   const { products, categories, productLines, priceGroups } = data;
   const settings=wholesaleSettings(data);
-  const available = products.filter(p => p.active && p.available !== false && normalizeUnit(p.unit) && productPrice(p, priceGroups) !== null);
+  const available = products.filter(p => p.activity!=='JARCERIA' && p.active && p.available !== false && normalizeUnit(p.unit) && productPrice(p, priceGroups) !== null);
   const make = (kind, entity, members, context) => {
     const tariffs = new Map();
     for (const p of members) {
@@ -40,6 +41,7 @@ export function catalogChoices(data) {
     return { key: `${kind}:${entity.id}`, kind, refId: entity.id, name: entity.name, context, tariffs: [...tariffs.values()] };
   };
   return [
+    ...commerceChoices(data),
     ...available.map(p => {
       const c = categories.find(c => same(c.id, p.categoryId)), l = productLines.find(l => same(l.id, p.lineId));
       const g = priceGroups.find(g => same(g.id, p.priceGroupId));

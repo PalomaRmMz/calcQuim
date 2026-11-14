@@ -23,6 +23,7 @@ export default function MainSections({ model, navigation }) {
     const hidden = Keyboard.addListener('keyboardDidHide', () => setKeyboardInset(0));
     return () => { alive = false; shown.remove(); hidden.remove(); };
   }, []);
+  if(!model.state)return <View style={{flex:1,padding:24}}><Text>{model.error||'Cargando datos locales...'}</Text></View>;
   const select = section => { Keyboard.dismiss(); setActive(section); };
   return <View ref={container} style={{ flex: 1, backgroundColor: C.background, paddingBottom: keyboardInset }}>
     {/* Keep the sale screen mounted: switching sections must preserve its UI and draft. */}
@@ -35,7 +36,7 @@ export default function MainSections({ model, navigation }) {
     <View style={{flex:1,display:active==='sales'?'flex':'none'}} accessibilityElementsHidden={active!=='sales'} importantForAccessibility={active!=='sales'?'no-hide-descendants':'auto'}><SalesScreen model={model} navigation={navigation} active={active==='sales'}/></View>
     <SafeAreaView edges={keyboardInset ? ['left', 'right'] : ['bottom', 'left', 'right']} style={{ backgroundColor: C.white, borderTopWidth: 1, borderColor: C.line }}>
       <View style={{ flexDirection: 'row', paddingHorizontal: 10, paddingTop: 5 }}>
-        {[{ id: 'sale', label: 'Venta rápida', icon: 'shopping-cart' }, { id: 'inventory', label: 'Inventario', icon: 'package' }, { id: 'sales', label: 'Ventas', icon: 'file-text' }].map(item =>
+        {[{ id: 'sale', label: 'Venta rápida', icon: 'shopping-cart' }, { id: 'inventory', label: 'Inventario', icon: 'package' }, { id: 'sales', label: 'Mis ventas', icon: 'file-text' }].map(item =>
           <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{ selected: active === item.id }}
             onPress={() => select(item.id)} style={{ flex: 1, minHeight: 54, borderRadius: 12, alignItems: 'center', justifyContent: 'center', gap: 4, backgroundColor: active === item.id ? C.pale : C.white }}>
             <Feather name={item.icon} size={20} color={active === item.id ? C.primary : C.muted} />

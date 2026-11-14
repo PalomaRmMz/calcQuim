@@ -1,3 +1,5 @@
+import DraftRecoveryScreen from './src/screens/DraftRecoveryScreen';
+import SaleEditScreen from './src/screens/SaleEditScreen';
 import HardwareCreateScreen from './src/screens/HardwareCreateScreen';
 ﻿import "./global.css";
 import { NavigationContainer } from "@react-navigation/native";
@@ -36,6 +38,8 @@ export default function App() {
           >
             {(props) => <ConnectionScreen {...props} model={model} />}
           </Stack.Screen>
+          <Stack.Screen name="DraftRecovery" options={{title:'Revisar pendiente'}}>{props=><DraftRecoveryScreen {...props} model={model}/>}</Stack.Screen>
+          <Stack.Screen name="SaleEdit" options={{title:'Editar venta'}}>{props=><SaleEditScreen {...props} model={model}/>}</Stack.Screen>
           <Stack.Screen name="HardwareCreate" options={{title:'Agregar producto'}}>{(props)=><HardwareCreateScreen {...props} model={model}/>}</Stack.Screen>
           <Stack.Screen
             name="InventoryProduct"

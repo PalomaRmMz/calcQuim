@@ -10,12 +10,12 @@ test('APK de pruebas usa paquete separado y conserva el paquete original',()=>{
   try{
     process.env.CALCQUIM_BUILD_VARIANT='tests';
     const tests=configFactory({config:base});
-    assert.equal(tests.name,'CalcQuim Pruebas');assert.equal(tests.android.package,'com.pamrm2089.calcQuim.pruebas');
+    assert.equal(tests.name,'Nexo · Ventas');assert.equal(tests.android.package,'com.pamrm2089.calcQuim.pruebas');
     delete process.env.CALCQUIM_BUILD_VARIANT;
     assert.equal(configFactory({config:base}).android.package,base.android.package);
     assert.equal(base.android.package,'com.pamrm2089.calcQuim');
     process.env.CALCQUIM_BUILD_VARIANT='revisionqa';
-    const qa=configFactory({config:base});assert.equal(qa.android.package,'com.pamrm2089.calcQuim.revisionqa');assert.equal(qa.android.versionCode,1);assert.equal(qa.name,'CalcQuim QA Mayoreo');
+    const qa=configFactory({config:base});assert.equal(qa.android.package,'com.pamrm2089.calcQuim.revisionqa');assert.equal(qa.android.versionCode,1);assert.equal(qa.name,'Nexo · Ventas');
     assert.equal(base.android.versionCode,4);
   }finally{if(before===undefined)delete process.env.CALCQUIM_BUILD_VARIANT;else process.env.CALCQUIM_BUILD_VARIANT=before;}
 });

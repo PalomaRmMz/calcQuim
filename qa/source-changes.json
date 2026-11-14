@@ -1,0 +1,97 @@
+[
+  {
+    "path": "index.html",
+    "originalSha256": "72a5bf9e1938a201970914957d677c4d99731efaf3176f6fa16f7c6778a5d8dd",
+    "qaSha256": "6a5ecf8e885346670952a4820d0f3d50c356854d2c74eaadcc1a6d45ffbe9eb2"
+  },
+  {
+    "path": "vite.qa.config.mjs",
+    "originalSha256": null,
+    "qaSha256": "62b8a2b2602b7e1d6acd1243dd510bfd553b29eb4efd1eff4353c2e14e5fda8c"
+  },
+  {
+    "path": "scripts/vite-cache.mjs",
+    "originalSha256": "5123ad522c069e5187f80b721b47b8a87925d32233f377d9ff11fa4f9e0e43f3",
+    "qaSha256": "89e4f72b1d110972bdcfa310f2d5cadad2c2e42ae55e2882cbc9ed6668a986cd"
+  },
+  {
+    "path": "server/src/mobile/commercial.mjs",
+    "originalSha256": "7042187cf034e79053896ed9e061a3e4fa4f3fa8ea2457a2b8bb03acb445b51e",
+    "qaSha256": "407a6dde5a0f5812d0e83a69e7915fee1c5266935ddec0944c71d961eff30b82"
+  },
+  {
+    "path": "server/src/mobile/hardware-creation.mjs",
+    "originalSha256": "bc750f0e1fed8b20e8d538cabdbd5782f3a4ca0920d780e3ffa4ed9852512b3e",
+    "qaSha256": "806efde55927076217c069b11790a97e5b9cbbc6699a1447ce8ae0a8f2b52d36"
+  },
+  {
+    "path": "server/src/mobile/router.mjs",
+    "originalSha256": "f16886b8bba0e356dc5837638eb8ff054b7e53183746ed4d1fa011636277bea2",
+    "qaSha256": "6d7eb336505deee3b5a4b85500f40e0f7d91f73e1e4837b859d3145cdee9aa6d"
+  },
+  {
+    "path": "server/src/repositories/inventory.mjs",
+    "originalSha256": "4c98a9d1aac2e67835fa6490269a53ac98c5120edb052d30ecddf3f36db6ebf0",
+    "qaSha256": "735356ad22e5cb40b0698c98692d10e050741c3001777b2b76131df3c070440d"
+  },
+  {
+    "path": "server/src/repositories/packInventory.mjs",
+    "originalSha256": "64543d7c1bba94e917e58c9513c65e81efdcb9e7e321fc081ac1639c786ee3e1",
+    "qaSha256": "d1d96247fd0a7d62aecdec8ab7f1a7ffd7a176dc2fcb77db1d1c3400328cc192"
+  },
+  {
+    "path": "server/src/services/commerce.mjs",
+    "originalSha256": "450a238dca1f4842dcbeb759f51eeea17da995450b7d5f1a8b62d892a50fed4e",
+    "qaSha256": "a9b96066e156e94405ba15d4e51a5641ec33f0e6197953b9dad378517c23d45d"
+  },
+  {
+    "path": "server/src/services/productInitialInventory.mjs",
+    "originalSha256": "213d3bdea54b9001485cf57878fc720b88f7c9d7782a8127b14fbefdaa04d20b",
+    "qaSha256": "fa71c01d9ea2335dd1d2f6132fb2bdefb2e0675d5ff437dd96d7de7d91c20df3"
+  },
+  {
+    "path": "src/App.jsx",
+    "originalSha256": "6c5d73cb5b1d296f4dbc1064c3fd798263e5efca483eecee74be7dfd18e93851",
+    "qaSha256": "bbb1293a0c6f126e6cf29ee9ecec6c26b91d50de019e63a2acdb285d8636d83d"
+  },
+  {
+    "path": "src/components/InitialInventoryFields.jsx",
+    "originalSha256": "be3896ce31cade21cec13415a9a7f8ce243811bdbb28862f70570a79f7961734",
+    "qaSha256": "cd6a542d954725e33de5a1904d9fe33f6c8be60cb928a3df8b33ea4d8e18b3a9"
+  },
+  {
+    "path": "src/components/QuickHardwareCreate.jsx",
+    "originalSha256": null,
+    "qaSha256": "05febad06771db4fe6a47614b33d1d754949acc976fc16b72dbc290182d1460c"
+  },
+  {
+    "path": "src/domain/commerce.mjs",
+    "originalSha256": "6efd5e2a10cccbd53cac45dc415b9d4e3f74550481062da043ff5105e3b65684",
+    "qaSha256": "cdd3b532d4a8b87910416c4b95a3c7bd46279e1861d4cf9ca6c9977bb9c7ac4d"
+  },
+  {
+    "path": "src/domain/hardwareCreation.mjs",
+    "originalSha256": "e92b302acf61383901cbaf80d33855ae5bfbd980a405d9136a3f1f10d4b5984f",
+    "qaSha256": "5dda44842448fe309e9f2c4b511ca1e4ac5b24b78a537e39d562c357cd454f29"
+  },
+  {
+    "path": "src/domain/laundryPricing.mjs",
+    "originalSha256": "fb3e96152b728af2dc58d107a03b5661bcf3cd9644dcb1ef21bff8017c2b0e2b",
+    "qaSha256": "84a6884ab5d416ef1b2c34e98dd266793bc1da90bb785115e76b834b28fe0502"
+  },
+  {
+    "path": "src/domain/packInventory.mjs",
+    "originalSha256": "ef793f7348bcdf1fe6f29e6ba7bc65496377d4e7eb2203fc17e21b7455781adb",
+    "qaSha256": "283e21bdb7fa72caf48456c081e856dd446643fb21d82599de824cabf2943c7b"
+  },
+  {
+    "path": "src/layout/Sidebar.jsx",
+    "originalSha256": "a43f4200d243dc680de22515556f45364f9c998001ee0c5cf9c34d59c315adba",
+    "qaSha256": "c83572ae6e849ac2348985217eeb69ba480e34ea096144b794ce004bf28c2792"
+  },
+  {
+    "path": "src/pages/HardwareProductsPage.jsx",
+    "originalSha256": "08a48bc435bc6c6b0d0d5bd2378737114b58b4dc1d7698d2d3a861274c81796c",
+    "qaSha256": "55ab96a5e6abf78876ae51a9257cb3c51aab6d125bdd27d269df228e9df764a7"
+  }
+]

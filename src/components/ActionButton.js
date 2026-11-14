@@ -13,10 +13,10 @@ export default function ActionButton({
     color = filled ? C.white : variant === "danger" ? C.coral : C.primary;
   return (
     <Pressable
-      disabled={disabled}
+      disabled={Boolean(disabled)}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled:Boolean(disabled) }}
       onPress={onPress}
       style={{
         flex: fullWidth ? undefined : 1,
