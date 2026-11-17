@@ -1,10 +1,11 @@
+import {paymentAmounts} from './payment.mjs';
 import {makeCommerceLine,COMMERCE_VERSION} from './commerce.mjs';
 import { calculateItems } from './adminSales.mjs';
 import { PRICING_VERSION } from './catalog.mjs';
 import { WHOLESALE_VERSION } from './wholesalePricing.mjs';
 
-export function makeLine(choice, tariff, entryMode, value, id, confirmedQuantity = null) {
-  if(tariff?.presentation||tariff?.service)return makeCommerceLine(choice,tariff,entryMode,value,id);
+export function makeLine(choice, tariff, entryMode, value, id, confirmedQuantity = null, options = {}) {
+  if(tariff?.presentation||tariff?.service)return makeCommerceLine(choice,tariff,entryMode,value,id,options);
   const text = String(value).replace(',', '.');
   if (!['amount', 'quantity'].includes(entryMode) || !/^\d+(?:\.\d+)?$/.test(text) || !Number.isFinite(Number(text)) || Number(text) <= 0) throw new Error('Escribe un valor positivo.');
   if (!tariff || !choice.tariffs.some(t => t.key === tariff.key) || !Number.isFinite(tariff.price) || tariff.price < 0) throw new Error('Selecciona una tarifa válida.');
@@ -19,6 +20,7 @@ export function makeLine(choice, tariff, entryMode, value, id, confirmedQuantity
   return { ...result, confirmedQuantity, id, reference: { kind: choice.kind, id: choice.refId }, name: choice.name, context: choice.context, tariffKey: tariff.key, capturedValue: text, eligibleProductIds: [...tariff.productIds] };
 }
 export const repriceLines = lines => {const physical=calculateItems(lines.filter(l=>!l.commerceVersion));let i=0;return lines.map(l=>l.commerceVersion?l:physical[i++]);};
+export const payableTotal = (lines,payment,catalog) => catalog?.mobilePaymentPolicy?.enabled ? paymentAmounts(lines,payment,catalog.mobilePaymentPolicy.version).collectedCents/100 : total(lines);
 export const total = lines => lines.reduce((sum, l) => sum + Math.round(l.amount * 100), 0) / 100;
 export const money = value => `$${Number(value).toFixed(2)}`;
 export const labels = { product: 'Producto', line: 'Línea', priceGroup: 'Grupo de precios', category: 'Categoría' };
@@ -28,5 +30,5 @@ export function requestBody(draft, catalog) {
   if (![PRICING_VERSION,WHOLESALE_VERSION].includes(catalog.pricingVersion)) throw new Error('Sincroniza con el servidor actualizado antes de confirmar. El descuento fijo anterior ya no es válido.');
   const recalculated = repriceLines(draft.lines);
   if (recalculated.some((line,n)=>line.amount!==draft.lines[n].amount||line.quantity!==draft.lines[n].quantity)) throw new Error('El borrador conserva un cálculo anterior. Revisa sus renglones antes de confirmar.');
-  return { ...(draft.lines.some(l=>l.commerceVersion)?{commerceVersion:COMMERCE_VERSION}:{}),pricingVersion:catalog.pricingVersion, revision: catalog.revision, generation: catalog.generation, payment: draft.payment, items: repriceLines(draft.lines).map(l => ({ reference: l.reference, tariffKey: l.tariffKey, price: l.price, unit: l.unit, entryMode: l.entryMode, value: l.capturedValue, confirmedQuantity:l.confirmedQuantity, ...(l.pricingVersion===WHOLESALE_VERSION?{pricingVersion:l.pricingVersion,priceTier:l.priceTier}: {}) })) };
+  return { ...(catalog.mobilePaymentPolicy?.enabled?{mobilePaymentPolicyVersion:catalog.mobilePaymentPolicy.version}:{}), ...(draft.lines.some(l=>l.commerceVersion)?{commerceVersion:COMMERCE_VERSION}:{}),pricingVersion:catalog.pricingVersion, revision: catalog.revision, generation: catalog.generation, payment: draft.payment, items: repriceLines(draft.lines).map(l => ({ reference: l.reference, tariffKey: l.tariffKey, price: l.price, unit: l.unit, entryMode: l.entryMode, value: l.capturedValue, confirmedQuantity:l.confirmedQuantity, ...(l.lineType==='service'?{addons:(l.addons||[]).map(a=>a.id),description:l.description||''}:{}), ...(l.pricingVersion===WHOLESALE_VERSION?{pricingVersion:l.pricingVersion,priceTier:l.priceTier}: {}) })) };
 }

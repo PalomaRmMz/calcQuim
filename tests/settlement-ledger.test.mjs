@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {settlementSummary} from '../src/domain/settlementLedger.mjs';
+const sale={id:'qa-sale',items:[{amount:15}],total:15,commercialVersion:2,originalReceipt:{total:5}};
+const event={id:'qa-event',requestKey:'qa-key',saleId:'qa-sale',kind:'collection',status:'confirmed',amountCents:1000,payment:'Transferencia',reason:'Confirmed evidence fixture',reference:'QA-REFERENCE',occurredAt:'2026-11-15T20:00:00Z',responsibleId:'qa-operator'};
+test('edits preserve unknown settlement and show pending collection',()=>{const s=settlementSummary(sale);assert.equal(s.originalConfirmedCents,500);assert.equal(s.pendingCollectionCents,1000);assert.equal(s.recordingEnabled,false);});
+test('technical event evidence is idempotent and conflicting keys fail',()=>{const s=settlementSummary(sale,[event,{...event}]);assert.equal(s.eventCount,1);assert.equal(s.netConfirmedCents,1500);assert.equal(s.balanceCents,0);assert.throws(()=>settlementSummary(sale,[event,{...event,amountCents:900}]));});
+test('refunds need evidence; void never assumes zero due or refund',()=>{const corrected={...sale,total:3,items:[{amount:3}]};assert.equal(settlementSummary(corrected).pendingRefundCents,200);assert.equal(settlementSummary(corrected,[{...event,kind:'refund',amountCents:200}]).balanceCents,0);const s=settlementSummary({...sale,voidedAt:'2026-11-15T20:01:00Z'});assert.equal(s.pendingRefundCents,null);assert.equal(s.status,'annulment_review');});
+test('incomplete and impossible financial evidence is rejected',()=>{assert.throws(()=>settlementSummary(sale,[{...event,reference:''}]));assert.throws(()=>settlementSummary(sale,[{...event,kind:'refund',amountCents:600}]));assert.throws(()=>settlementSummary(sale,[{...event,amountCents:1.5}]));});

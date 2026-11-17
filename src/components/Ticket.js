@@ -44,16 +44,19 @@ export default function Ticket({ receipt, onLogoReady, paperRef }) {
             <Text style={t.detail}>
               {item.quantity} · {item.price}
             </Text>
+            {item.service && <Text style={t.detail}>{item.service}</Text>}
             {item.discount && <Text style={t.detail}>{item.discount}</Text>}
             {item.captured && <Text style={t.detail}>{item.captured}</Text>}
           </View>
           <Text style={t.amount}>{item.amount}</Text>
         </View>
       ))}
+      {m.monetary && <Text style={t.detail}>Subtotal comercial: {m.monetary.calculated}{"\n"}Redondeo de efectivo: {m.monetary.adjustment}</Text>}
       <View style={t.total}>
-        <Text style={t.detail}>Total · MXN</Text>
+        <Text style={t.detail}>{m.settlement ? "Total revisado" : "Total"} · MXN</Text>
         <Text style={t.sum}>{m.total}</Text>
       </View>
+      {m.settlement && <Text style={t.detail}>Cobro confirmado antes de la revisión: {m.settlement.confirmed}. Diferencia calculada: {m.settlement.difference}. Su liquidación no está registrada.</Text>}
       <Text style={t.thanks}>{m.brand.thanks}</Text>
       <Text style={t.fine}>{m.disclaimer}</Text>
     </View>

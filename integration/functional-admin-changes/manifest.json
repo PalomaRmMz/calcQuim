@@ -1,0 +1,159 @@
+{
+  "purpose": "Functional closure for isolated QA review; no operational activation",
+  "prerequisites": [
+    "integration/admin-changes",
+    "integration/audit-admin-changes"
+  ],
+  "files": [
+    {
+      "path": "src/pages/LaundryPage.jsx",
+      "source": "qa/integrated/admin/src/pages/LaundryPage.jsx",
+      "sha256": "e09357f3274cc1a9315a6b44c442cd26c0f8d821bd0b0dab876a88d8ae524e37",
+      "size": 7339
+    },
+    {
+      "path": "src/components/LaundryPricingEditor.jsx",
+      "source": "qa/integrated/admin/src/components/LaundryPricingEditor.jsx",
+      "sha256": "3af0d10f80133d98156b648afa1d3d1a5b4b42f573b3d5e3e7f06343254d4699",
+      "size": 2802
+    },
+    {
+      "path": "src/domain/serviceEditor.mjs",
+      "source": "qa/integrated/admin/src/domain/serviceEditor.mjs",
+      "sha256": "801217ea53d9af379f92d7c52b4aa05e72f3afb4fe45838c2b3b92ea8d1e32f5",
+      "size": 774
+    },
+    {
+      "path": "src/components/LaundrySaleFields.jsx",
+      "source": "qa/integrated/admin/src/components/LaundrySaleFields.jsx",
+      "sha256": "24e7a766edec6189923ee5e90efd45968b15dcd95e21674342812c9759a871dc",
+      "size": 1715
+    },
+    {
+      "path": "src/components/CommercialSaleForm.jsx",
+      "source": "qa/integrated/admin/src/components/CommercialSaleForm.jsx",
+      "sha256": "9afda0946996fb4beede0d506b4a2e541442366a8cf190d636c7c89c916eb26d",
+      "size": 10108
+    },
+    {
+      "path": "src/domain/saleDraftGuard.mjs",
+      "source": "qa/integrated/admin/src/domain/saleDraftGuard.mjs",
+      "sha256": "56bbf79f0e9391d6beb322e16ac8931bb231e0015adabfdddf4f3820fa94e22f",
+      "size": 233
+    },
+    {
+      "path": "src/services/apiClient.js",
+      "source": "qa/integrated/admin/src/services/apiClient.js",
+      "sha256": "ff22d59a573603a6ad7e35d2d26c47b21419d986e8d0b194be0d74dda9bd683b",
+      "size": 2396
+    },
+    {
+      "path": "src/PostgresApplication.jsx",
+      "source": "qa/integrated/admin/src/PostgresApplication.jsx",
+      "sha256": "6a55ec7345f71a43e9450f2df72b6dd997a4029ad5348df61db48bc33120f9fe",
+      "size": 6697
+    },
+    {
+      "path": "src/pages/SalesPage.jsx",
+      "source": "qa/integrated/admin/src/pages/SalesPage.jsx",
+      "sha256": "d9c15c7a7d2e96bc8d0b9dcc407b1dfba9aed572cf0dd6f36a40ec364301e7fb",
+      "size": 20340
+    },
+    {
+      "path": "src/pages/PurchasesPage.jsx",
+      "source": "qa/integrated/admin/src/pages/PurchasesPage.jsx",
+      "sha256": "4953b61d03ea7181aa929437fcd321dee09e541b960ba84e9ed2dcd5380ae939",
+      "size": 19070
+    },
+    {
+      "path": "src/components/PurchaseCostCorrection.jsx",
+      "source": "qa/integrated/admin/src/components/PurchaseCostCorrection.jsx",
+      "sha256": "8a1aba7e687419a3b521fcb8237414e00e6c9146a60fc61671d9084f47b8b6fb",
+      "size": 2106
+    },
+    {
+      "path": "src/components/HardwarePurchases.jsx",
+      "source": "qa/integrated/admin/src/components/HardwarePurchases.jsx",
+      "sha256": "cc76f2e8622aeaa7fb40c25e2665648cf7995203039b0fce0cc149ffdaae132a",
+      "size": 7961
+    },
+    {
+      "path": "src/components/MobileSaleCorrection.jsx",
+      "source": "qa/integrated/admin/src/components/MobileSaleCorrection.jsx",
+      "sha256": "3ebcc41e217d7c378e1be1bc7955a364cbdc7d73a09a2c0f06efdbb1db348dd7",
+      "size": 5447
+    },
+    {
+      "path": "src/components/SettlementSummary.jsx",
+      "source": "qa/integrated/admin/src/components/SettlementSummary.jsx",
+      "sha256": "208077f4db0c2c85c5e3b9a700ca9cc4d580e0be96231d9167de7fb2011cf513",
+      "size": 1084
+    },
+    {
+      "path": "src/domain/settlementLedger.mjs",
+      "source": "src/domain/settlementLedger.mjs",
+      "sha256": "b947c2db280eb2a455b2314ad67adf3743d5dcef87e4a0cc2ccd14e99a00531d",
+      "size": 2682
+    },
+    {
+      "path": "src/domain/commerce.mjs",
+      "source": "src/domain/commerce.mjs",
+      "sha256": "3ef2c8b6e8e51c410777ed2307d29e617a9cb69b689f2229cef5889c0c532d44",
+      "size": 8867
+    },
+    {
+      "path": "src/domain/laundryPricing.mjs",
+      "source": "src/domain/laundryPricing.mjs",
+      "sha256": "057e45e6b89565384a6ed95685688c183ece6175e246fc8f0f77aee8d636440d",
+      "size": 3327
+    },
+    {
+      "path": "src/domain/mobileReceipt/ticket.mjs",
+      "source": "qa/integrated/admin/src/domain/mobileReceipt/ticket.mjs",
+      "sha256": "756b7de4bc24c18f9916fce09fe3902d8e536a4d94f0302464db7efda781cc48",
+      "size": 7220
+    },
+    {
+      "path": "server/src/services/commerce.mjs",
+      "source": "qa/integrated/admin/server/src/services/commerce.mjs",
+      "sha256": "bab70dc384d7c2995bdf05d1254f946d4240a4f900dda683a4f16d2f436a83f9",
+      "size": 11595
+    },
+    {
+      "path": "server/src/services/commands.mjs",
+      "source": "qa/integrated/admin/server/src/services/commands.mjs",
+      "sha256": "5bc9cd0b2d64adbf2c06343211eeaa37ca5218b285ea671e35d9e5321129c8a3",
+      "size": 13168
+    },
+    {
+      "path": "server/src/services/presentationPurchaseCorrection.mjs",
+      "source": "qa/integrated/admin/server/src/services/presentationPurchaseCorrection.mjs",
+      "sha256": "a466d0ae0d6be991237fffad56b469708d8345db1493411fa06a51b74fd8b315",
+      "size": 2227
+    },
+    {
+      "path": "server/src/services/purchaseInventory.mjs",
+      "source": "qa/integrated/admin/server/src/services/purchaseInventory.mjs",
+      "sha256": "f08444104627f84fc30986385e20373abba56d61176e2f9b656111d54c264d21",
+      "size": 21575
+    },
+    {
+      "path": "server/src/repositories/salesHistory.mjs",
+      "source": "qa/integrated/admin/server/src/repositories/salesHistory.mjs",
+      "sha256": "ae98d26f9f4e7ec8ad854b0d6c21d286b5fd59c50c15db6431c69e0aaf85b89b",
+      "size": 9759
+    },
+    {
+      "path": "server/src/mobile/domain.mjs",
+      "source": "qa/integrated/admin/server/src/mobile/domain.mjs",
+      "sha256": "4fcd661bc333d03e613a07d72c15e154809105f0e9901e6a6ef1814378dd09cc",
+      "size": 7492
+    },
+    {
+      "path": "server/src/mobile/stability.mjs",
+      "source": "qa/integrated/admin/server/src/mobile/stability.mjs",
+      "sha256": "8c9c4b6a52a7f20d6e310368c5a0889eff156e8d0940f3d170085db0b115002b",
+      "size": 3935
+    }
+  ]
+}

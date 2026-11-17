@@ -1,0 +1,142 @@
+import {createWebSale,correctWebAwareSale} from './webPhysicalCapture.mjs';
+import {applyWebPayment} from './webPayment.mjs';
+import {commerceCommands,saveCommerce,commercialImport,presentationPurchase} from './commerce.mjs';
+import {validatePresentation,validateService} from '../../../src/domain/commerce.mjs';
+import { createMobileSale } from '../mobile/domain.mjs';
+import { createCatalogActions } from '../../../src/services/catalogDomain.js';
+import { catalogCollectionError } from '../../../src/services/catalogValidation.js';
+import { STORAGE_KEYS } from '../../../src/services/catalogStorage.js';
+import { assertProcurementValid, productHasHistory } from '../../../src/services/procurementStorage.js';
+import * as supply from '../../../src/services/supplyModel.js';
+import * as procurement from '../../../src/services/procurementDomain.js';
+import { prepareFinishedPurchase, configureFinishedProducts } from '../../../src/services/finishedProductFlow.js';
+import { preparePurchasedItemSetup } from '../../../src/services/purchasedItemSetup.js';
+import { preparePurchasedItemBatch } from '../../../src/services/purchasedItemBatch.js';
+import { prepareSupplyYieldBatch } from '../../../src/services/supplyYieldBatch.js';
+import { configureProductBatch } from '../../../src/services/supplyModelBatch.js';
+import { createSale, voidSale, validateSales } from '../../../src/services/salesStorage.js';
+import { getProductDisplayName } from '../../../src/utils/catalogUtils.js';
+import { wholesaleEnabled, WHOLESALE_VERSION, AMOUNT_POLICIES } from '../../../src/domain/wholesalePricing.mjs';
+
+export class ApiError extends Error {
+  constructor(status, code, message) { super(message); this.status=status; this.code=code; }
+}
+export const catalogCommands = ['addCategory','updateCategory','deleteCategory','addProductLine','updateProductLine','deleteProductLine','addPriceGroup','updatePriceGroup','deletePriceGroup','addProduct','updateProduct','deleteProduct','addProductsBatch','updateProductsBatch'];
+export const procurementCommands = ['savePurchasedItem','savePurchasedItemsBatch','saveSupplyYieldBatch','savePurchasedItemSetup','saveSupplySource','saveSupplyConversion','configureSupplyBatch','configureProductBatch','saveSources','saveSupplier','setSupplyActive','addSupplierPrice','deleteEntity','savePurchase','voidPurchase'];
+export const commandNames = ['configureWebPaymentPolicy',...commerceCommands,...catalogCommands,...procurementCommands,'createCommercialSale','createSale','createMobileSale','correctMobileSale','voidSale','configureWholesalePricing'];
+export function memoryStorage(data) {
+  const values = {
+    [STORAGE_KEYS.products]: data.products,[STORAGE_KEYS.categories]:data.categories,
+    [STORAGE_KEYS.productLines]:data.productLines,[STORAGE_KEYS.priceGroups]:data.priceGroups,
+    [STORAGE_KEYS.procurement]:data.procurement,[STORAGE_KEYS.sales]:data.sales,
+  };
+  return {getItem:key=>Object.hasOwn(values,key) ? JSON.stringify(values[key]) : null};
+}
+export function validateDataset(data) {
+  for (const field of ['categories','productLines','priceGroups','products']) {
+    const error = catalogCollectionError(STORAGE_KEYS[field],data[field]);
+    if (error) throw new ApiError(422,'INVALID_CATALOG',error);
+  }
+  for (const l of data.productLines) if (!data.categories.some(c=>c.id===l.categoryId)) throw new ApiError(422,'INVALID_RELATION','La línea no tiene categoría válida.');
+  for (const p of data.products) {
+    if (p.categoryId != null && !data.categories.some(c=>c.id===p.categoryId)) throw new ApiError(422,'INVALID_RELATION','Categoría inválida.');
+    if (p.lineId != null && !data.productLines.some(l=>l.id===p.lineId && l.categoryId===p.categoryId)) throw new ApiError(422,'INVALID_RELATION','Línea inválida.');
+    if (p.priceGroupId != null && !data.priceGroups.some(g=>g.id===p.priceGroupId)) throw new ApiError(422,'INVALID_RELATION','Grupo de precio inválido.');
+  }
+  for(const p of data.procurement.presentations||[])validatePresentation(p,data.products);
+  for(const s of data.procurement.services||[])validateService(s);
+  for(const supplier of data.procurement.suppliers)if(supplier.businessActivity!=null&&!['LIMPIEZA','JARCERIA'].includes(supplier.businessActivity))throw new ApiError(422,'INVALID_SUPPLIER_ACTIVITY','Giro de proveedor inválido.');
+  assertProcurementValid(data.procurement);
+  // Los diagnósticos archivados no son relaciones que deban repararse.
+  const issues = supply.supplyModelIssues({...data.procurement,supplyMigration:undefined}, data.products);
+  if (issues.length) throw new ApiError(422,'INVALID_RELATION',issues[0]);
+  validateSales(data.sales);
+  for(const sale of data.sales)for(const item of sale.items) {
+    if(item.reference&& !['product','presentation','service'].includes(item.reference.kind)) {
+      const collection=({line:'productLines',category:'categories',priceGroup:'priceGroups'})[item.reference.kind];
+      if(!collection||!data[collection].some(row=>String(row.id)===String(item.reference.id)))throw new ApiError(422,'INVALID_RELATION','La agrupación tiene historial comercial; conserva su identificador.');
+    }
+    if(item.eligibleProductIds?.some(id=>!data.products.some(p=>String(p.id)===String(id))))throw new ApiError(422,'INVALID_RELATION','Un producto tiene compatibilidad comercial histórica; conserva su identificador.');
+  }
+  if (data.sales.some(s=>s.items.some(i=>i.productId!=null&&!data.products.some(p=>p.id===i.productId)))) throw new ApiError(422,'INVALID_RELATION','Venta con producto inexistente.');
+}
+export function executeCommand(data, counters, name, args, options={}) {
+  const beforeSales=data.sales;
+  if (!commandNames.includes(name) || !Array.isArray(args) || args.length>3) throw new ApiError(400,'INVALID_COMMAND','Operación no válida.');
+  if(['previewCommerceImport','importCommerceCatalog'].includes(name)){if(data.procurement.commerceSchema!==1)throw Error('Migración comercial pendiente.');const result=commercialImport(data,args[0],name==='previewCommerceImport');validateDataset(data);return result;}
+  if(name==='savePresentationPurchase'){const result=presentationPurchase(data,args[0],{products:data.products,categories:data.categories,productLines:data.productLines,priceGroups:data.priceGroups});validateDataset(data);return result;}
+  if(commerceCommands.includes(name)&&!['importCommerceCatalog','previewCommerceImport'].includes(name)){const result=saveCommerce(data,name,args[0]);counters.products=Math.max(counters.products??0,...data.products.map(p=>Number(p.id)));validateDataset(data);return result;}
+  if (name==='configureWholesalePricing') {
+    if (data.procurement.wholesalePricingSchema!==2) throw new ApiError(409,'WHOLESALE_SCHEMA_NOT_READY','Migración de mayoreo pendiente de autorización.');
+    if (!AMOUNT_POLICIES.includes(args[0]?.amountPolicy)) throw new ApiError(422,'AMOUNT_POLICY_REQUIRED','Selecciona la política comercial de captura por importe.');
+    data.procurement.wholesalePricing={version:WHOLESALE_VERSION,amountPolicy:args[0].amountPolicy};
+    return {ok:true};
+  }
+  if (!wholesaleEnabled(data) && ['addProduct','updateProduct','addPriceGroup','updatePriceGroup','addProductsBatch','updateProductsBatch'].includes(name) && JSON.stringify(args).includes('"wholesalePrice"')) {
+    throw new ApiError(409,'WHOLESALE_NOT_ACTIVATED','Mayoreo pendiente de migración y activación autorizada.');
+  }
+  const catalog = {procurement:data.procurement,categories:data.categories,productLines:data.productLines,priceGroups:data.priceGroups,products:data.products};
+  const named = data.products.map(p=>({...p,displayName:getProductDisplayName(p,data.categories,data.productLines)}));
+  let result={ok:true};
+  if (catalogCommands.includes(name)) {
+    const fields = {Category:'categories',ProductLine:'productLines',PriceGroup:'priceGroups',Product:'products'};
+    const idCollection = Object.entries(fields).find(([suffix])=>name.includes(suffix))?.[1] ?? 'products';
+    const setters = Object.fromEntries(Object.keys(catalog).filter(k=>k!=='procurement').map(k=>[`set${k[0].toUpperCase()+k.slice(1)}`,fn=>{ data[k]=typeof fn==='function'?fn(data[k]):fn; }]));
+    const actions = createCatalogActions(catalog,{...setters,productHasHistory:id=>productHasHistory(id,memoryStorage(data)),getNextId:items=>Math.max(counters[idCollection]??0,0,...items.map(i=>Number(i.id)))+1});
+    result = actions[name](...args);
+    if (!result.ok) throw new ApiError(422,'DOMAIN_VALIDATION',result.message);
+  } else {
+    let p=data.procurement;
+    switch (name) {
+      case 'savePurchasedItem': p=supply.savePurchasedItem(p,args[0]); break;
+      case 'savePurchasedItemsBatch': p=preparePurchasedItemBatch(p,args[0]).next; break;
+      case 'saveSupplyYieldBatch': p=prepareSupplyYieldBatch(p,named,args[0]).next; break;
+      case 'savePurchasedItemSetup': p=preparePurchasedItemSetup(p,args[0],named); break;
+      case 'saveSupplySource': p=supply.saveSupplySource(p,args[0]); break;
+      case 'saveSupplyConversion': p=supply.saveSupplyConversion(p,args[0],named); break;
+      case 'configureSupplyBatch': p=supply.configureSupplyBatch(p,args[0],named); break;
+      case 'configureProductBatch': p=args[0].finished ? configureFinishedProducts(p,args[0],named) : configureProductBatch(p,args[0],named); break;
+      case 'saveSources':
+        for (const [index,source] of args[0].entries()) {
+          p=supply.saveSupplySource(p,source);
+          if (args[1]?.[index]) p=procurement.addSupplierPrice(p,{...args[1][index],supplyItemId:source.id||p.supplyItems.at(-1).id},named);
+        } break;
+      case 'saveSupplier': p=procurement.saveSupplier(p,args[0]); break;
+      case 'setSupplyActive': p=procurement.setSupplyActive(p,...args,named); break;
+      case 'addSupplierPrice': p=procurement.addSupplierPrice(p,args[0],named); break;
+      case 'deleteEntity': p=procurement.deleteEntity(p,...args); break;
+      case 'savePurchase': {
+        if(args[0].activity&&args[0].activity!=='LIMPIEZA')throw new ApiError(422,'PURCHASE_ACTIVITY','Usa la captura por presentación para jarcería.');
+        if(args[1]==null)for(const item of args[0].items||[]){
+          const direct=data.products.find(product=>String(product.id)===String(item.directProductId));
+          const source=p.supplyItems.find(source=>source.id===item.supplyItemId);
+          const links=(p.supplyConversions||[]).filter(conversion=>conversion.purchasedItemId===source?.purchasedItemId);
+          if(direct?.activity==='JARCERIA'||links.length&&links.every(link=>data.products.some(product=>product.id===link.outputProductId&&product.activity==='JARCERIA')))throw new ApiError(422,'PURCHASE_ACTIVITY','Este artículo se compra desde Jarcería, con su contenido de presentación.');
+        }
+
+        if (args[1] != null && !p.purchases.some(x=>x.id===args[1])) throw new ApiError(404,'NOT_FOUND','Compra no encontrada.');
+        // Alta rápida usa el contador histórico para no reutilizar IDs eliminados.
+        let nextId=Math.max(counters.products??0,0,...data.products.map(p=>p.id));
+        const prepared=prepareFinishedPurchase(p,args[0],{...catalog,nextProductId:()=>++nextId},args[1]);
+        data.products=prepared.products; p=prepared.data;
+        break;
+      }
+      case 'voidPurchase':
+        if (!p.purchases.some(x=>x.id===args[0]&&!x.voidedAt)) throw new ApiError(404,'NOT_FOUND','Compra no encontrada o anulada.');
+        p=procurement.voidPurchase(p,args[0]); break;
+      case 'correctMobileSale': data.sales=correctWebAwareSale(data.sales,args[0],args[1]); break;
+      case 'createCommercialSale': data.sales=createWebSale(data.sales,{...args[0],origin:'WEB'},{...catalog,wholesalePricing:data.procurement.wholesalePricing},counters.sales??0); result={ok:true,receipt:data.sales[0].originalReceipt}; break;
+      case 'createMobileSale': data.sales=createMobileSale(data.sales,{...args[0],origin:'MOVIL'},{...catalog,wholesalePricing:data.procurement.wholesalePricing},counters.sales??0); result={ok:true,receipt:data.sales[0].originalReceipt}; break;
+      case 'createSale': data.sales=createSale(data.sales,args[0],{...catalog,wholesalePricing:data.procurement.wholesalePricing},counters.sales??0); break;
+      case 'voidSale': data.sales=voidSale(data.sales,args[0]); break;
+      default: throw new ApiError(400,'INVALID_COMMAND','Operación no disponible.');
+    }
+    data.procurement=p;
+  }
+  for (const field of ['categories','productLines','priceGroups','products']) counters[field]=Math.max(counters[field]??0,0,...data[field].map(x=>Number(x.id)));
+  applyWebPayment(data,beforeSales,name,args,options);
+  if(['createCommercialSale','createMobileSale'].includes(name))result.receipt=data.sales[0].originalReceipt;
+  counters.sales=Math.max(counters.sales??0,0,...data.sales.map(x=>Number(String(x.folio??'').replace(/^V-/,''))||0));
+  validateDataset(data);
+  return result;
+}

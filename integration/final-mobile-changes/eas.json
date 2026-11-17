@@ -1,0 +1,56 @@
+{
+  "cli": {
+    "version": ">= 19.0.8",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "apk": {
+      "autoIncrement": true,
+      "distribution": "internal",
+      "env": {
+        "CALCQUIM_BUILD_VARIANT": "tests",
+        "EXPO_PUBLIC_CALCQUIM_API_URL": "http://192.168.1.64:3016"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true
+    },
+    "distribution": {
+      "extends": "apk",
+      "autoIncrement": false,
+      "credentialsSource": "remote",
+      "env": {
+        "CALCQUIM_BUILD_VARIANT": "tests",
+        "EXPO_PUBLIC_CALCQUIM_API_URL": "http://192.168.1.64:3016",
+        "EXPO_PUBLIC_CALCQUIM_QA": "0"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "final": {
+      "extends": "distribution",
+      "autoIncrement": false,
+      "env": {
+        "CALCQUIM_BUILD_VARIANT": "tests",
+        "EXPO_PUBLIC_CALCQUIM_API_URL": "http://192.168.1.64:3016",
+        "EXPO_PUBLIC_CALCQUIM_QA": "0",
+        "EXPO_PUBLIC_NEXO_REQUIRED_CONTRACT": "fullclean-commerce-v1",
+        "NEXO_METRO_FILE_OUTPUT": "1"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

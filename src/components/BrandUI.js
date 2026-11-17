@@ -1,3 +1,4 @@
+import {businessTimestamp} from '../domain/businessTime.mjs';
 import {
   Image,
   Pressable,
@@ -146,7 +147,7 @@ export function Field({ label, inputRef, ...props }) {
 }
 export function ConnectionBadge({ status, catalog, onPress }) {
   const date = catalog?.syncedAt
-    ? new Date(catalog.syncedAt).toLocaleString("es-MX", {
+    ? businessTimestamp(catalog.syncedAt, {
         day: "2-digit",
         month: "short",
         hour: "2-digit",

@@ -1,0 +1,721 @@
+{
+  "directory": "D:\\ReactApps\\calcQuim\\.artifacts\\final-release-2026-11-16T20-40-45-740Z",
+  "candidateBase": "D:\\ReactApps\\calcQuim\\.artifacts\\nexo-candidate-2026-11-15T21-44-20-714Z",
+  "admin": [
+    {
+      "path": "index.html",
+      "package": "admin-changes",
+      "beforeSha256": "72a5bf9e1938a201970914957d677c4d99731efaf3176f6fa16f7c6778a5d8dd",
+      "sha256": "6a5ecf8e885346670952a4820d0f3d50c356854d2c74eaadcc1a6d45ffbe9eb2"
+    },
+    {
+      "path": "server/src/mobile/domain.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "88d89a02668f6b54da9cedeb1f3b1772a0d374f0f0fb0f2e32bbd5f939c931eb",
+      "sha256": "4fcd661bc333d03e613a07d72c15e154809105f0e9901e6a6ef1814378dd09cc"
+    },
+    {
+      "path": "server/src/mobile/hardware-creation.mjs",
+      "package": "admin-changes",
+      "beforeSha256": "bc750f0e1fed8b20e8d538cabdbd5782f3a4ca0920d780e3ffa4ed9852512b3e",
+      "sha256": "806efde55927076217c069b11790a97e5b9cbbc6699a1447ce8ae0a8f2b52d36"
+    },
+    {
+      "path": "server/src/mobile/router.mjs",
+      "package": "audit-admin-changes",
+      "beforeSha256": "f16886b8bba0e356dc5837638eb8ff054b7e53183746ed4d1fa011636277bea2",
+      "sha256": "1bd1c80a5c7ad2704859c5c451f0f5db03ec448706c8b947afa19fa1468e42a7"
+    },
+    {
+      "path": "server/src/mobile/stability.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "8c9c4b6a52a7f20d6e310368c5a0889eff156e8d0940f3d170085db0b115002b"
+    },
+    {
+      "path": "server/src/repositories/inventory.mjs",
+      "package": "admin-changes",
+      "beforeSha256": "4c98a9d1aac2e67835fa6490269a53ac98c5120edb052d30ecddf3f36db6ebf0",
+      "sha256": "735356ad22e5cb40b0698c98692d10e050741c3001777b2b76131df3c070440d"
+    },
+    {
+      "path": "server/src/repositories/packInventory.mjs",
+      "package": "admin-changes",
+      "beforeSha256": "64543d7c1bba94e917e58c9513c65e81efdcb9e7e321fc081ac1639c786ee3e1",
+      "sha256": "215a4c7b8bf846e46213197ddd14b5d3c6f0f47a4bb923f5a5c286ae9dadde67"
+    },
+    {
+      "path": "server/src/services/commerce.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "450a238dca1f4842dcbeb759f51eeea17da995450b7d5f1a8b62d892a50fed4e",
+      "sha256": "bab70dc384d7c2995bdf05d1254f946d4240a4f900dda683a4f16d2f436a83f9"
+    },
+    {
+      "path": "server/src/services/dataset.mjs",
+      "package": "audit-admin-changes",
+      "beforeSha256": "74f6f6b5afbd0a958b103f90ae22feed5c3e59aa5b5d5119d80d3117ad86aa2c",
+      "sha256": "edf1b5445ab190d02609781d94d88f69c4f4a4ad15c958743dd61bd8ad22e5e5"
+    },
+    {
+      "path": "server/src/services/inventory.mjs",
+      "package": "admin-changes",
+      "beforeSha256": "4718532d2950c9afb6304cbe1632e45602e38045bc794abbfef78f4928678e45",
+      "sha256": "6a46efdefabeb43f6be44be24faa009dc8cd2afceb20c922a2fd34130b85a739"
+    },
+    {
+      "path": "server/src/services/productInitialInventory.mjs",
+      "package": "admin-changes",
+      "beforeSha256": "213d3bdea54b9001485cf57878fc720b88f7c9d7782a8127b14fbefdaa04d20b",
+      "sha256": "fa71c01d9ea2335dd1d2f6132fb2bdefb2e0675d5ff437dd96d7de7d91c20df3"
+    },
+    {
+      "path": "src/App.jsx",
+      "package": "admin-changes",
+      "beforeSha256": "6c5d73cb5b1d296f4dbc1064c3fd798263e5efca483eecee74be7dfd18e93851",
+      "sha256": "65de8df231eab7e68ba84e690d938939b5a3f0a7ace4b054a489c7e354a0d588"
+    },
+    {
+      "path": "src/ApplicationRoot.jsx",
+      "package": "admin-changes",
+      "beforeSha256": "32e564c7e62e7f158ce9a61b60c6313802e9e884b5313379b8e72661d6d4d226",
+      "sha256": "5131c2e53f13c60f73985c139d9266af3c1de50b2858281ca2c34a8df2ce1396"
+    },
+    {
+      "path": "src/PostgresApplication.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "e7bbe1514ddbcc8f33bac5a59d3a58288f66da83e755918ac7342cc7f324d433",
+      "sha256": "6a55ec7345f71a43e9450f2df72b6dd997a4029ad5348df61db48bc33120f9fe"
+    },
+    {
+      "path": "src/components/CommercialSaleForm.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "8ad61a4e55a845489c48468ac6ad0a41f4bda9786bb6d3321986d42894f80f62",
+      "sha256": "9afda0946996fb4beede0d506b4a2e541442366a8cf190d636c7c89c916eb26d"
+    },
+    {
+      "path": "src/components/InitialInventoryFields.jsx",
+      "package": "admin-changes",
+      "beforeSha256": "be3896ce31cade21cec13415a9a7f8ce243811bdbb28862f70570a79f7961734",
+      "sha256": "cd6a542d954725e33de5a1904d9fe33f6c8be60cb928a3df8b33ea4d8e18b3a9"
+    },
+    {
+      "path": "src/components/QuickHardwareCreate.jsx",
+      "package": "admin-changes",
+      "beforeSha256": null,
+      "sha256": "28e61cd24910fc4c4f97e6ae3c35e8d331508d0620795b486e8f73f9a47cfbe1"
+    },
+    {
+      "path": "src/components/SaleFormModal.jsx",
+      "package": "admin-changes",
+      "beforeSha256": "1dcb55eae648617b4ee496260c2ea0896601ed5a38c25c4a761202f6b96af4c3",
+      "sha256": "726884367da4ec5fd32aa42672dc0d1159a1968d6fdab3ac0a5e833f6495c7c1"
+    },
+    {
+      "path": "src/domain/commerce.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "6efd5e2a10cccbd53cac45dc415b9d4e3f74550481062da043ff5105e3b65684",
+      "sha256": "3ef2c8b6e8e51c410777ed2307d29e617a9cb69b689f2229cef5889c0c532d44"
+    },
+    {
+      "path": "src/domain/hardwareCreation.mjs",
+      "package": "audit-admin-changes",
+      "beforeSha256": "e92b302acf61383901cbaf80d33855ae5bfbd980a405d9136a3f1f10d4b5984f",
+      "sha256": "d0f0342bd715193111be31992efc75edf719645c808f859b125a496e0aa309c3"
+    },
+    {
+      "path": "src/domain/packInventory.mjs",
+      "package": "admin-changes",
+      "beforeSha256": "ef793f7348bcdf1fe6f29e6ba7bc65496377d4e7eb2203fc17e21b7455781adb",
+      "sha256": "283e21bdb7fa72caf48456c081e856dd446643fb21d82599de824cabf2943c7b"
+    },
+    {
+      "path": "src/layout/Sidebar.jsx",
+      "package": "admin-changes",
+      "beforeSha256": "a43f4200d243dc680de22515556f45364f9c998001ee0c5cf9c34d59c315adba",
+      "sha256": "c83572ae6e849ac2348985217eeb69ba480e34ea096144b794ce004bf28c2792"
+    },
+    {
+      "path": "src/pages/DataManagementPage.jsx",
+      "package": "admin-changes",
+      "beforeSha256": "3e8f2b0da717fd51feabd62a91f8a2576f0408705ea1f5c346a8eebe0436891f",
+      "sha256": "20680436ad31c0eef8899879de7cc9d6c1dbe2fd33ae24b4fbde37b58a58e63b"
+    },
+    {
+      "path": "src/pages/HardwareProductsPage.jsx",
+      "package": "admin-changes",
+      "beforeSha256": "08a48bc435bc6c6b0d0d5bd2378737114b58b4dc1d7698d2d3a861274c81796c",
+      "sha256": "4a95ebd6b5a73a163f7fc704f5aab0872d5902e4d05ca1ab17287f753db28232"
+    },
+    {
+      "path": "src/styles/components/SaleFormModal.css",
+      "package": "audit-admin-changes",
+      "beforeSha256": "a08abbc89ce2a788b1f90d140d8872c241744f11974c6e1b40b8599ff1e968fe",
+      "sha256": "0439b6e0671c561c4a1aae32ed9ad8462583ea6a71abcc16ea98cbeddd40105b"
+    },
+    {
+      "path": "tests/postgres-operational.test.js",
+      "package": "admin-changes",
+      "beforeSha256": "6b0f452e8290c3d28f33adf2b59a57fa2f3f7cc6b0febda333b446e1e7b5ab80",
+      "sha256": "4363f7e6d1385d02983f1a6c2a87559ff53c205d9e7be084c68a524f29477ca7"
+    },
+    {
+      "path": "src/components/HardwarePurchases.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "8c597b7c0833db64b08e5db3f6b11262bcb7dc876c2805daf04feaad5027c82c",
+      "sha256": "cc76f2e8622aeaa7fb40c25e2665648cf7995203039b0fce0cc149ffdaae132a"
+    },
+    {
+      "path": "src/components/LaundrySaleFields.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "87fb63fcef58f8907c33de94d05569df4fbe062af4951b22c66419a568cd68b9",
+      "sha256": "24e7a766edec6189923ee5e90efd45968b15dcd95e21674342812c9759a871dc"
+    },
+    {
+      "path": "src/domain/purchasePresentationLabel.mjs",
+      "package": "audit-admin-changes",
+      "beforeSha256": null,
+      "sha256": "99e504b2b4d6f35136b02f2baf19c946a135f9abeb1adfd9e8b0d79245a6e3db"
+    },
+    {
+      "path": "src/domain/reportPayment.mjs",
+      "package": "audit-admin-changes",
+      "beforeSha256": null,
+      "sha256": "ac48ac4cd5873f40a693f0d4c573e59923fe6c7f0062b8de9995ab396ccc5356"
+    },
+    {
+      "path": "src/domain/operationsReport.mjs",
+      "package": "audit-admin-changes",
+      "beforeSha256": "327172ccd6c864baf39a0f5fce48f095499a786a03eea7adaf1c5a9cab6faa6d",
+      "sha256": "f7600ae3aa2ac6928abcb517662dcb38cc545831a6e39f6b2510d85341a5764b"
+    },
+    {
+      "path": "server/src/services/webPayment.mjs",
+      "package": "audit-admin-changes",
+      "beforeSha256": "3ce1bf659bc680276352eddb41f872b62c4039ff37dfb9c0b7080c5de9af0a31",
+      "sha256": "4dbe487c1968a6f3a14eea63028328ee9a0719282347d6d2a17166444e7c84d9"
+    },
+    {
+      "path": "server/src/services/commands.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "e6381abbdac6f8dcedd4c6dcdfc23efafee69061fd0cca27061f5976b23a1031",
+      "sha256": "5bc9cd0b2d64adbf2c06343211eeaa37ca5218b285ea671e35d9e5321129c8a3"
+    },
+    {
+      "path": "server/migrations/014_mobile_payment_policy.up.sql",
+      "package": "audit-admin-changes",
+      "beforeSha256": null,
+      "sha256": "2bf62ff2fb7cb614459fee56400967592f7ee0ed40a9eeb3484db130da5715d1"
+    },
+    {
+      "path": "server/migrations/014_mobile_payment_policy.down.sql",
+      "package": "audit-admin-changes",
+      "beforeSha256": null,
+      "sha256": "0acc8a2c9ed0c2b913e64aed973b471850ed62a72e7b2bfaa53e8940f5eeec96"
+    },
+    {
+      "path": "src/pages/LaundryPage.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "cacc10484a1f4c488712c223a6907f648754c8dccaeea2cfaf1e444cc2fe5a4b",
+      "sha256": "e09357f3274cc1a9315a6b44c442cd26c0f8d821bd0b0dab876a88d8ae524e37"
+    },
+    {
+      "path": "src/components/LaundryPricingEditor.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "3af0d10f80133d98156b648afa1d3d1a5b4b42f573b3d5e3e7f06343254d4699"
+    },
+    {
+      "path": "src/domain/serviceEditor.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "801217ea53d9af379f92d7c52b4aa05e72f3afb4fe45838c2b3b92ea8d1e32f5"
+    },
+    {
+      "path": "src/domain/saleDraftGuard.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "56bbf79f0e9391d6beb322e16ac8931bb231e0015adabfdddf4f3820fa94e22f"
+    },
+    {
+      "path": "src/services/apiClient.js",
+      "package": "functional-admin-changes",
+      "beforeSha256": "d75b6f80e7bf93c1049f9f974590c76a58c3ad9787d9c1199f0bc4cee17e4116",
+      "sha256": "ff22d59a573603a6ad7e35d2d26c47b21419d986e8d0b194be0d74dda9bd683b"
+    },
+    {
+      "path": "src/pages/SalesPage.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "0a7af2781643da733a5cae641746007d083f50f150ac5074a537392b5e170b4f",
+      "sha256": "d9c15c7a7d2e96bc8d0b9dcc407b1dfba9aed572cf0dd6f36a40ec364301e7fb"
+    },
+    {
+      "path": "src/pages/PurchasesPage.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "fc366e87cecd2a075935457af2e33d9e7d9df483d713321b6de7f565c1ced817",
+      "sha256": "4953b61d03ea7181aa929437fcd321dee09e541b960ba84e9ed2dcd5380ae939"
+    },
+    {
+      "path": "src/components/PurchaseCostCorrection.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "8a1aba7e687419a3b521fcb8237414e00e6c9146a60fc61671d9084f47b8b6fb"
+    },
+    {
+      "path": "src/components/MobileSaleCorrection.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": "13b2eaf372b7744f3e4afd2bbbd9e0c34554a117f2bc3f51e2d17716623271dc",
+      "sha256": "3ebcc41e217d7c378e1be1bc7955a364cbdc7d73a09a2c0f06efdbb1db348dd7"
+    },
+    {
+      "path": "src/components/SettlementSummary.jsx",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "208077f4db0c2c85c5e3b9a700ca9cc4d580e0be96231d9167de7fb2011cf513"
+    },
+    {
+      "path": "src/domain/settlementLedger.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "b947c2db280eb2a455b2314ad67adf3743d5dcef87e4a0cc2ccd14e99a00531d"
+    },
+    {
+      "path": "src/domain/laundryPricing.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "fb3e96152b728af2dc58d107a03b5661bcf3cd9644dcb1ef21bff8017c2b0e2b",
+      "sha256": "057e45e6b89565384a6ed95685688c183ece6175e246fc8f0f77aee8d636440d"
+    },
+    {
+      "path": "src/domain/mobileReceipt/ticket.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "48126fadde77913939577277c95ba559bea490481b95d7a7dd112d1633ff6861",
+      "sha256": "756b7de4bc24c18f9916fce09fe3902d8e536a4d94f0302464db7efda781cc48"
+    },
+    {
+      "path": "server/src/services/presentationPurchaseCorrection.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": null,
+      "sha256": "a466d0ae0d6be991237fffad56b469708d8345db1493411fa06a51b74fd8b315"
+    },
+    {
+      "path": "server/src/services/purchaseInventory.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "0c34534f898b1f4988ebe7772ba653d7ae4b2040528bf569ff4a70d420edb1cc",
+      "sha256": "f08444104627f84fc30986385e20373abba56d61176e2f9b656111d54c264d21"
+    },
+    {
+      "path": "server/src/repositories/salesHistory.mjs",
+      "package": "functional-admin-changes",
+      "beforeSha256": "2feb221b050fff295d25a3ecdc63241cc7d4bd913722743ce84804a9ba692c62",
+      "sha256": "ae98d26f9f4e7ec8ad854b0d6c21d286b5fd59c50c15db6431c69e0aaf85b89b"
+    },
+    {
+      "path": "scripts/operational-mobile.mjs",
+      "package": "final-operational-activation",
+      "beforeSha256": "e2bbf32a1a8e1bed5c20854d9333ad5d10555b35ca5ce09df5b69f975e21d4fd",
+      "sha256": "6829f2b64ccc22dab7a782d15151b0cf8f1da9f7293858b3184e8dbcb10c3b86"
+    }
+  ],
+  "mobile": [
+    {
+      "path": ".easignore",
+      "sha256": "fa63fa4edce6646a0386274ee516cf91ed1e395e8900b4df6185ca31e71298ca"
+    },
+    {
+      "path": ".expo/dev/logs/export.log",
+      "sha256": "ebe570e294eeaf79958f5968f1c228b12f8b346b52b753b15c5faef5e9d72f24"
+    },
+    {
+      "path": "app.config.js",
+      "sha256": "198bb158287641b497f6320a856c2e190e1e1e92af72329f5639021c06b75d08"
+    },
+    {
+      "path": "App.js",
+      "sha256": "036f46f05208c0c197ba710bc5917a8ca00a35d1a61685b78a966c6548d6f023"
+    },
+    {
+      "path": "app.json",
+      "sha256": "2090e4d5ac070bb13bcdd1c538ff2f7c37ec9297b3770fa86685f52f35474f47"
+    },
+    {
+      "path": "assets/android-icon-background.png",
+      "sha256": "fb139c2dee362ebf2070e23b96da6fc0d43f8492de38b8af1fd7223e19b5861d"
+    },
+    {
+      "path": "assets/android-icon-foreground.png",
+      "sha256": "9e3d0315a33c6799de601dd34cd8bf8cc3a8d16f3bf75592baec2ceb7240b391"
+    },
+    {
+      "path": "assets/android-icon-monochrome.png",
+      "sha256": "6371fc2c12e33ad2215a86c281db3d682a81bebe7c957a842c13b8bf00cceb83"
+    },
+    {
+      "path": "assets/favicon.png",
+      "sha256": "a4e030697a7571b3e95d31860e4da55d2f98e5e861e2b55e414f45a8556828ba"
+    },
+    {
+      "path": "assets/full-clean-logo.png",
+      "sha256": "7e7f1cef5be8e3f9b46c167e1b8d8f425caf0f825de043afd71610a6836571ac"
+    },
+    {
+      "path": "assets/icon.png",
+      "sha256": "119462bb78eb240a65c869fc067ee599639b3cb5a41953f25c07b17d2a8c7e0f"
+    },
+    {
+      "path": "assets/splash-icon.png",
+      "sha256": "5f4c0a732b6325bf4071d9124d2ae67e037cb24fcc9c482ef82bea742109a3b8"
+    },
+    {
+      "path": "babel.config.js",
+      "sha256": "eb8b2a83d42e1c4cc4bf3df537542d50c8f1046771979ce7b1acf7cd2141f713"
+    },
+    {
+      "path": "eas.json",
+      "sha256": "074f88c904414481c602765814cdf5a30bc52a851e9b2332de61b82a5f5190a3"
+    },
+    {
+      "path": "global.css",
+      "sha256": "e1601e143d8854a7c3e81f7bf7b868b076d7b0cd7477b7e2c4ef511d617c6fa2"
+    },
+    {
+      "path": "index.js",
+      "sha256": "5c157f4d44972d9c84415e1e4bda595b3abcd8cf733f8a9cd20935bec3eccc42"
+    },
+    {
+      "path": "metro.config.js",
+      "sha256": "4a3f24516850db5a44e0ee32fabafb702248fb4ad02df80e3bbeafd8912a0659"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "c25224a9afb383312fad6a4dbfa1a163333a3984e4e76073ad48ab6aa1683383"
+    },
+    {
+      "path": "package.json",
+      "sha256": "cf73d88aff31129606be080cc69232e0e42d2efc729337be5d68ceba314e7a30"
+    },
+    {
+      "path": "plugins/withLocalHttp.js",
+      "sha256": "a14258d80b4d0f95126d77da022679e1ffa097dfb9400f8511962e2cf7abaa92"
+    },
+    {
+      "path": "src/components/ActionButton.js",
+      "sha256": "c0955c390363ea9607a1c5f899c36ad15ca88f3b3eb5d1c67073431005a4f6c5"
+    },
+    {
+      "path": "src/components/BrandUI.js",
+      "sha256": "70201d79f321b58eef7a5005f4d47577928649cd6ba3a18483ec8cf024a977c8"
+    },
+    {
+      "path": "src/components/ItemSelect.js",
+      "sha256": "49e5c697064a17921e58f27d258cf83b67687645661eab5e8f97105bee89f574"
+    },
+    {
+      "path": "src/components/MainSections.js",
+      "sha256": "95830e6f9a9f796db68cbd5d0a8bdcfd94fa7007cb897d3106841da2d08f22c9"
+    },
+    {
+      "path": "src/components/ProductButton.js",
+      "sha256": "f495da11917fe70e5603e88c244cfa2620e7b56a2fdbe5e1512b68a387f2370c"
+    },
+    {
+      "path": "src/components/ProductSearchInput.js",
+      "sha256": "4b0ca227ea23ab9256b0f74d82918688864d91a9c5eb8a496be5036220823ed4"
+    },
+    {
+      "path": "src/components/QuickNav.js",
+      "sha256": "3d6b0b3c6a8bd3d4b3a86930beb5e3854abe13333876cf7cc893b443dec2c555"
+    },
+    {
+      "path": "src/components/ResultBox.js",
+      "sha256": "2e6ee4c69d26037554fedc00e8553cf5f04623b15a5ad9f0c591c7a761110a6a"
+    },
+    {
+      "path": "src/components/SaleCard.js",
+      "sha256": "f47ad50842d6a6d52a469ae01344a69928f92d64be778abcf57d70cb5fe0de04"
+    },
+    {
+      "path": "src/components/ServiceOptions.js",
+      "sha256": "5319ef7345a91d296956c091e216ac94ec1e87ba0d294df180f2a8a931221ff6"
+    },
+    {
+      "path": "src/components/Ticket.js",
+      "sha256": "aaf6bd191d4491d1ed6b6c11263fc1fa104144cf977feb69491bfbdffa3e50d0"
+    },
+    {
+      "path": "src/components/TotalCard.js",
+      "sha256": "6ffa02d69b992c6eb3d5759a0d37864abf8389ff04a41307c00578527bfaa0e0"
+    },
+    {
+      "path": "src/data/Products.js",
+      "sha256": "a414b7784f76badbee4f1a9d4b37ae6bf36bf71041d60fd12975016ad3a09515"
+    },
+    {
+      "path": "src/domain/adminSales.mjs",
+      "sha256": "ca59faabfa03c39ced4ee77922681ff1d8907c9d0f82acbcd7f745d2143162bf"
+    },
+    {
+      "path": "src/domain/adminUnits.mjs",
+      "sha256": "f5588a7da4c4fa38480f177ae4c0becedc8cc62d27b42bca930b2a0160c013bc"
+    },
+    {
+      "path": "src/domain/brand.mjs",
+      "sha256": "267d2106e7091b80d2ce32c2eaefe7198cb6b223b79f7eedbdab46104997960b"
+    },
+    {
+      "path": "src/domain/businessTime.mjs",
+      "sha256": "5185d4a7e411c641d94c1fb3e84cba1989fff6b7fd2b1e7fb85615ce59c2bc25"
+    },
+    {
+      "path": "src/domain/catalog.mjs",
+      "sha256": "52d9626c14023bcf08871bd90619683701fe97cbd97e4f7944f1bad7569150a4"
+    },
+    {
+      "path": "src/domain/commerce.mjs",
+      "sha256": "3ef2c8b6e8e51c410777ed2307d29e617a9cb69b689f2229cef5889c0c532d44"
+    },
+    {
+      "path": "src/domain/commercial.mjs",
+      "sha256": "b98f486944216d73a9e23eb497f25b038285adef42571d1b45452bed1d53ce06"
+    },
+    {
+      "path": "src/domain/draftRecovery.mjs",
+      "sha256": "215e2a1917f857e396525417e78498047142b8859538627de36cbd53139aa55f"
+    },
+    {
+      "path": "src/domain/hardwareCreation.mjs",
+      "sha256": "d0f0342bd715193111be31992efc75edf719645c808f859b125a496e0aa309c3"
+    },
+    {
+      "path": "src/domain/inventory.mjs",
+      "sha256": "9872a6fb43c8a3de69f2c245bc7d1907d6bfab424ff0ef4f58f55861b0e700da"
+    },
+    {
+      "path": "src/domain/inventoryCapture.mjs",
+      "sha256": "95322c2e43bb4e7a12449151d5c06c32c14a0de1f085e631401ca1f7736cbbf1"
+    },
+    {
+      "path": "src/domain/inventorySubmission.mjs",
+      "sha256": "d56ffd9c33fbd4c7682a7027e8a35e705f51fd348ac841eed3afe72fd35ac4c2"
+    },
+    {
+      "path": "src/domain/laundryPricing.mjs",
+      "sha256": "057e45e6b89565384a6ed95685688c183ece6175e246fc8f0f77aee8d636440d"
+    },
+    {
+      "path": "src/domain/logo.mjs",
+      "sha256": "c3c9f05f8e9e045737cd09c1c43801eab8827c8c62c587a9d37e5345d87b7a88"
+    },
+    {
+      "path": "src/domain/mobileSession.mjs",
+      "sha256": "44a782faf8d7d85aebd298c88fac8ea7d56ae33c0f1fb2869af532c0414f4691"
+    },
+    {
+      "path": "src/domain/officialSales.mjs",
+      "sha256": "f1c16e80a843c163f9b696870cb0bc0f2c51c41c2d1867937a2e61cfe1139a66"
+    },
+    {
+      "path": "src/domain/payment.mjs",
+      "sha256": "0cc639311182864c9bcfe7d601a2d0aef0e7fb98da04021ad5e942b680a8d920"
+    },
+    {
+      "path": "src/domain/persistence.mjs",
+      "sha256": "363eded0ac95986eb4b338ca9bb1f977d88b62af46a43fcdb754276621dbf950"
+    },
+    {
+      "path": "src/domain/productCreationSubmission.mjs",
+      "sha256": "3f6a4c6c5b10bb2397ffec99763ac62e89d4fe5640afb1ebca3f506104cfc8c4"
+    },
+    {
+      "path": "src/domain/qaNamespace.mjs",
+      "sha256": "2127a8376e753626a2b1227c46b3d019974a7071cf17040af899528a16862ee7"
+    },
+    {
+      "path": "src/domain/receiptView.mjs",
+      "sha256": "195ec7223b783ecd4a4828395ab3b43b85a4fef9ccb882e27504b2fcf064115b"
+    },
+    {
+      "path": "src/domain/reconnection.mjs",
+      "sha256": "52a4a914bfc4ccf47855ceba9e3e3c810e6e16b9a054e85702a314547b63221c"
+    },
+    {
+      "path": "src/domain/sale.mjs",
+      "sha256": "743ef8384f8c393ab8c6ed45b59827dee52ae5947654d8ff101353cf2d2d6ca5"
+    },
+    {
+      "path": "src/domain/saleChanges.mjs",
+      "sha256": "2a8a4e205e7e33921601d37c93db4bb6a05a0399084f99e05d68f8383cad5c1b"
+    },
+    {
+      "path": "src/domain/saleCorrectionPreview.mjs",
+      "sha256": "ee0664856192a1249ea6f17fa48ee15dfc5d671933e7cede6b60e6cc80e659fc"
+    },
+    {
+      "path": "src/domain/settlementLedger.mjs",
+      "sha256": "b947c2db280eb2a455b2314ad67adf3743d5dcef87e4a0cc2ccd14e99a00531d"
+    },
+    {
+      "path": "src/domain/submission.mjs",
+      "sha256": "f7678ed499283b5571fbf39430cd16582699070df8055997e6324d1cedbd58da"
+    },
+    {
+      "path": "src/domain/text.mjs",
+      "sha256": "4d55172417e9d46f4922616c19fcc1f4e4a5230a956e04a0071f2460818b32cb"
+    },
+    {
+      "path": "src/domain/ticket.mjs",
+      "sha256": "a4f83e34b7366b023cad25a178c83c416e108d26a76449dfc955f1f260ea6a60"
+    },
+    {
+      "path": "src/domain/wholesalePricing.mjs",
+      "sha256": "291f6476a1deb33fb231b7654a7c4aae9c09078f6ed838bf66374827f755329c"
+    },
+    {
+      "path": "src/hooks/useMobileSale.js",
+      "sha256": "99efff566a457a4efcfda41342a5208789d5777aa390950cfa801b3d99f5c05f"
+    },
+    {
+      "path": "src/screens/AddSaleScreen.js",
+      "sha256": "9885b6ec0e6d840d2cf6f564bc512d0411d587daf74acfef0e86f92b0110f419"
+    },
+    {
+      "path": "src/screens/CalculatorScreen.js",
+      "sha256": "9bc00ca166e7428883d302f3fe5d88f79679892afe1543f844026f732b5ecc3e"
+    },
+    {
+      "path": "src/screens/ConnectionScreen.js",
+      "sha256": "7f4bf4f1d71c7a5413caf440022446a1d0460a1733a11188f8ef6b96d80edee2"
+    },
+    {
+      "path": "src/screens/DraftRecoveryScreen.js",
+      "sha256": "24e9181effaffc5753305b04e21577adebc6cd5b4986e7b2526c02d857651f43"
+    },
+    {
+      "path": "src/screens/HardwareCreateScreen.js",
+      "sha256": "9e1476b668b320cfd2b763f4ffeb0381a7450ddb49ae2fe79280424a126fbbbc"
+    },
+    {
+      "path": "src/screens/HomeScreen.js",
+      "sha256": "089159d0a55ca5bf600c1ba7868c394f6fb6424784fb202219771600aeba1150"
+    },
+    {
+      "path": "src/screens/InventoryCaptureScreen.js",
+      "sha256": "d88333587f025b576664acbecd61abc2ddf67f8bfa47a6476afee7fe5a8213af"
+    },
+    {
+      "path": "src/screens/InventoryHistoryScreen.js",
+      "sha256": "11e289ae0229bf957c8849eb50ab077797d68031a68510e5fa694523f9c5ef9c"
+    },
+    {
+      "path": "src/screens/InventoryProductScreen.js",
+      "sha256": "56761502c1340feffe1ad4f0b1a02df2a3da0a87175ea6eae955da2528ac876e"
+    },
+    {
+      "path": "src/screens/InventoryScreen.js",
+      "sha256": "aaccb55496b505abc77a31ba4b2426c70c734a4ad21e367645b41c94393d966e"
+    },
+    {
+      "path": "src/screens/ListScreen.js",
+      "sha256": "0cf8f37f87d1f335454b3cf777fca17ddb1fd741898b488feecf2a7d200330b8"
+    },
+    {
+      "path": "src/screens/ProductCatalogScreen.js",
+      "sha256": "6cd31aaf08ce5fad6293b7806cba832d8b6d4e6be3bff75490551978ffac7390"
+    },
+    {
+      "path": "src/screens/ProductFormScreen.js",
+      "sha256": "fa85ff3c955854c132c946207b785fe7b5e4231faad354f3342913193167379f"
+    },
+    {
+      "path": "src/screens/QuickSaleScreen.js",
+      "sha256": "a598f9d690358c76acb57e2be84eab7de865704bcf805792eaecc8cd4ca77eb7"
+    },
+    {
+      "path": "src/screens/SaleEditScreen.js",
+      "sha256": "1defdc645f97d16d1dd316391ea2b074908152c3559c95dc21e110eb3b26f874"
+    },
+    {
+      "path": "src/screens/SalesScreen.js",
+      "sha256": "d83b0542f5ee8fb2dc39f6557409670e7cbd7323866856dfc61650df70cfe96b"
+    },
+    {
+      "path": "src/screens/SaleSummaryScreen.js",
+      "sha256": "df80f127f5cdb8d93bc2423c062dd295ba15e6923475c193d03273d4314afd57"
+    },
+    {
+      "path": "src/services/inventoryStorage.js",
+      "sha256": "818290d1c253b4cf724bf216beaf8b7604c7b2d88821a533f171cc023b8ddd40"
+    },
+    {
+      "path": "src/services/mobileApi.mjs",
+      "sha256": "d25d5c729f7f2c7cad000d47845eb89544f3c8c48690a1d5f96680651e66dba7"
+    },
+    {
+      "path": "src/services/mobileStorage.js",
+      "sha256": "05bc8840f8b40c20fad9aef06ce7df99ad5242491d9c817730af7113c5c4c7b5"
+    },
+    {
+      "path": "src/services/productCreationStorage.js",
+      "sha256": "6f9fb01d84c25cab1b70e297ea90360d589010f56eb2a7db6f70c67c676445af"
+    },
+    {
+      "path": "src/services/saleChangesStorage.js",
+      "sha256": "2024067af1bedea139e29ed4d9d055c0b73b68187ed00043cb8be732944cc71d"
+    },
+    {
+      "path": "src/storage/productsStorage.js",
+      "sha256": "e2913e2dbd3c3ecbdd004c2e6e2a2a29cba5547a3e9bba1920f07429127bec85"
+    },
+    {
+      "path": "src/testing/useEmulatorProbe.js",
+      "sha256": "c06dc8943da38c01b9ba3b6cc3031f6d0300a1c6480c7dc7a184eafd6d74a861"
+    },
+    {
+      "path": "src/utils/exportProducts.js",
+      "sha256": "7e354aae7e9dfb16230df1ba73c0f0a8863f7ff0fb3580ff90d72400474b67e9"
+    },
+    {
+      "path": "src/utils/importProducts.js",
+      "sha256": "2fb1a4ab159a509f077a48535d486206509b5748078bca19774e92c7705938f7"
+    },
+    {
+      "path": "src/utils/numberInput.js",
+      "sha256": "0cb949c88e82bdd3ef4601042f5d6973ff5dac39dc3d18b22b89709528f65947"
+    },
+    {
+      "path": "src/utils/salesCalculations.js",
+      "sha256": "251f1cc657c236944134ded346c5da5811651b313852f29c877c272b0f2d8771"
+    },
+    {
+      "path": "tailwind.config.js",
+      "sha256": "5dcb42def95d0abeec2a40ac2a7cd921d52304d833545edcea1d234b4d314e39"
+    }
+  ],
+  "activationDelta": [
+    {
+      "path": "server/src/mobile/router.mjs",
+      "sha256": "1bd1c80a5c7ad2704859c5c451f0f5db03ec448706c8b947afa19fa1468e42a7"
+    },
+    {
+      "path": "server/src/services/dataset.mjs",
+      "sha256": "edf1b5445ab190d02609781d94d88f69c4f4a4ad15c958743dd61bd8ad22e5e5"
+    },
+    {
+      "path": "scripts/operational-mobile.mjs",
+      "sha256": "6829f2b64ccc22dab7a782d15151b0cf8f1da9f7293858b3184e8dbcb10c3b86"
+    }
+  ],
+  "operationalSourcesApplied": true,
+  "productionActivated": true,
+  "productionMigrationPending": [],
+  "backupRestorationVerified": true,
+  "liquidationsEnabled": false,
+  "apk": {
+    "file": "D:\\ReactApps\\calcQuim\\.artifacts\\final-release-2026-11-16T20-40-45-740Z\\Nexo-Ventas-1.0.1-v5.apk",
+    "sha256": "ffdbb3bafedea6cf552818cc40551781dc09167c8f1942486a1643c07681c3d6",
+    "version": "1.0.1",
+    "versionCode": 5,
+    "sameCertificate": true,
+    "secretsScanPassed": true
+  },
+  "activatedAt": "2026-11-16T21:58:49.330Z",
+  "cutoverBackup": "D:\\ReactApps\\calcQuim\\.artifacts\\final-release-2026-11-16T21-57-08-289Z"
+}

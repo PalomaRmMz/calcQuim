@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import {businessTimestamp} from '../domain/businessTime.mjs';
 import { FlatList, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,7 +31,7 @@ export default function InventoryHistoryScreen({ model, route }) {
         {m.composition && <Text style={styles.muted}>{m.composition.closedPackages} paquetes cerrados × {m.composition.factor} + {m.composition.looseUnits} sueltos</Text>}
         <Text style={styles.muted}>{m.reason}{m.note ? ` · ${m.note}` : ''}</Text>
         {m.audit && <><Text style={styles.muted}>Responsable: {m.audit.responsible}</Text><Text selectable style={styles.muted}>Operación: {m.audit.operationId}</Text></>}
-        <Text style={styles.muted}>{new Date(m.recordedAt || m.occurredAt).toLocaleString('es-MX')}</Text>
+        <Text style={styles.muted}>{businessTimestamp(m.recordedAt || m.occurredAt)}</Text>
       </View>} />
   </SafeAreaView>;
 }

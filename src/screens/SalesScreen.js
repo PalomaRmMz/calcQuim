@@ -23,6 +23,7 @@ export default function SalesScreen({model:m,navigation,active=true}){
  useFocusEffect(useCallback(()=>{let alive=true;if(active&&detailId.current)syncRef.current().then(()=>{if(alive&&detailId.current)session.open(detailId.current);});return()=>{alive=false;};},[session,active]));
  const dirty=!!h.page&&['folio'].some(k=>(filters[k].trim()||null)!==h.page.filters[k]);
  async function query(cursor=null,index=0){Keyboard.dismiss();await m.sync();const result=await session.query({...filters,limit:20,...(cursor?{cursor}:{})});if(result){setPageIndex(index);if(index===0)setCursors([null]);else setCursors(rows=>[...rows.slice(0,index),cursor]);}}
+ const listStale=!!h.page&&(h.page.revision!==m.state?.catalog?.revision||h.page.generation!==m.state?.catalog?.generation);
  const listSnapshot=h.page?{revision:h.page.revision,generation:h.page.generation}:{};
  async function verifyLocal(receipt){Keyboard.dismiss();const fingerprint=await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,canonicalReceipt(receipt));await session.open(String(receipt.id),{}, {receipt,fingerprint});}
  const receipts=m.state?.receipts||[];
@@ -39,7 +40,8 @@ export default function SalesScreen({model:m,navigation,active=true}){
   <Summary sale={h.detail.sale}/>
   {h.detail.sale.capturedAt&&<Text style={styles.muted}>Captura: {moment(h.detail.sale.capturedAt)} (Ciudad de México)</Text>}
   {h.linkedLocal&&<Text style={styles.notice}>Vínculo verificado por ID y comprobante original. El ticket local conserva su contenido; la venta oficial puede contener revisiones posteriores.</Text>}
-  {!!h.detail.sale.monetary&&<Text style={styles.muted}>Calculado: {money(h.detail.sale.monetary.calculatedCents/100)} · Ajuste registrado: {money(h.detail.sale.monetary.roundingCents/100)} · Cobrado: {money(h.detail.sale.monetary.collectedCents/100)}</Text>}
+  {!!h.detail.sale.monetary&&<Text style={styles.muted}>Calculado: {money(h.detail.sale.monetary.calculatedCents/100)} · Ajuste registrado: {money(h.detail.sale.monetary.roundingCents/100)} · Total documentado: {money(h.detail.sale.monetary.collectedCents/100)}</Text>}
+  {h.detail.sale.collection&&<Text style={styles.notice}>Último cobro confirmado: {money(h.detail.sale.collection.confirmedCents==null?null:h.detail.sale.collection.confirmedCents/100)} · Cobro final: {h.detail.sale.collection.collectedCents==null?'Sin determinar':money(h.detail.sale.collection.collectedCents/100)}</Text>}
   <Text style={styles.heading}>Renglones registrados ({h.detail.itemCount})</Text>
   {h.detail.items.map(i=><View key={i.ordinal} style={styles.result}><Text style={styles.price}>{i.name||'Nombre no registrado'}</Text>{i.presentationName&&<Text style={styles.muted}>{i.presentationName}</Text>}<Text style={styles.muted}>{i.quantity} {i.unit} × {money(i.price)} · {money(i.amount)}</Text>{i.partial&&<Text style={styles.muted}>{i.issues.join('. ')}</Text>}</View>)}
   {!h.detail.items.length&&<Text style={styles.muted}>Sin renglones históricos disponibles.</Text>}
@@ -51,6 +53,7 @@ export default function SalesScreen({model:m,navigation,active=true}){
   <Text style={styles.heading}>Ventas capturadas desde Android</Text>
   <Field label="Buscar por folio" placeholder="Ej. V-00063" autoCapitalize="characters" value={filters.folio} onChangeText={v=>setFilters(f=>({...f,folio:v}))}/>
   <ActionButton label={h.page?'Actualizar consulta':'Ver mis ventas'} fullWidth disabled={h.busy||!m.token} onPress={()=>query()}/>
+  {listStale&&<Text style={styles.notice}>El catálogo o las ventas cambiaron desde esta consulta. Actualiza para ver los importes vigentes.</Text>}
   {dirty&&<Text style={styles.muted}>Pulsa Actualizar consulta para buscar este folio.</Text>}
   {!h.page&&<Text style={styles.muted}>Consulta bajo demanda, hasta 20 ventas por página. Las más recientes primero, por fecha de venta.</Text>}
   {h.page?.sales.map(s=><Pressable key={s.id} accessibilityRole="button" accessibilityLabel={'Ver venta '+(s.folio||s.id)} disabled={h.busy} style={styles.result} onPress={()=>{Keyboard.dismiss();session.open(s.id,listSnapshot);}}><Summary sale={s}/></Pressable>)}

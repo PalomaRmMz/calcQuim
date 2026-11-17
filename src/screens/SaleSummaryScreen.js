@@ -1,3 +1,4 @@
+import {receiptForView} from '../domain/receiptView.mjs';
 import { useLayoutEffect, useRef, useState } from "react";
 import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,9 +19,7 @@ export default function SaleSummaryScreen({ model: m, navigation, route }) {
     [logoReady, setLogoReady] = useState(false),
     [laidOut, setLaidOut] = useState(false),
     ticketRef = useRef(null);
-  const receipt = m.state?.receipts.find(
-    (r) => r.id === route.params?.receiptId,
-  );
+  let receipt=null,receiptError="";try{receipt=receiptForView(m.state?.receipts,route.params);}catch(e){receiptError=e.message;}
   useLayoutEffect(() => {
     navigation.setOptions({ headerShown: !customer, title: "Ticket de venta" });
   }, [customer, navigation]);
@@ -28,7 +27,7 @@ export default function SaleSummaryScreen({ model: m, navigation, route }) {
     return (
       <View style={styles.page}>
         <Text style={styles.muted}>
-          No hay evidencia de una venta confirmada.
+          {receiptError||"No hay evidencia de una venta confirmada."}
         </Text>
       </View>
     );
@@ -123,7 +122,8 @@ export default function SaleSummaryScreen({ model: m, navigation, route }) {
               />
             </View>
           </View>
-          {m.state.draft.status === "confirmed" && (
+          {route.params?.officialReceipt&&<ActionButton label="Volver a la edición" variant="secondary" onPress={()=>navigation.goBack()}/>}
+          {!route.params?.officialReceipt&&m.state.draft.status === "confirmed" && (
             <ActionButton
               disabled={m.busy || sharing}
               label="Nueva venta"

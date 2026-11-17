@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import {businessTimestamp} from '../domain/businessTime.mjs';
 import { ScrollView, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -44,7 +45,7 @@ export default function InventoryProductScreen({ model, navigation, route }) {
           {p.composition.closedPackages} paquetes cerrados × {p.composition.factor} · {p.composition.looseUnits} unidades sueltas
         </Text> : <Text style={styles.muted}>Composición de paquetes y sueltos desconocida</Text>}
         {p.low && <Text style={styles.notice}>Existencia en mínimo o por debajo{p.minimum != null ? ` · Mínimo ${p.minimum} ${p.unit}` : ''}</Text>}
-        <Text style={styles.muted}>{error ? 'Última consulta' : 'Consultado'} {new Date(snapshot.generatedAt).toLocaleString('es-MX')}</Text>
+        <Text style={styles.muted}>{error ? 'Última consulta' : 'Consultado'} {businessTimestamp(snapshot.generatedAt)}</Text>
       </View>
       {pending && <><Text style={styles.notice}>Hay un inventario pendiente de confirmar.</Text>
         <ActionButton label="Resolver operación pendiente" fullWidth onPress={() => navigation.navigate('InventoryCapture', { baseline: pending.baseline })} /></>}

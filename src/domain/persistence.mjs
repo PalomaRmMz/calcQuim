@@ -1,5 +1,7 @@
+import {qaStorageKey} from './qaNamespace.mjs';
 export const EMULATOR_QA=typeof __DEV__!=='undefined'&&__DEV__&&process.env.EXPO_PUBLIC_CALCQUIM_QA==='1';
-export const MOBILE_KEY = EMULATOR_QA?'nexo_integrated_qa_v1':'calcquim_mobile_v1';
+export const scopedQaKey=key=>qaStorageKey(key,EMULATOR_QA?process.env.EXPO_PUBLIC_NEXO_QA_RUN_ID||'':'');
+export const MOBILE_KEY = EMULATOR_QA?scopedQaKey('nexo_integrated_qa_v1'):'calcquim_mobile_v1';
 export const LEGACY_KEYS = ['currentSale', 'calcquim_products', 'calcquim_products_version'];
 export const emptyDraft = () => ({ lines: [], status: 'draft', payment: 'Efectivo' });
 export const initialState = () => ({ schema: 1, baseUrl: process.env.EXPO_PUBLIC_CALCQUIM_API_URL || 'http://127.0.0.1:3016', catalog: null, draft: emptyDraft(), mode: 'quantity', usage: {}, receipts: [] });

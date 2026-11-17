@@ -59,7 +59,7 @@ export function resolveCommerceLine(row,data,id){
 export function historicalCommerceLine(old,value,options={}){
  const t={key:old.tariffKey,price:old.presentationSnapshot?.price??old.serviceSnapshot?.price??0,unit:old.unit,presentation:old.presentationSnapshot,service:old.serviceSnapshot};
  const c={kind:old.reference.kind,refId:old.reference.id,name:old.name,context:old.context,tariffs:[t]};
- return {...old,...makeCommerceLine(c,t,old.entryMode,value,old.id,{addons:old.addons?.map(a=>a.id)||[],description:options.description??old.description})};
+ return {...old,...makeCommerceLine(c,t,old.entryMode,value,old.id,{addons:options.addons??old.addons?.map(a=>a.id)??[],description:options.description??old.description})};
 }
 export function commerceReport(sales,from='',to=''){
  const byActivity={LIMPIEZA:0,JARCERIA:0,LAVANDERIA:0,SIN_CLASIFICAR:0},rank=new Map(),articles=new Map();let totalCents=0,mixed=0;

@@ -214,20 +214,3 @@ Desktop.ini
 /qa/stability/processes-after.json
 /qa/stability/postgres-baseline.json
 /qa/integrated/naturella-results.json
-
-# Copias locales completas: versionar scripts y el parche selectivo de Admin.
-# Los originales y las evidencias anteriores se conservan en disco.
-/qa/admin/
-/qa/stability/admin/
-/qa/stability/mobile/
-/qa/stability/calcQuim-admin/
-/qa/integrated/admin/
-/qa/stability/closure-*/
-/qa/integrated/closure-*/
-/qa/emulator-evidence.json
-/qa/naturella-results.json
-/qa/stability/emulator-results.json
-/qa/stability/baseline.json
-/qa/stability/processes-after.json
-/qa/stability/postgres-baseline.json
-/qa/integrated/naturella-results.json

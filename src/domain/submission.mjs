@@ -20,7 +20,7 @@ export async function submitSale({ draft, catalog, api, persist, uuid }) {
         registrationStarted = true;
         throw error;
       }
-      if(attempt.delivery==='rejected'&&attempt.rejectionCode==='STALE_DATA'){attempt={...attempt,body:requestBody(draft,catalog),delivery:'prepared'};sending={...sending,attempt};await persist(sending);}
+      if(attempt.delivery==='rejected'&&['STALE_DATA','MOBILE_PAYMENT_CLIENT_UPDATE_REQUIRED'].includes(attempt.rejectionCode)){attempt={...attempt,body:requestBody(draft,catalog),delivery:'prepared'};sending={...sending,attempt};await persist(sending);}
       registrationStarted = true;
       attempt={...attempt,delivery:'sent'};sending={...sending,attempt};await persist(sending);
       evidence = await api.register(attempt.key, attempt.body);

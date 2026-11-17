@@ -1,3 +1,4 @@
+import {WEB_PAYMENT_POLICY} from './payment.mjs';
 import {commerceChoices} from './commerce.mjs';
 import { normalizeUnit } from './adminUnits.mjs';
 import { normalizeText } from './text.mjs';
@@ -17,6 +18,7 @@ export function validateCatalog(snapshot) {
   }
   if (![PRICING_VERSION,'admin-sales-v1',WHOLESALE_VERSION].includes(snapshot.pricingVersion)) throw new Error('Motor de precios incompatible; actualiza la aplicación.');
   if (snapshot.pricingVersion === WHOLESALE_VERSION && snapshot.data.wholesalePricing?.version !== WHOLESALE_VERSION) throw new Error('Falta la configuración oficial de mayoreo.');
+  if(snapshot.mobilePaymentPolicy?.enabled&&snapshot.mobilePaymentPolicy.version!==WEB_PAYMENT_POLICY)throw Error("Política de cobro incompatible; actualiza la aplicación.");
   return snapshot;
 }
 export function productPrice(product, groups) {

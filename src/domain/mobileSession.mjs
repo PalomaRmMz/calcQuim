@@ -57,7 +57,7 @@ export function createMobileSession({storage,credentials,apiFactory,uuid,qaToken
    if(!state.catalog)throw Error('No hay catálogo guardado. Reintenta la conexión.');
    const result=await submitSale({draft:state.draft,catalog:state.catalog,api:api(),uuid,persist:draft=>update(s=>({...s,draft,receipts:draft.receipt&&!s.receipts.some(r=>r.id===draft.receipt.id)?[draft.receipt,...s.receipts]:s.receipts,catalog:draft.status==='confirmed'&&draft.serverGeneration===s.catalog?.generation?{...s.catalog,revision:draft.serverRevision}:s.catalog}))});
    if(result.status==='cancelled'){await update(s=>archiveDraft(s,{outcome:'reconciled',operationId:result.attempt.key}));return result;}
-   if(result.status==='confirmed')connectionStatus='connected';else{error=result.error||'Envío pendiente de verificación.';if(result.status==='offline')connectionStatus='offline';}emit();if(result.status==='rejected'&&result.attempt?.rejectionCode==='STALE_DATA')await model.sync();return result;
+   if(result.status==='confirmed')connectionStatus='connected';else{error=result.error||'Envío pendiente de verificación.';if(result.status==='offline')connectionStatus='offline';}emit();if(result.status==='rejected'&&['STALE_DATA','MOBILE_PAYMENT_CLIENT_UPDATE_REQUIRED'].includes(result.attempt?.rejectionCode))await model.sync();return result;
   },'Enviando…'),
   newSale:()=>run(async()=>{if(state.draft.status!=='confirmed')throw Error('Confirma o descarta el borrador antes de iniciar otro.');await update(s=>({...s,draft:emptyDraft(),capture:null}));return true;}),
  };

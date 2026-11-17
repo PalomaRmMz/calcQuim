@@ -1,0 +1,12 @@
+import {readFile,open} from 'node:fs/promises';
+import {spawn} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {createMetroLoopbackProxy} from '../../integration/metro-loopback.mjs';
+const state=JSON.parse(await readFile(new URL('./state.private.json',import.meta.url),'utf8'));
+const run=JSON.parse(await readFile(new URL('./latest.private.json',import.meta.url),'utf8'));
+const f=await open(new URL('metro.log',run.directory),'a');
+const p=spawn(process.execPath,['node_modules/expo/bin/cli','start','--localhost','--port','8107'],{cwd:fileURLToPath(new URL('../../',import.meta.url)),windowsHide:true,stdio:['ignore',f.fd,f.fd],env:{...process.env,EXPO_PUBLIC_CALCQUIM_QA:'1',EXPO_PUBLIC_CALCQUIM_API_URL:state.base,EXPO_PUBLIC_NEXO_QA_TOKEN:state.token,EXPO_PUBLIC_NEXO_QA_RUN_ID:state.id,EXPO_OFFLINE:'1',REACT_NATIVE_PACKAGER_HOSTNAME:'127.0.0.1'}});
+const proxy=createMetroLoopbackProxy({port:8107});await proxy.start();
+console.log('Metro audit child '+p.pid+' port 8107; namespace '+state.id);
+for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{p.kill();proxy.close().then(()=>process.exit(0));});
+p.once('exit',async code=>{await proxy.close();await f.close();process.exit(code??1);});

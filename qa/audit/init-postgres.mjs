@@ -1,0 +1,15 @@
+import {readFile,writeFile,appendFile,mkdir} from 'node:fs/promises';
+import {randomBytes} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import assert from 'node:assert/strict';
+const run=JSON.parse(await readFile(new URL('./latest.private.json',import.meta.url),'utf8'));
+assert.match(run.id,/^2026-[a-zA-Z0-9_-]+$/);
+const base=new URL(run.directory),data=new URL('postgres/',base),password=randomBytes(32).toString('hex');
+await writeFile(new URL('postgres-password.private.txt',base),password,{flag:'wx'});
+execFileSync('C:/Program Files/PostgreSQL/18/bin/initdb.exe',['-D',fileURLToPath(data),'-U','nexo_audit_owner','--auth=scram-sha-256','--encoding=UTF8','--locale=C','--no-instructions','--pwfile='+fileURLToPath(new URL('postgres-password.private.txt',base))],{windowsHide:true,stdio:'pipe'});
+await appendFile(new URL('postgresql.conf',data),"\n# Independent Nexo audit instance\nlisten_addresses='127.0.0.1'\nport=55439\nmax_connections=8\nshared_buffers='32MB'\nwork_mem='2MB'\nmaintenance_work_mem='16MB'\nlogging_collector=off\n");
+const config={id:run.id,data:fileURLToPath(data),host:'127.0.0.1',port:55439,user:'nexo_audit_owner',password,database:'postgres'};
+await writeFile(new URL('./postgres.private.json',import.meta.url),JSON.stringify(config,null,2),{flag:'wx'});
+execFileSync('C:/Program Files/PostgreSQL/18/bin/pg_ctl.exe',['-D',config.data,'-l',fileURLToPath(new URL('postgres.log',base)),'-w','-t','20','start'],{windowsHide:true,stdio:'pipe'});
+console.log(JSON.stringify({id:run.id,port:config.port,data:config.data,started:true}));

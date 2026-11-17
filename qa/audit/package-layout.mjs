@@ -1,0 +1,14 @@
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const dest=new URL('../../integration/audit-admin-changes/',import.meta.url);
+const path='src/styles/components/SaleFormModal.css';
+const bytes=await readFile(new URL('../integrated/admin/'+path,import.meta.url));
+const manifest=JSON.parse(await readFile(new URL('manifest.json',dest),'utf8'));
+if(manifest.files.some(f=>f.path===path))throw Error('Already packaged; inspect before replacing');
+const run=JSON.parse(await readFile(new URL('latest.private.json',import.meta.url),'utf8'));
+await writeFile(new URL('admin-manifest-before-layout.json',run.directory),JSON.stringify(manifest,null,2),{flag:'wx'});
+await mkdir(new URL('src/styles/components/',dest),{recursive:true});
+await writeFile(new URL(path,dest),bytes,{flag:'wx'});
+manifest.files.push({path,sha256:createHash('sha256').update(bytes).digest('hex'),size:bytes.length});
+await writeFile(new URL('manifest.json',dest),JSON.stringify(manifest,null,2));
+console.log('Added verified compact quantity stylesheet; previous manifest preserved');

@@ -1,0 +1,43 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile,mkdir,cp,readdir,lstat} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import path from 'node:path';
+import pg from '../qa/integrated/admin/server/node_modules/pg/lib/index.js';
+import {loadOperationalConfig} from '../../calcQuim-admin/server/src/config/operational.mjs';
+const root=process.cwd(),base='D:/ReactApps/calcQuim-admin';
+const candidate=JSON.parse(await readFile('integration/candidate-manifest.json'));
+const dir=path.join(root,'.artifacts','final-release-'+new Date().toISOString().replaceAll(/[:.]/g,'-'));await mkdir(dir);
+await writeFile(process.argv.includes('--cutover-backup-only')?'integration/cutover-backup.private.json':'integration/final-release.private.json',JSON.stringify({directory:dir},null,2));
+const stage=async(s,extra={})=>writeFile(path.join(dir,'checkpoint.json'),JSON.stringify({stage:s,at:new Date().toISOString(),...extra},null,2));
+const hash=b=>createHash('sha256').update(b).digest('hex');
+const git=(args,cwd=root)=>execFileSync('git',args,{cwd,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+await writeFile(path.join(dir,'git-mobile.txt'),git(['status','--short']));
+assert.equal(git(['-c','safe.directory='+base,'status','--short'],base).trim(),'','Review changed operational sources');
+for(const f of candidate.files)assert.equal(hash(await readFile(path.join(candidate.directory,'admin',f.path))),f.sha256);
+for(const f of candidate.mobile)assert.equal(hash(await readFile(path.join(candidate.directory,'mobile',f.path))),f.sha256);
+await stage('candidate-intact-backing-up-operational-code');
+await cp(base,path.join(dir,'previous-admin'),{recursive:true,filter:async p=>!(await lstat(p)).isSymbolicLink()&&!/(?:^|[\\/])(?:node_modules|\.git|artifacts|dist|backups|coverage)(?:[\\/]|$)/.test(p)});
+const walk=async d=>{let all=[];for(const e of await readdir(d,{withFileTypes:true})){const p=path.join(d,e.name);if(e.isDirectory())all.push(...await walk(p));else all.push(p);}return all;};
+const code=[];for(const p of await walk(path.join(dir,'previous-admin')))code.push({path:path.relative(path.join(dir,'previous-admin'),p),sha256:hash(await readFile(p))});
+await writeFile(path.join(dir,'previous-code.private.json'),JSON.stringify(code,null,2));
+await stage('operational-readonly-snapshot-and-dump');
+const config=await loadOperationalConfig();assert.equal(config.database.port,5432);assert.equal(config.database.database,'calcquim_operational');
+const pool=new pg.Pool({...config.database,application_name:'nexo-release-backup-readonly'}),client=await pool.connect();
+const fingerprint=async(c)=>{const tables=(await c.query("SELECT tablename FROM pg_tables WHERE schemaname='calcquim_operational' ORDER BY tablename")).rows;const out=[];for(const {tablename:t}of tables){assert.match(t,/^[a-zA-Z0-9_]+$/);const rows=(await c.query(`SELECT row_to_json(t)::text AS row FROM calcquim_operational."${t}" t ORDER BY row_to_json(t)::text COLLATE "C"`)).rows;out.push({table:t,count:rows.length,sha256:hash(rows.map(r=>r.row).join('\n'))});}return out;};
+let original;
+try{await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');const identity=(await client.query('SELECT current_database() db,inet_server_port() port,current_setting(\'transaction_read_only\') readonly')).rows[0];assert.equal(identity.port,5432);assert.equal(identity.readonly,'on');
+ original=await fingerprint(client);const migrations=(await client.query('SELECT version,checksum FROM calcquim_operational.schema_migrations ORDER BY version')).rows;await writeFile(path.join(dir,'operational-migrations.json'),JSON.stringify(migrations,null,2));
+ const snapshot=(await client.query('SELECT pg_export_snapshot() id')).rows[0].id;
+ execFileSync('C:/Program Files/PostgreSQL/18/bin/pg_dump.exe',['-h','127.0.0.1','-p','5432','-U',config.database.user,'-d',config.database.database,'--no-owner','--no-acl','--snapshot',snapshot,'-Fc','-f',path.join(dir,'operational.private.dump')],{env:{...process.env,PGPASSWORD:config.database.password},windowsHide:true,stdio:'pipe',timeout:120000});
+ await writeFile(path.join(dir,'backup-manifest.private.json'),JSON.stringify({database:identity.db,port:5432,sha256:hash(await readFile(path.join(dir,'operational.private.dump'))),tables:original},null,2));
+}finally{await client.query('ROLLBACK');client.release();await pool.end();}
+await stage('backup-created-restoring-independently');
+const qa=JSON.parse(await readFile('qa/audit/postgres.private.json'));assert.equal(qa.host,'127.0.0.1');assert.equal(qa.port,55439);
+const target='nexo_release_restore_'+Date.now();const owner=new pg.Pool({...qa,max:1});
+try{assert.equal((await owner.query('SELECT inet_server_port() p')).rows[0].p,55439);await owner.query(`CREATE DATABASE "${target}"`);}finally{await owner.end();}
+await writeFile(path.join(dir,'restore-target.private.json'),JSON.stringify({...qa,database:target},null,2));
+execFileSync('C:/Program Files/PostgreSQL/18/bin/pg_restore.exe',['-h','127.0.0.1','-p','55439','-U',qa.user,'-d',target,'--no-owner','--no-acl','--single-transaction','--exit-on-error',path.join(dir,'operational.private.dump')],{env:{...process.env,PGPASSWORD:qa.password},windowsHide:true,stdio:'pipe',timeout:120000});
+const restored=new pg.Pool({...qa,database:target,max:1});try{const c=await restored.connect();try{await c.query('BEGIN READ ONLY');assert.deepEqual(await fingerprint(c),original);await c.query('ROLLBACK');}finally{c.release();}}finally{await restored.end();}
+await writeFile(path.join(dir,'restore-verification.json'),JSON.stringify({restorable:true,targetPort:55439,targetDatabase:target,tables:original.length,rows:original.reduce((n,t)=>n+t.count,0),allTableFingerprintsMatch:true},null,2));
+await stage('backup-and-restore-verified-awaiting-migration-review',{restorable:true});console.log(JSON.stringify({directory:dir,restorable:true,tables:original.length}));

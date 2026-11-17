@@ -1,0 +1,75 @@
+{
+  "purpose": "QA corrections for review; no deployment or operational repository modification",
+  "files": [
+    {
+      "path": "src/components/HardwarePurchases.jsx",
+      "sha256": "1fded6d94d1140fa53e7bfbf8e8f8ed5b2af0f4679bd3b70ccb9bc91f67ce025",
+      "size": 7972
+    },
+    {
+      "path": "src/components/CommercialSaleForm.jsx",
+      "sha256": "b04a9f5aca594c305a8728633a9e3d87185c9110ce39cbcd0ff933d97f1c2619",
+      "size": 9325
+    },
+    {
+      "path": "src/components/LaundrySaleFields.jsx",
+      "sha256": "d4489524dbe4872bee11af27def2eaa982af2ae0ae9e99ebf0db3de20b97550d",
+      "size": 1737
+    },
+    {
+      "path": "src/domain/purchasePresentationLabel.mjs",
+      "sha256": "99e504b2b4d6f35136b02f2baf19c946a135f9abeb1adfd9e8b0d79245a6e3db",
+      "size": 310
+    },
+    {
+      "path": "src/domain/reportPayment.mjs",
+      "sha256": "ac48ac4cd5873f40a693f0d4c573e59923fe6c7f0062b8de9995ab396ccc5356",
+      "size": 660
+    },
+    {
+      "path": "src/domain/operationsReport.mjs",
+      "sha256": "f7600ae3aa2ac6928abcb517662dcb38cc545831a6e39f6b2510d85341a5764b",
+      "size": 10345
+    },
+    {
+      "path": "src/domain/hardwareCreation.mjs",
+      "sha256": "d0f0342bd715193111be31992efc75edf719645c808f859b125a496e0aa309c3",
+      "size": 4712
+    },
+    {
+      "path": "src/styles/components/SaleFormModal.css",
+      "sha256": "0439b6e0671c561c4a1aae32ed9ad8462583ea6a71abcc16ea98cbeddd40105b",
+      "size": 9054
+    },
+    {
+      "path": "server/src/mobile/router.mjs",
+      "sha256": "1b89de3dfce35eabf24f5c672f695d9fda305f42881dd87c2ccfeaaae5c0cfc8",
+      "size": 5033
+    },
+    {
+      "path": "server/src/services/dataset.mjs",
+      "sha256": "441e3e18473c093c54eb8c948b8bc8eac05bd22340332ab742d78c85dfcc6782",
+      "size": 9143
+    },
+    {
+      "path": "server/src/services/webPayment.mjs",
+      "sha256": "4dbe487c1968a6f3a14eea63028328ee9a0719282347d6d2a17166444e7c84d9",
+      "size": 4281
+    },
+    {
+      "path": "server/src/services/commands.mjs",
+      "sha256": "1531a1ea908587f8924047d08e9a6b954c33d49db3acc6c2b2bf4b978af71cdb",
+      "size": 13054
+    },
+    {
+      "path": "server/migrations/014_mobile_payment_policy.up.sql",
+      "sha256": "2bf62ff2fb7cb614459fee56400967592f7ee0ed40a9eeb3484db130da5715d1",
+      "size": 3037
+    },
+    {
+      "path": "server/migrations/014_mobile_payment_policy.down.sql",
+      "sha256": "0acc8a2c9ed0c2b913e64aed973b471850ed62a72e7b2bfaa53e8940f5eeec96",
+      "size": 3023
+    }
+  ]
+}

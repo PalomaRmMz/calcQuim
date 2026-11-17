@@ -1,3 +1,4 @@
+import ServiceOptions from '../components/ServiceOptions';
 import {canDiscardLocally} from '../domain/draftRecovery.mjs';
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -29,7 +30,7 @@ import {
   searchCommercial,
   specificChoices,
 } from "../domain/commercial.mjs";
-import { makeLine, money, total, repriceLines } from "../domain/sale.mjs";
+import { makeLine, money, payableTotal, repriceLines } from "../domain/sale.mjs";
 export { styles } from "../components/BrandUI";
 
 export default function QuickSaleScreen({ navigation, model: m, mainSections = false }) {
@@ -38,6 +39,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
     [tariffKey, setTariffKey] = useState(""),
     [value, setValue] = useState(""),
     [confirmedQuantity,setConfirmedQuantity]=useState(""),
+    [serviceAddons,setServiceAddons]=useState([]),[serviceDescription,setServiceDescription]=useState(""),
     [editingId, setEditingId] = useState(null),
     [notice, setNotice] = useState(""),
     [showSpecific, setShowSpecific] = useState(false),
@@ -49,9 +51,9 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
     s = m.state;
   useEffect(()=>{
     if(!s)return;
-    if(!restoredCapture.current){restoredCapture.current=true;const c=s.capture;if(c&&canDiscardLocally(s.draft)){setQuery(c.query||'');setSelection(c.selection||null);setTariffKey(c.tariffKey||'');setValue(c.value||'');setConfirmedQuantity(c.confirmedQuantity||'');setEditingId(c.editingId||null);}return;}
-    if(canDiscardLocally(s.draft))m.capture({query,selection,tariffKey,value,confirmedQuantity,editingId}).catch(()=>setNotice('No se pudo guardar la captura local. Conserva esta pantalla y reintenta.'));
-  },[!!s,query,selection,tariffKey,value,confirmedQuantity,editingId]);
+    if(!restoredCapture.current){restoredCapture.current=true;const c=s.capture;if(c&&canDiscardLocally(s.draft)){setQuery(c.query||'');setSelection(c.selection||null);setTariffKey(c.tariffKey||'');setValue(c.value||'');setConfirmedQuantity(c.confirmedQuantity||'');setEditingId(c.editingId||null);setServiceAddons(c.serviceAddons||[]);setServiceDescription(c.serviceDescription||'');}return;}
+    if(canDiscardLocally(s.draft))m.capture({query,selection,tariffKey,value,confirmedQuantity,editingId,serviceAddons,serviceDescription}).catch(()=>setNotice('No se pudo guardar la captura local. Conserva esta pantalla y reintenta.'));
+  },[!!s,query,selection,tariffKey,value,confirmedQuantity,editingId,serviceAddons,serviceDescription]);
   const choices = useMemo(() => catalogChoices(s?.catalog?.data), [s?.catalog]);
   const primary = useMemo(
     () => officialCommercialChoices(s?.catalog),
@@ -70,7 +72,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
   let preview = null,pricingMessage="";
   try {
     if (choice && value) {
-      const line = makeLine(choice, tariff, s.mode, value, editingId || 'preview',confirmedQuantity);
+      const line = makeLine(choice, tariff, s.mode, value, editingId || 'preview',confirmedQuantity,{addons:serviceAddons,description:serviceDescription});
       const lines=editingId?s.draft.lines.map(old=>old.id===editingId?line:old):[...s.draft.lines,line];
       preview=repriceLines(lines).find(row=>row.id===line.id);
     }
@@ -102,7 +104,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
     requestAnimationFrame(() => valueRef.current?.focus());
   }
   function reset() {
-    setSelection(null);
+    setSelection(null);setServiceAddons([]);setServiceDescription("");
     setTariffKey("");
     setValue("");setConfirmedQuantity("");
     setEditingId(null);
@@ -110,8 +112,10 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
     setShowSpecific(false);
     setNotice("");
   }
-  function select(c) {
-    if(c.tariffs.some(t=>t.presentation)&&s.mode!=='quantity')m.mode('quantity');
+  function select(c,requestedMode=null) {
+    const nextMode=requestedMode??(c.tariffs.some(t=>t.presentation||t.service)?(c.tariffs[0].service?.priceMode==='custom'?'amount':'quantity'):null);
+    const modeUpdate=nextMode&&nextMode!==s.mode?m.mode(nextMode):Promise.resolve();
+    setServiceAddons(c.tariffs[0].service?.loadPricing?.options[0]?.addons||[]);setServiceDescription('');
     setSelection(c.key);
     setTariffKey(c.tariffs.length === 1 ? c.tariffs[0].key : "");
     setValue("");setConfirmedQuantity("");
@@ -120,7 +124,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
     setShowSpecific(false);
     setNotice("");
     scrollRef.current?.scrollTo({ y: 0, animated: true });
-    focusValue();
+    focusValue();return modeUpdate;
   }
   async function add() {
     try {
@@ -130,7 +134,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
         s.mode,
         value,
         editingId || randomUUID(),
-        confirmedQuantity,
+        confirmedQuantity,{addons:serviceAddons,description:serviceDescription},
       );
       if (await m.add(line, editingId)) {
         reset();
@@ -153,11 +157,10 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
       );
       return;
     }
-    select(c);
+    await select(c,line.entryMode);
     setTariffKey(line.tariffKey);
     setValue(line.capturedValue);setConfirmedQuantity(line.confirmedQuantity??"");
-    setEditingId(line.id);
-    await m.mode(line.entryMode);
+    setEditingId(line.id);setServiceAddons((line.addons||[]).map(a=>a.id));setServiceDescription(line.description||"");
     focusValue();
   }
   function result(c, specific = false) {
@@ -166,7 +169,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
       <Pressable
         key={c.key}
         accessibilityRole="button"
-        accessibilityLabel={`${c.name}, ${c.context}, ${money(t.price)} por ${t.unit}`}
+        accessibilityLabel={`${c.name}, ${c.context}, ${t.service?.priceMode==='custom'?'Importe por cotizar':money(t.price)+' por '+t.unit}`}
         disabled={locked || m.busy}
         onPress={() => select(c)}
         style={styles.result}
@@ -174,8 +177,8 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
         <View style={styles.row}>
           <Text style={styles.resultName}>{c.name}</Text>
           <Text style={styles.price}>
-            {money(t.price)}
-            <Text style={{ fontWeight: "400", fontSize: 12 }}> / {t.unit}</Text>
+            {t.service?.priceMode==='custom'?'Por cotizar':money(t.price)}
+            {t.service?.priceMode!=='custom'&&<Text style={{ fontWeight: "400", fontSize: 12 }}> / {t.unit}</Text>}
           </Text>
         </View>
         <Text style={styles.muted}>
@@ -362,10 +365,10 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
                       fontWeight: "800",
                     }}
                   >
-                    {money(tariff.price)}{" "}
-                    <Text style={{ fontSize: 13, fontWeight: "500" }}>
+                    {tariff.service?.priceMode==='custom'?'Importe por cotizar':money(tariff.price)}{" "}
+                    {tariff.service?.priceMode!=='custom'&&<Text style={{ fontSize: 13, fontWeight: "500" }}>
                       / {tariff.unit}
-                    </Text>
+                    </Text>}
                   </Text>
                 ) : (
                   <View style={styles.wrap}>
@@ -392,11 +395,12 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
                     ))}
                   </View>
                 )}
+                {tariff?.service&&<ServiceOptions service={tariff.service} addons={serviceAddons} onAddons={setServiceAddons} description={serviceDescription} onDescription={setServiceDescription} disabled={locked||m.busy}/>}
                 <View style={[styles.row, { gap: 6 }]}>
                   {[
                     ["quantity", "Por cantidad"],
                     ["amount", "Por importe"],
-                  ].filter(([mode])=>!tariff?.presentation||mode==='quantity').map(([mode, label]) => (
+                  ].filter(([mode])=>tariff?.service?mode===(tariff.service.priceMode==='custom'?'amount':'quantity'):!tariff?.presentation||mode==='quantity').map(([mode, label]) => (
                     <Pressable
                       key={mode}
                       accessibilityRole="button"
@@ -462,11 +466,11 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
                     {s.mode === "amount" ? "MXN" : tariff?.unit}
                   </Text>
                 </View>
-                {pricingMessage&&<Text style={styles.danger}>{pricingMessage}</Text>}
+                {pricingMessage&&<Text accessibilityRole="alert" style={styles.danger}>{pricingMessage}</Text>}
                 {s.mode==='amount'&&tariff?.pricingVersion&&(pricingMessage||confirmedQuantity)&&<View><Text style={styles.muted}>Cantidad física para resolver tarifa ({tariff.unit}). El importe se conserva.</Text><TextInput accessibilityLabel="Cantidad física confirmada" keyboardType="decimal-pad" value={confirmedQuantity} onChangeText={setConfirmedQuantity} style={styles.input}/></View>}
                 {preview && (
                   <Text style={styles.muted}>
-                    {preview.entryMode === "amount" ? "≈ " : ""}
+                    {preview.entryMode === "amount" && preview.lineType!=='service' ? "≈ " : ""}
                     {Number(preview.quantity.toFixed(6))} {preview.unit} ·{" "}
                     <Text style={styles.price}>{money(preview.amount)}</Text>
                     {preview.priceTier === "wholesale" ? ` · Mayoreo ${money(preview.price)} / ${preview.unit}` : ""}
@@ -498,11 +502,12 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
                   style={[styles.result, { paddingVertical: 9 }]}
                 >
                   <View style={styles.row}>
-                    <Text style={styles.resultName}>{line.name}</Text>
+                    <Text style={styles.resultName}>{line.activity==='JARCERIA'?`${line.context?.replace(/^Jarcería · /,'')} · ${line.name}`:line.name}</Text>
                     <Text style={styles.price}>{money(line.amount)}</Text>
                   </View>
+                  {line.lineType==='service'&&<Text style={styles.muted}>{line.laundryPricingSnapshot?.label||line.description||'Servicio de lavandería'}</Text>}
                   <Text style={styles.muted}>
-                    {line.entryMode === "amount" ? "≈ " : ""}
+                    {line.entryMode === "amount" && line.lineType!=='service' ? "≈ " : ""}
                     {Number(line.quantity.toFixed(6))} {line.unit} ·{" "}
                     {money(line.price)} / {line.unit}
                     {line.priceTier === "wholesale" ? " · Tarifa de mayoreo" : ""}
@@ -585,7 +590,7 @@ export default function QuickSaleScreen({ navigation, model: m, mainSections = f
         </ScrollView>
         <View style={styles.footer}>
           <TotalCard
-            total={total(s.draft.lines)}
+            total={payableTotal(s.draft.lines,s.draft.payment,s.catalog)}
             compact
             pendingAmount={preview?.amount}
           />

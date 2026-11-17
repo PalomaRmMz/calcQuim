@@ -1,3 +1,11 @@
+> Activación operativa completada en ventana autorizada: [informe final](../../integration/FINAL-REPORT.md) y [checkpoint](../../integration/FINAL-PROGRESS.md). Web/backend activos,014aplicada,APK verificada; teléfono no intervenido.
+
+> Cierre final posterior: [informe](../../integration/FINAL-REPORT.md), [checkpoint](../../integration/FINAL-PROGRESS.md) y [ventana/recuperación](../../integration/FINAL-RECOVERY.md). Producción sin activar; APK final compilada y verificada. No repetir la auditoría.
+
+> Integración candidata posterior completada y validada: [informe](../../integration/CANDIDATE-REPORT.md) y [checkpoint](../../integration/CANDIDATE-PROGRESS.md). No repetir operaciones de auditoría.
+
+> Continuación del 15/11: [cierre funcional](../audit/FUNCTIONAL-REPORT.md) y [paquete selectivo posterior](../../integration/functional-admin-changes/README.md). La auditoría actual usa la instancia independiente 55439; los puertos/esquemas descritos debajo corresponden a la fase histórica.
+
 # Nexo integrado: entrega de desarrollo y QA
 
 14 de noviembre de 2026 · rama `dev` · sin commit, push, merge, despliegue ni APK definitiva.

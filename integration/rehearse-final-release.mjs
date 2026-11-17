@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';import {readFile,writeFile,cp,lstat,symlink} from 'node:fs/promises';import path from 'node:path';import {pathToFileURL} from 'node:url';import {createHash} from 'node:crypto';
+import pg from '../qa/integrated/admin/server/node_modules/pg/lib/index.js';
+const {directory:dir}=JSON.parse(await readFile('integration/final-release.private.json'));
+const candidate=JSON.parse(await readFile('integration/candidate-manifest.json'));
+const admin=path.join(dir,'prepared-admin');
+await cp(path.join(candidate.directory,'admin'),admin,{recursive:true,filter:async p=>!(await lstat(p)).isSymbolicLink()&&!/(?:^|[\\/])(?:node_modules|\.candidate-cache)(?:[\\/]|$)/.test(p)});
+await symlink(path.join(candidate.directory,'admin/node_modules'),path.join(admin,'node_modules'),'junction');await symlink(path.join(candidate.directory,'admin/server/node_modules'),path.join(admin,'server/node_modules'),'junction');
+// Explicit activation switches; existing credential-owner binding remains mandatory.
+const router=path.join(admin,'server/src/mobile/router.mjs');let s=await readFile(router,'utf8');
+s=s.replace("  const r = Router();","  const r = Router();\n  const operationalCommerce = mode === 'operational' && process.env.CALCQUIM_MOBILE_OPERATIONAL_AUTHORIZED === 'yes' && process.env.CALCQUIM_MOBILE_COMMERCE_AUTHORIZED === 'yes' && inventoryOwner(token) !== null;\n  const stabilityPrincipal = mode === 'operational' ? (operationalCommerce ? {...inventoryOwner(token),permissions:[...inventoryOwner(token).permissions,'sales:edit','sales:reconcile']} : null) : qaPrincipal;");
+s=s.replace("mode!=='operational'&&req.get", "(mode!=='operational'||operationalCommerce)&&req.get").replace("mode!=='operational'&&s.webPaymentPolicy", "(mode!=='operational'||operationalCommerce)&&s.webPaymentPolicy").replace("if(mode==='operational'&&(body?", "if(mode==='operational'&&!operationalCommerce&&(body?").replace('installStability(r,service,{principal:qaPrincipal})','installStability(r,service,{principal:stabilityPrincipal})');
+assert.ok(s.includes('!operationalCommerce&&(body?'));await writeFile(router,s);
+await writeFile(path.join(dir,'activation-code-delta.json'),JSON.stringify({files:[{path:'server/src/mobile/router.mjs',sha256:createHash('sha256').update(s).digest('hex')}],reason:'Explicit operational activation of already validated commerce and stability; owner credential binding retained; default disabled'},null,2));
+const target=JSON.parse(await readFile(path.join(dir,'restore-target.private.json')));assert.equal(target.port,55439);assert.match(target.database,/^nexo_release_restore_\d+$/);
+const pool=new pg.Pool({...target,max:1});
+const before=(await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='calcquim_operational' AND tablename<>'schema_migrations' ORDER BY tablename")).rows;
+const fingerprints=async()=>{const out=[];for(const {tablename:t}of before){const rows=(await pool.query(`SELECT row_to_json(t)::text row FROM calcquim_operational."${t}" t ORDER BY row_to_json(t)::text COLLATE "C"`)).rows;out.push({table:t,hash:createHash('sha256').update(rows.map(r=>r.row).join('\n')).digest('hex')});}return out;};
+try{assert.equal((await pool.query('SELECT inet_server_port() p')).rows[0].p,55439);const original=await fingerprints();const {migrate}=await import(pathToFileURL(path.join(admin,'server/src/db/migrate.mjs')));await migrate(pool,'calcquim_operational');assert.deepEqual(await fingerprints(),original);
+ const versions=(await pool.query('SELECT version FROM calcquim_operational.schema_migrations ORDER BY version')).rows.map(r=>r.version);assert.equal(versions.at(-1),14);
+ const {createDatasetService}=await import(pathToFileURL(path.join(admin,'server/src/services/dataset.mjs')));const service=createDatasetService(pool,'calcquim_operational','operational');const data=await service.read(),inventory=await service.inventory();
+ await writeFile(path.join(dir,'restored-business-check.json'),JSON.stringify({migrationAppliedOnlyToRestore:[14],versions,businessTablesUnchanged:true,revision:data.revision,products:data.data.products.length,sales:data.data.sales.length,inventoryAccounts:inventory.products.length,webPaymentPolicy:data.webPaymentPolicy??null,unknownInventory:inventory.products.filter(p=>p.quantity==null).length},null,2));
+}finally{await pool.end();}
+await writeFile(path.join(dir,'checkpoint.json'),JSON.stringify({stage:'restored-real-data-migration14-rehearsed-code-prepared-not-activated',at:new Date().toISOString(),productionModified:false},null,2));console.log(JSON.stringify({preparedAdmin:admin,migration14Rehearsed:true,businessTablesUnchanged:true,productionModified:false}));

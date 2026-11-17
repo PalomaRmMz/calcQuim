@@ -7,12 +7,12 @@ import {randomUUID} from 'expo-crypto';
 import {loadMobileState,saveMobileState,readLegacyData} from '../services/mobileStorage';
 import {createMobileApi} from '../services/mobileApi.mjs';
 import {createMobileSession} from '../domain/mobileSession.mjs';
-import {EMULATOR_QA} from '../domain/persistence.mjs';
+import {EMULATOR_QA,scopedQaKey} from '../domain/persistence.mjs';
 import {productCreationAttempts} from '../services/productCreationStorage';
 import {pendingProductCreation} from '../domain/productCreationSubmission.mjs';
 import {inventoryAttempts} from '../services/inventoryStorage';
 import {unresolvedInventory} from '../domain/inventorySubmission.mjs';
-const credentialKey=EMULATOR_QA?'nexo.integrated.token.qa':'calcquim.mobile.token';
+const credentialKey=EMULATOR_QA?scopedQaKey('nexo.integrated.token.qa'):'calcquim.mobile.token';
 export function useMobileSale(){
  const session=useRef(null),[view,setView]=useState({state:null,token:'',busy:false,error:'',activity:'',connectionStatus:'cached'}),[legacy,setLegacy]=useState(null);
  useEffect(()=>{

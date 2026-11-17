@@ -1,4 +1,4 @@
-export const hardwareIdentity = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+export const hardwareIdentity = value => String(value ?? '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
   .replace(/(\d)\s*(ml|kg|g|l)\b/g,'$1 $2').replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).sort().join(' ');
 export function suggestHardwareCategory(name, categories) {
   const n=hardwareIdentity(name);

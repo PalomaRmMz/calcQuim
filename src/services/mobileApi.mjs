@@ -17,7 +17,7 @@ export function createMobileApi(base, token, fetcher = fetch, timeoutMs=12000) {
       const body = await response.json();
       if (!response.ok) {
         const error = new Error(body.error?.message || `Error del servidor (${response.status}).`);
-        error.definitive = [400, 401, 403, 412, 422].includes(response.status);
+        error.definitive = [400, 401, 403, 412, 422].includes(response.status) || response.status===409&&body.error?.code==='MOBILE_PAYMENT_CLIENT_UPDATE_REQUIRED';
         error.status = response.status;
         error.code = body.error?.code;
         throw error;

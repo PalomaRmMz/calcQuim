@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {businessTimestamp} from '../domain/businessTime.mjs';
 import {
   View,
   Text,
@@ -58,7 +59,7 @@ export default function ConnectionScreen({ model: m, navigation }) {
           <Text style={styles.muted}>
             Dirección guardada: {m.state?.baseUrl}
             {m.state?.catalog
-              ? ` · Catálogo actualizado ${new Date(m.state.catalog.syncedAt).toLocaleString("es-MX")}`
+              ? ` · Catálogo actualizado ${businessTimestamp(m.state.catalog.syncedAt)}`
               : ""}
           </Text>
           <Text style={styles.muted}>
